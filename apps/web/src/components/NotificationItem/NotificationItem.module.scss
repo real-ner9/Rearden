@@ -1,0 +1,82 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: $space3;
+  padding: $space3;
+  border-radius: $radiusMd;
+  cursor: pointer;
+  transition: background $transitionFast;
+  margin-bottom: $space1;
+
+  &:hover {
+    background: $glassBgHover;
+  }
+}
+
+.unread {
+  border-left: 3px solid $accentPurple;
+  background: color-mix(in srgb, $accentPurple 8%, $bgBase);
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: $radiusSm;
+  background: $bgSurface;
+  color: $accentPurple;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.message {
+  font-size: $fontSize13;
+  font-weight: 600;
+  color: $textPrimary;
+  @include truncate(1);
+}
+
+.detail {
+  font-size: $fontSize12;
+  color: $textSecondary;
+  margin-top: 2px;
+  @include truncate(2);
+}
+
+.time {
+  font-size: 11px;
+  color: $textMuted;
+  margin-top: 2px;
+  display: block;
+}
+
+.dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: $radiusSm;
+  color: $textMuted;
+  opacity: 0;
+  transition: all $transitionFast;
+
+  .item:hover & {
+    opacity: 1;
+  }
+
+  &:hover {
+    color: $textPrimary;
+    background: $glassBgHover;
+  }
+}

@@ -1,0 +1,33 @@
+@use "../../styles/variables" as *;
+
+.wrapper {
+  display: flex;
+  padding: 2px $space4;
+}
+
+.bubble {
+  display: flex;
+  align-items: center;
+  gap: $space2;
+  padding: $space2 $space3;
+  background: $bgSurface;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusMd;
+}
+
+.label {
+  font-size: $fontSize12;
+  color: $textMuted;
+}
+
+.dots {
+  display: flex;
+  gap: 3px;
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: $radiusFull;
+  background: $textMuted;
+}

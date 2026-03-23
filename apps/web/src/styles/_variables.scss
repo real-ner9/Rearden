@@ -1,0 +1,94 @@
+// Colors — bridged to CSS custom properties (see _tokens.scss)
+$bgDeep: var(--color-bg);
+$bgBase: var(--color-bg-base);
+$bgElevated: var(--color-structure);
+$bgSurface: var(--color-surface);
+
+$textPrimary: var(--color-text);
+$textSecondary: var(--color-text-secondary);
+$textMuted: var(--color-text-muted);
+
+$accentPurple: var(--color-accent);
+$accentPurpleLight: var(--color-accent-light);
+$accentPurpleDark: var(--color-accent-dark);
+$accentTeal: var(--color-accent2);
+$accentTealLight: var(--color-accent2-light);
+
+$danger: var(--color-danger);
+$success: var(--color-success);
+$warning: var(--color-warning);
+
+// Glass (now solid panels)
+$glassBg: var(--glass-bg);
+$glassBgHover: var(--glass-bg-hover);
+$glassBorder: var(--glass-border);
+$glassBorderHover: var(--glass-border-hover);
+$glassBlur: 0px; // no blur in light theme
+
+// Spacing
+$space1: 4px;
+$space2: 8px;
+$space3: 12px;
+$space4: 16px;
+$space5: 20px;
+$space6: 24px;
+$space8: 32px;
+$space10: 40px;
+$space12: 48px;
+$space16: 64px;
+$space20: 80px;
+
+// Radii — subtle, not pill
+$radiusSm: 4px;
+$radiusMd: 6px;
+$radiusLg: 8px;
+$radiusXl: 10px;
+$radiusFull: 6px;
+
+// Shadows
+$shadowSm: var(--shadow-sm);
+$shadowMd: var(--shadow-md);
+$shadowLg: var(--shadow-lg);
+$shadowGlow: var(--shadow-glow);
+$shadowTealGlow: var(--shadow-accent2-glow);
+
+// Typography — IBM Plex Mono (monospace everywhere)
+$fontFamily: "IBM Plex Mono", "Menlo", monospace;
+$fontPixel: "IBM Plex Mono", monospace;
+$fontSize12: 0.75rem;
+$fontSize13: 0.8125rem;
+$fontSize14: 0.875rem;
+$fontSize16: 1rem;
+$fontSize18: 1.125rem;
+$fontSize20: 1.25rem;
+$fontSize24: 1.5rem;
+$fontSize32: 2rem;
+$fontSize40: 2.5rem;
+$fontSize48: 3rem;
+$fontSize64: 4rem;
+
+// Breakpoints
+$bpMobile: 480px;
+$bpTablet: 768px;
+$bpDesktop: 1024px;
+$bpWide: 1280px;
+
+// Layout
+$navbarHeight: 64px;
+$mobileNavHeight: 56px;
+$maxWidth: 1200px;
+$sidebarWidth: 280px;
+
+// Tactile — 3D depth
+$pressScale: 0.95;
+$shadowInsetPress: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+$depth3d: 3px;
+$depthColor: var(--button-3d-shadow);
+
+// Border
+$borderWidth: 1.5px;
+
+// Transitions — snappier
+$transitionFast: 120ms ease;
+$transitionBase: 200ms ease;
+$transitionSlow: 350ms ease;

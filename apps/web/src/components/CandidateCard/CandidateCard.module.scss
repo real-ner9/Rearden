@@ -1,0 +1,118 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.card {
+  border-radius: $radiusLg;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all $transitionBase;
+  background: $bgBase;
+
+  &:hover {
+    box-shadow: $shadowGlow;
+
+    .thumbnail img {
+      transform: scale(1.05);
+    }
+  }
+
+  &:focus-visible {
+    @include focusRing;
+  }
+}
+
+.thumbnail {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: $bgSurface;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform $transitionSlow;
+  }
+}
+
+.placeholder {
+  width: 100%;
+  height: 100%;
+  background: $bgSurface;
+}
+
+.playIcon {
+  position: absolute;
+  top: $space3;
+  left: $space3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  backdrop-filter: blur(4px);
+}
+
+.scoreBadge {
+  position: absolute;
+  top: $space3;
+  right: $space3;
+}
+
+.gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60%;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+  pointer-events: none;
+}
+
+.overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: $space4;
+  z-index: 1;
+}
+
+.name {
+  font-size: $fontSize16;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+  @include truncate(1);
+}
+
+.title {
+  font-size: $fontSize13;
+  color: rgba(255, 255, 255, 0.7);
+  margin: $space1 0 0;
+  @include truncate(1);
+}
+
+.skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space1;
+  margin-top: $space2;
+}
+
+.skillChip {
+  font-size: $fontSize12;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.matchReason {
+  font-size: $fontSize12;
+  color: rgba(255, 255, 255, 0.55);
+  margin: $space2 0 0;
+  @include truncate(2);
+}

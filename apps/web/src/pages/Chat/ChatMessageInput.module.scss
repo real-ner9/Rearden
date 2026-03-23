@@ -1,0 +1,67 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.inputArea {
+  display: flex;
+  align-items: flex-end;
+  gap: $space2;
+  padding: $space3 $space4;
+  border-top: $borderWidth solid $glassBorder;
+  background: $glassBg;
+  flex-shrink: 0;
+}
+
+.textarea {
+  flex: 1;
+  resize: none;
+  padding: $space2 $space3;
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusSm;
+  font-size: $fontSize14;
+  font-family: $fontFamily;
+  color: $textPrimary;
+  outline: none;
+  line-height: 1.4;
+  min-height: 36px;
+  max-height: 120px;
+  transition: border-color $transitionFast;
+
+  &::placeholder {
+    color: $textMuted;
+  }
+
+  &:focus {
+    border-color: $accentPurple;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  @include customScrollbar;
+}
+
+.sendButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: $radiusMd;
+  background: $accentPurple;
+  color: #fff;
+  flex-shrink: 0;
+  @include button3d;
+  transition: opacity $transitionFast;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled):hover {
+    opacity: 0.9;
+  }
+}

@@ -1,0 +1,36 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-right: $borderWidth solid $glassBorder;
+  background: $glassBg;
+}
+
+.header {
+  padding: $space4 $space4 $space2;
+}
+
+.title {
+  font-size: $fontSize18;
+  font-weight: 600;
+  color: $accentTeal;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.list {
+  flex: 1;
+  overflow-y: auto;
+  padding: $space1 0;
+  @include customScrollbar;
+}
+
+.empty {
+  text-align: center;
+  color: $textMuted;
+  font-size: $fontSize13;
+  padding: $space8 $space4;
+}

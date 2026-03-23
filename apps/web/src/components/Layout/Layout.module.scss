@@ -1,0 +1,30 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  padding-top: $navbarHeight;
+
+  @include tablet {
+    padding-top: 0;
+    padding-bottom: $mobileNavHeight;
+  }
+}
+
+.feedBody {
+  @include tablet {
+    padding-bottom: 0;
+  }
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+}

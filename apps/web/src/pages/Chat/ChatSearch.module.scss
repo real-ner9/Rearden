@@ -1,0 +1,36 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.searchWrapper {
+  position: relative;
+  padding: $space3 $space4;
+}
+
+.searchIcon {
+  position: absolute;
+  left: $space6;
+  top: 50%;
+  transform: translateY(-50%);
+  color: $textMuted;
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  padding: $space2 $space3 $space2 $space8;
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusSm;
+  font-size: $fontSize13;
+  color: $textPrimary;
+  outline: none;
+  transition: border-color $transitionFast;
+
+  &::placeholder {
+    color: $textMuted;
+  }
+
+  &:focus {
+    border-color: $accentPurple;
+  }
+}

@@ -1,0 +1,113 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.sidebar {
+  width: $sidebarWidth;
+  flex-shrink: 0;
+  position: sticky;
+  top: $navbarHeight;
+  height: calc(100vh - $navbarHeight);
+  display: flex;
+  flex-direction: column;
+  border-left: $borderWidth solid $glassBorder;
+  background: $glassBg;
+  overflow: hidden;
+
+  @include tablet {
+    display: none;
+  }
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  padding: $space4;
+  max-height: 45%;
+  overflow-y: auto;
+  @include customScrollbar;
+}
+
+.chatSection {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  padding: $space4;
+  overflow-y: auto;
+  @include customScrollbar;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $space3;
+}
+
+.sectionTitle {
+  font-size: $fontSize12;
+  font-weight: 600;
+  color: $accentTeal;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.section > .sectionTitle {
+  margin-bottom: $space3;
+}
+
+.openLink {
+  font-size: $fontSize12;
+  font-weight: 500;
+  color: $accentPurple;
+  transition: opacity $transitionFast;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.divider {
+  height: $borderWidth;
+  background: $glassBorder;
+  flex-shrink: 0;
+}
+
+.placeholder {
+  font-size: $fontSize13;
+  color: $textMuted;
+  text-align: center;
+  padding: $space8 0;
+}
+
+// Mobile drawer
+.overlay {
+  display: none;
+
+  @include tablet {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 200;
+  }
+}
+
+.drawer {
+  display: none;
+
+  @include tablet {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: $sidebarWidth;
+    max-width: 85vw;
+    background: $glassBg;
+    border-left: $borderWidth solid $glassBorder;
+    z-index: 201;
+    padding-top: $navbarHeight;
+  }
+}

@@ -1,0 +1,44 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $space2;
+}
+
+.count {
+  font-size: $fontSize12;
+  font-weight: 600;
+  color: $accentPurple;
+}
+
+.markAll {
+  font-size: 11px;
+  color: $textMuted;
+  transition: color $transitionFast;
+
+  &:hover {
+    color: $textPrimary;
+  }
+}
+
+.list {
+  flex: 1;
+  overflow-y: auto;
+  @include customScrollbar;
+}
+
+.empty {
+  text-align: center;
+  color: $textMuted;
+  font-size: $fontSize13;
+  padding: $space6 0;
+}

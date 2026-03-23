@@ -1,0 +1,71 @@
+@use "tokens";
+@use "variables" as *;
+@use "animations";
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-family: $fontFamily;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100vh;
+  color: $textPrimary;
+  background: $bgDeep;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+  color: inherit;
+}
+
+img,
+video {
+  max-width: 100%;
+  display: block;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+::selection {
+  background: color-mix(in srgb, $accentPurple 30%, transparent);
+  color: $textPrimary;
+}
+
+:focus-visible {
+  outline: 2px solid $accentPurple;
+  outline-offset: 2px;
+}

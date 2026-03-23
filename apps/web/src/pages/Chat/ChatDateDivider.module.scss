@@ -1,0 +1,17 @@
+@use "../../styles/variables" as *;
+
+.divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space3 $space4;
+}
+
+.label {
+  font-size: $fontSize12;
+  color: $textMuted;
+  background: $bgSurface;
+  border: $borderWidth solid $glassBorder;
+  padding: $space1 $space3;
+  border-radius: $radiusSm;
+}

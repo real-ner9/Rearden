@@ -1,0 +1,19 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $space4;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.empty {
+  padding: $space10 0;
+  text-align: center;
+  color: $textMuted;
+  font-size: $fontSize14;
+}

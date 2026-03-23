@@ -1,0 +1,34 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radiusSm;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all $transitionFast;
+}
+
+.sm {
+  font-size: $fontSize12;
+  padding: 2px $space2;
+}
+
+.md {
+  font-size: $fontSize13;
+  padding: $space1 $space3;
+}
+
+.default {
+  background: $bgSurface;
+  border: $borderWidth solid $glassBorder;
+  color: $textSecondary;
+}
+
+.match {
+  background: $accentPurple;
+  color: #fff;
+  border: $borderWidth solid transparent;
+}

@@ -1,0 +1,12 @@
+{
+  "name": "@rearden/types",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "devDependencies": {
+    "@rearden/tsconfig": "*",
+    "typescript": "5.9.2"
+  }
+}

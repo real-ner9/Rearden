@@ -1,0 +1,87 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.card {
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusMd;
+  padding: $space5;
+  display: flex;
+  flex-direction: column;
+  gap: $space3;
+  box-shadow: $shadowSm;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $space3;
+
+  @include mobile {
+    flex-direction: column;
+  }
+}
+
+.title {
+  font-size: $fontSize16;
+  font-weight: 600;
+  color: $textPrimary;
+}
+
+.badge {
+  flex-shrink: 0;
+  padding: $space1 $space2;
+  font-size: $fontSize12;
+  font-weight: 500;
+  border-radius: $radiusSm;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.fulltime {
+  background: rgba(0, 128, 0, 0.08);
+  color: $success;
+  border: 1px solid rgba(0, 128, 0, 0.2);
+}
+
+.parttime {
+  background: rgba(0, 100, 200, 0.08);
+  color: $accentPurple;
+  border: 1px solid rgba(0, 100, 200, 0.2);
+}
+
+.contract {
+  background: rgba(200, 150, 0, 0.08);
+  color: $warning;
+  border: 1px solid rgba(200, 150, 0, 0.2);
+}
+
+.freelance {
+  background: rgba(128, 0, 200, 0.08);
+  color: $accentPurple;
+  border: 1px solid rgba(128, 0, 200, 0.2);
+}
+
+.description {
+  font-size: $fontSize14;
+  line-height: 1.6;
+  color: $textSecondary;
+}
+
+.meta {
+  display: flex;
+  gap: $space4;
+}
+
+.location {
+  display: flex;
+  align-items: center;
+  gap: $space1;
+  font-size: $fontSize13;
+  color: $textMuted;
+
+  svg {
+    flex-shrink: 0;
+  }
+}

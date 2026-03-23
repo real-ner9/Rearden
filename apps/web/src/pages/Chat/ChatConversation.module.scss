@@ -1,0 +1,7 @@
+@use "../../styles/variables" as *;
+
+.conversation {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}

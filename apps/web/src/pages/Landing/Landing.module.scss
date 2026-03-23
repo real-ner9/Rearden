@@ -1,0 +1,253 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.landing {
+  min-height: 100vh;
+}
+
+.hero {
+  position: relative;
+  padding: $space20 0 $space16;
+  overflow: hidden;
+
+  @include tablet {
+    padding: $space12 0 $space10;
+  }
+
+  @include mobile {
+    padding: $space8 0 $space6;
+  }
+}
+
+.heroContent {
+  @include container;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.badge {
+  display: inline-block;
+  padding: $space2 $space4;
+  @include raisedButton;
+  border-radius: $radiusMd;
+  font-size: $fontSize13;
+  color: $accentTeal;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: $space8;
+
+  @include mobile {
+    margin-bottom: $space5;
+    font-size: $fontSize12;
+  }
+}
+
+.heading {
+  font-size: $fontSize64;
+  font-weight: 800;
+  line-height: 1.1;
+  max-width: 800px;
+  letter-spacing: -1.5px;
+  color: $accentTeal;
+
+  @include tablet {
+    font-size: $fontSize40;
+  }
+
+  @include mobile {
+    font-size: $fontSize32;
+  }
+}
+
+.gradient {
+  color: $accentPurple;
+}
+
+.strikethrough {
+  text-decoration: line-through;
+  color: $textMuted;
+  text-decoration-color: $textMuted;
+}
+
+.subheading {
+  font-size: $fontSize18;
+  color: $textSecondary;
+  max-width: 600px;
+  line-height: 1.6;
+  margin-top: $space6;
+
+  @include tablet {
+    font-size: $fontSize16;
+  }
+
+  @include mobile {
+    font-size: $fontSize14;
+    margin-top: $space4;
+  }
+}
+
+.ctas {
+  display: flex;
+  gap: $space4;
+  margin-top: $space10;
+
+  @include mobile {
+    flex-direction: column;
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+.heroGlow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(124, 133, 208, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.features {
+  padding: $space16 0;
+
+  @include mobile {
+    padding: $space8 0;
+  }
+}
+
+.featuresGrid {
+  @include container;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $space6;
+
+  @include tablet {
+    grid-template-columns: 1fr;
+    gap: $space4;
+  }
+}
+
+.featureCard {
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusMd;
+  padding: $space8;
+  box-shadow: $shadowSm;
+  transition: border-color $transitionBase, box-shadow $transitionBase;
+
+  &:hover {
+    border-color: $glassBorderHover;
+    box-shadow: $shadowMd;
+  }
+
+  @include mobile {
+    padding: $space5;
+  }
+}
+
+.featureIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: $radiusMd;
+  background: color-mix(in srgb, $accentPurple 12%, $bgBase);
+  border: $borderWidth solid $glassBorder;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $accentPurple;
+  margin-bottom: $space5;
+}
+
+.featureTitle {
+  font-size: $fontSize18;
+  font-weight: 600;
+  margin-bottom: $space3;
+  color: $accentTeal;
+}
+
+.featureDescription {
+  font-size: $fontSize14;
+  color: $textSecondary;
+  line-height: 1.6;
+}
+
+.stats {
+  padding: $space12 0;
+
+  @include mobile {
+    padding: $space6 0;
+  }
+}
+
+.statsGrid {
+  @include container;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $space6;
+  text-align: center;
+
+  @include tablet {
+    grid-template-columns: 1fr;
+    gap: $space8;
+  }
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: $space2;
+}
+
+.statValue {
+  font-size: $fontSize48;
+  font-weight: 800;
+  color: $accentTeal;
+
+  @include tablet {
+    font-size: $fontSize32;
+  }
+}
+
+.statLabel {
+  font-size: $fontSize16;
+  color: $textSecondary;
+}
+
+.cta {
+  padding: $space16 0 $space20;
+
+  @include mobile {
+    padding: $space8 0 $space10;
+  }
+}
+
+.ctaContent {
+  @include container;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space6;
+}
+
+.ctaHeading {
+  font-size: $fontSize32;
+  font-weight: 700;
+  color: $accentTeal;
+
+  @include tablet {
+    font-size: $fontSize24;
+  }
+
+  @include mobile {
+    font-size: $fontSize20;
+  }
+}

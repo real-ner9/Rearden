@@ -1,0 +1,48 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.wrapper {
+  position: relative;
+  width: 100%;
+  border-radius: $radiusMd;
+  overflow: hidden;
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+}
+
+.video {
+  width: 100%;
+  display: block;
+  border-radius: $radiusMd;
+}
+
+.playButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  @include raisedButton;
+  border-radius: $radiusMd;
+  color: $textPrimary;
+  transition: all $transitionBase;
+  cursor: pointer;
+
+  &:hover {
+    background: $glassBgHover;
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: $shadowMd;
+  }
+
+  &:focus-visible {
+    @include focusRing;
+  }
+
+  svg {
+    margin-left: 4px;
+  }
+}

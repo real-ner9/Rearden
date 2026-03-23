@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: rearden-db
+    environment:
+      POSTGRES_USER: rearden
+      POSTGRES_PASSWORD: rearden
+      POSTGRES_DB: rearden
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  pgdata:

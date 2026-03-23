@@ -1,0 +1,84 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: $space3;
+  padding: $space3;
+  border-radius: $radiusMd;
+  text-align: left;
+  width: 100%;
+  transition: background $transitionFast;
+
+  &:hover {
+    background: $glassBgHover;
+  }
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: $radiusMd;
+  background: color-mix(in srgb, $accentPurple 15%, $bgBase);
+  border: $borderWidth solid $glassBorder;
+  color: $accentPurple;
+  font-size: $fontSize14;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space2;
+}
+
+.name {
+  font-size: $fontSize13;
+  font-weight: 600;
+  color: $textPrimary;
+  @include truncate(1);
+}
+
+.time {
+  font-size: 10px;
+  color: $textMuted;
+  flex-shrink: 0;
+}
+
+.preview {
+  font-size: $fontSize12;
+  color: $textSecondary;
+  margin-top: 2px;
+  @include truncate(1);
+}
+
+.unreadBadge {
+  min-width: 18px;
+  height: 18px;
+  border-radius: $radiusSm;
+  background: $accentPurple;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  flex-shrink: 0;
+}

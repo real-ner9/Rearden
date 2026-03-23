@@ -1,0 +1,45 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.tabBar {
+  display: flex;
+  background: var(--header-gradient);
+  border-top: $borderWidth solid $glassBorder;
+  border-bottom: $borderWidth solid $glassBorder;
+}
+
+.tab {
+  flex: 1;
+  position: relative;
+  padding: $space3 $space4;
+  font-size: $fontSize14;
+  font-weight: 500;
+  color: $textSecondary;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  transition: color $transitionBase;
+
+  &:hover {
+    color: $textPrimary;
+  }
+
+  &:focus-visible {
+    @include focusRing;
+  }
+}
+
+.active {
+  color: $textPrimary;
+  font-weight: 600;
+}
+
+.indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: $accentPurple;
+}

@@ -1,0 +1,68 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.listView {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  @include customScrollbar;
+}
+
+.conversation {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.convHeader {
+  display: flex;
+  align-items: center;
+  gap: $space2;
+  padding-bottom: $space3;
+  border-bottom: $borderWidth solid $glassBorder;
+  margin-bottom: $space2;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: $radiusSm;
+  color: $textSecondary;
+  transition: all $transitionFast;
+
+  &:hover {
+    color: $textPrimary;
+    background: $glassBgHover;
+  }
+}
+
+.convName {
+  font-size: $fontSize13;
+  font-weight: 600;
+  color: $textPrimary;
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: $space2 0;
+  @include customScrollbar;
+}
+
+.empty {
+  text-align: center;
+  color: $textMuted;
+  font-size: $fontSize13;
+  padding: $space6 0;
+}

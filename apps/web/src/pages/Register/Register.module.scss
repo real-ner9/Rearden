@@ -1,0 +1,169 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.register {
+  @include container;
+  max-width: 720px;
+  padding-top: $space10;
+  padding-bottom: $space10;
+
+  @include mobile {
+    padding-top: $space6;
+    padding-bottom: $space6;
+  }
+}
+
+.header {
+  text-align: center;
+  margin-bottom: $space8;
+}
+
+.title {
+  font-size: $fontSize32;
+  font-weight: 700;
+  color: $accentTeal;
+  margin-bottom: $space2;
+
+  @include tablet {
+    font-size: $fontSize24;
+  }
+
+  @include mobile {
+    font-size: $fontSize20;
+  }
+}
+
+.subtitle {
+  font-size: $fontSize16;
+  color: $textSecondary;
+}
+
+.form {
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusMd;
+  padding: $space8;
+  display: flex;
+  flex-direction: column;
+  gap: $space6;
+  box-shadow: $shadowSm;
+
+  @include mobile {
+    padding: $space5;
+  }
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $space5;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bioField {
+  display: flex;
+  flex-direction: column;
+  gap: $space2;
+}
+
+.label {
+  font-size: $fontSize14;
+  font-weight: 500;
+  color: $textSecondary;
+}
+
+.textarea {
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusSm;
+  padding: $space3 $space4;
+  font-size: $fontSize14;
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 100px;
+  transition: border-color $transitionBase;
+
+  &:focus {
+    outline: none;
+    border-color: $accentPurple;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  &::placeholder {
+    color: $textMuted;
+  }
+}
+
+.videoSection {
+  display: flex;
+  flex-direction: column;
+  gap: $space2;
+}
+
+.videoHint {
+  font-size: $fontSize13;
+  color: $textMuted;
+  margin-bottom: $space2;
+}
+
+.resumeSection {
+  display: flex;
+  flex-direction: column;
+  gap: $space2;
+}
+
+.resumeUpload {
+  display: flex;
+  flex-direction: column;
+}
+
+.resumeDropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space5;
+  border: $borderWidth dashed $glassBorder;
+  border-radius: $radiusMd;
+  cursor: pointer;
+  transition: border-color $transitionBase, background $transitionBase;
+
+  &:hover {
+    border-color: $accentPurple;
+    background: rgba(0, 0, 0, 0.01);
+  }
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.resumePlaceholder {
+  display: flex;
+  align-items: center;
+  gap: $space2;
+  font-size: $fontSize14;
+  color: $textMuted;
+}
+
+.resumeFile {
+  display: flex;
+  align-items: center;
+  gap: $space2;
+  font-size: $fontSize14;
+  color: $accentPurple;
+  font-weight: 500;
+}
+
+.resumeProgress {
+  font-size: $fontSize14;
+  color: $textSecondary;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: $space2;
+}

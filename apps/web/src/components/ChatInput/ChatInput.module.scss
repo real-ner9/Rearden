@@ -1,0 +1,52 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.inputWrapper {
+  display: flex;
+  gap: $space2;
+  padding: $space3;
+  border-top: $borderWidth solid $glassBorder;
+}
+
+.input {
+  flex: 1;
+  height: 36px;
+  padding: 0 $space3;
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusSm;
+  font-size: $fontSize13;
+  outline: none;
+  transition: border-color $transitionFast;
+
+  &::placeholder {
+    color: $textMuted;
+  }
+
+  &:focus {
+    border-color: $accentPurple;
+  }
+}
+
+.sendButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: $radiusMd;
+  background: $accentPurple;
+  color: #fff;
+  @include button3d;
+  transition: opacity $transitionFast;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled):hover {
+    opacity: 0.85;
+  }
+}

@@ -1,0 +1,52 @@
+// Design tokens — Dark theme with retro-tech identity
+// RemiliaNET DNA + TikTok/Reels dark UI
+
+:root {
+  color-scheme: dark;
+
+  // Backgrounds — deep dark, not pure black
+  --color-bg: #0a0a0f;
+  --color-bg-base: #12121a;
+  --color-structure: #1a1a26;
+  --color-surface: #1e1e2a;
+
+  // Accent — purple stays, teal gets brighter for dark
+  --color-accent: #7c85d0;
+  --color-accent-light: #9aa0e0;
+  --color-accent-dark: #5a62a8;
+  --color-accent2: #4fd1c5;
+  --color-accent2-light: #6ee7db;
+
+  // Text — light on dark
+  --color-text: rgba(255, 255, 255, 0.92);
+  --color-text-secondary: rgba(255, 255, 255, 0.6);
+  --color-text-muted: rgba(255, 255, 255, 0.3);
+
+  // Status
+  --color-danger: #f87171;
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+
+  // Panels — dark glass
+  --glass-bg: #16161f;
+  --glass-bg-hover: #1e1e2a;
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-hover: rgba(255, 255, 255, 0.15);
+
+  // Shadows — subtle glow instead of 3D drop
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 0 20px rgba(124, 133, 208, 0.15);
+  --shadow-accent2-glow: 0 0 20px rgba(79, 209, 197, 0.15);
+
+  // RemiliaNET — metallic dark variant
+  --header-gradient: linear-gradient(180deg, #1a1a26, #12121a);
+  --button-3d-shadow: rgba(0, 0, 0, 0.6);
+  --inset-highlight: rgba(255, 255, 255, 0.05) 1px 1px 3px inset;
+  --tab-bg: #1a1a26;
+  --edit-btn-bg: #1e1e2a;
+
+  // Mobile nav
+  --mobile-nav-height: 56px;
+}

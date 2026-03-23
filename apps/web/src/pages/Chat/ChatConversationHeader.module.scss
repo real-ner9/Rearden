@@ -1,0 +1,84 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: $space3;
+  padding: $space3 $space4;
+  border-bottom: $borderWidth solid $glassBorder;
+  background: var(--header-gradient);
+  flex-shrink: 0;
+}
+
+.backButton {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: $radiusMd;
+  color: $textSecondary;
+  transition: all $transitionFast;
+
+  &:hover {
+    color: $textPrimary;
+    background: $glassBgHover;
+  }
+
+  @include tablet {
+    display: flex;
+  }
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: $radiusMd;
+  background: color-mix(in srgb, $accentPurple 15%, $bgBase);
+  border: $borderWidth solid $glassBorder;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $fontSize14;
+  font-weight: 600;
+  color: $accentPurple;
+  flex-shrink: 0;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+  text-decoration: none;
+
+  &:hover .name {
+    color: $accentPurple;
+  }
+}
+
+.name {
+  font-size: $fontSize16;
+  font-weight: 600;
+  color: $textPrimary;
+  @include truncate;
+}
+
+.pinToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: $radiusMd;
+  color: $textMuted;
+  transition: all $transitionFast;
+
+  &:hover {
+    color: $accentPurple;
+    background: $glassBgHover;
+  }
+}
+
+.isPinned {
+  color: $accentPurple;
+}

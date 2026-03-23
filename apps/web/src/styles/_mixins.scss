@@ -1,0 +1,119 @@
+@use "variables" as *;
+
+// Media queries
+@mixin mobile {
+  @media (max-width: $bpMobile) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (max-width: $bpTablet) {
+    @content;
+  }
+}
+
+@mixin tabletUp {
+  @media (min-width: ($bpTablet + 1)) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: $bpDesktop) {
+    @content;
+  }
+}
+
+@mixin wide {
+  @media (min-width: $bpWide) {
+    @content;
+  }
+}
+
+// Panel (replacing glass — solid bg, no blur)
+@mixin glass {
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+}
+
+@mixin glassHover {
+  background: $glassBgHover;
+  border-color: $glassBorderHover;
+}
+
+// Module header (silver metallic bar)
+@mixin moduleHeader {
+  background: var(--header-gradient);
+  border-bottom: $borderWidth solid $glassBorder;
+  padding: $space2 $space4;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: $fontSize12;
+}
+
+// 3D button depth (DS/Game Boy style)
+@mixin button3d($color: var(--button-3d-shadow)) {
+  border-bottom: $depth3d solid $color;
+  border-right: $depth3d solid $color;
+
+  &:active {
+    border-bottom-width: 1px;
+    border-right-width: 1px;
+    transform: translate(2px, 2px);
+  }
+}
+
+// Raised metallic (for edit buttons, small UI controls)
+@mixin raisedButton {
+  box-shadow: var(--inset-highlight);
+  border: 2px solid $glassBorder;
+  background: var(--edit-btn-bg);
+}
+
+// Container
+@mixin container {
+  width: 100%;
+  max-width: $maxWidth;
+  margin: 0 auto;
+  padding: 0 $space6;
+
+  @include tablet {
+    padding: 0 $space4;
+  }
+}
+
+// Truncate
+@mixin truncate($lines: 1) {
+  @if $lines == 1 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  } @else {
+    display: -webkit-box;
+    -webkit-line-clamp: $lines;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+// Focus ring
+@mixin focusRing {
+  outline: 2px solid $accentPurple;
+  outline-offset: 2px;
+}
+
+// Scrollbar
+@mixin customScrollbar {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: $textMuted;
+    border-radius: $radiusFull;
+  }
+}

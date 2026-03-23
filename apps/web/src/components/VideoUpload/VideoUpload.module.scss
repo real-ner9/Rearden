@@ -1,0 +1,113 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.dropzone {
+  background: $glassBg;
+  border: 2px dashed $glassBorder;
+  border-radius: $radiusMd;
+  padding: $space12;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $space4;
+  cursor: pointer;
+  transition: all $transitionBase;
+  min-height: 240px;
+
+  &:hover,
+  &.dragging {
+    border-color: $accentPurple;
+    background: $glassBgHover;
+  }
+
+  &:focus-visible {
+    @include focusRing;
+  }
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.icon {
+  color: $textMuted;
+  transition: color $transitionBase;
+
+  .dropzone:hover &,
+  .dragging & {
+    color: $accentPurple;
+  }
+}
+
+.text {
+  font-size: $fontSize16;
+  font-weight: 500;
+  color: $textPrimary;
+  margin: 0;
+}
+
+.hint {
+  font-size: $fontSize13;
+  color: $textMuted;
+  margin: 0;
+}
+
+.uploading {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space4;
+}
+
+.progressBar {
+  width: 100%;
+  height: 8px;
+  background: $bgSurface;
+  border-radius: $radiusSm;
+  overflow: hidden;
+  border: 1px solid $glassBorder;
+}
+
+.progressFill {
+  height: 100%;
+  background: $accentPurple;
+  border-radius: $radiusSm;
+  transition: width $transitionFast;
+}
+
+.progressText {
+  font-size: $fontSize14;
+  font-weight: 600;
+  color: $textPrimary;
+  margin: 0;
+}
+
+.preview {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: $space4;
+}
+
+.reupload {
+  @include raisedButton;
+  padding: $space3 $space6;
+  border-radius: $radiusMd;
+  font-size: $fontSize14;
+  font-weight: 500;
+  color: $textPrimary;
+  transition: all $transitionBase;
+  align-self: flex-start;
+
+  &:hover {
+    background: $glassBgHover;
+    color: $accentPurple;
+  }
+
+  &:focus-visible {
+    @include focusRing;
+  }
+}

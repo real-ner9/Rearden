@@ -1,0 +1,71 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: $space2;
+}
+
+.label {
+  font-size: $fontSize14;
+  font-weight: 500;
+  color: $textPrimary;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.icon {
+  position: absolute;
+  left: $space4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $textMuted;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.input {
+  width: 100%;
+  height: 44px;
+  padding: 0 $space4;
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusSm;
+  color: $textPrimary;
+  font-size: $fontSize14;
+  transition: all $transitionBase;
+
+  &.hasIcon {
+    padding-left: calc($space4 + 24px + $space2);
+  }
+
+  &::placeholder {
+    color: $textMuted;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $accentPurple;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  &.error {
+    border-color: $danger;
+
+    &:focus {
+      box-shadow: inset 0 1px 3px rgba(220, 38, 38, 0.15);
+    }
+  }
+}
+
+.errorMessage {
+  font-size: $fontSize13;
+  color: $danger;
+  margin-top: $space1;
+}

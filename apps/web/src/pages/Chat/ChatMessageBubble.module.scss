@@ -1,0 +1,55 @@
+@use "../../styles/variables" as *;
+
+.message {
+  display: flex;
+  padding: 2px $space4;
+}
+
+.mine {
+  justify-content: flex-end;
+
+  .bubble {
+    background: color-mix(in srgb, $accentPurple 15%, $bgBase);
+    border: $borderWidth solid color-mix(in srgb, $accentPurple 30%, transparent);
+    color: $textPrimary;
+    border-radius: $radiusMd $radiusMd $radiusSm $radiusMd;
+  }
+
+  .time {
+    color: $textMuted;
+  }
+}
+
+.theirs {
+  justify-content: flex-start;
+
+  .bubble {
+    background: $bgSurface;
+    border: $borderWidth solid $glassBorder;
+    color: $textPrimary;
+    border-radius: $radiusMd $radiusMd $radiusMd $radiusSm;
+  }
+
+  .time {
+    color: $textMuted;
+  }
+}
+
+.bubble {
+  max-width: 70%;
+  padding: $space2 $space3;
+  word-wrap: break-word;
+}
+
+.text {
+  font-size: $fontSize14;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.time {
+  display: block;
+  font-size: 10px;
+  text-align: right;
+  margin-top: 2px;
+}

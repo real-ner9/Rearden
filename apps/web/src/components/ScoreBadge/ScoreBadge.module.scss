@@ -1,0 +1,31 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space1 $space3;
+  border-radius: $radiusSm;
+  font-size: $fontSize12;
+  font-weight: 600;
+  white-space: nowrap;
+  border: $borderWidth solid transparent;
+  @include button3d;
+}
+
+.high {
+  background: $accentPurple;
+  color: #fff;
+}
+
+.medium {
+  background: $accentPurpleLight;
+  color: #fff;
+}
+
+.low {
+  background: $bgSurface;
+  border-color: $glassBorder;
+  color: $textSecondary;
+}

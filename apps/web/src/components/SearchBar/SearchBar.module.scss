@@ -1,0 +1,76 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.wrapper {
+  width: 100%;
+}
+
+.searchBar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 56px;
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusMd;
+  overflow: hidden;
+  transition: border-color $transitionBase;
+
+  &:focus-within {
+    border-color: $accentPurple;
+  }
+}
+
+.iconWrapper {
+  position: absolute;
+  left: $space6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $textMuted;
+  z-index: 1;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+.input {
+  width: 100%;
+  height: 100%;
+  padding: 0 $space6 0 calc($space6 + 20px + $space4);
+  background: transparent;
+  border: none;
+  color: $textPrimary;
+  font-size: $fontSize16;
+  position: relative;
+  z-index: 2;
+
+  &:focus {
+    outline: none;
+  }
+
+  &::placeholder {
+    color: transparent;
+  }
+}
+
+.placeholder {
+  position: absolute;
+  left: calc($space6 + 20px + $space4);
+  color: $textMuted;
+  font-size: $fontSize16;
+  pointer-events: none;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

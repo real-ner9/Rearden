@@ -1,0 +1,44 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.chat {
+  display: flex;
+  height: calc(100vh - $navbarHeight);
+}
+
+.sidebarDesktop {
+  width: 340px;
+  flex-shrink: 0;
+  border-right: $borderWidth solid $glassBorder;
+
+  @include tablet {
+    display: none;
+  }
+}
+
+.conversationDesktop {
+  flex: 1;
+  min-width: 0;
+
+  @include tablet {
+    display: none;
+  }
+}
+
+// Mobile: single panel
+.mobileContainer {
+  display: none;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+
+  @include tablet {
+    display: block;
+  }
+}
+
+.mobilePanel {
+  position: absolute;
+  inset: 0;
+}

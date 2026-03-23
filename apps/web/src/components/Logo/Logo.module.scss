@@ -1,0 +1,22 @@
+@use "../../styles/variables" as *;
+
+.logo {
+  font-family: $fontPixel;
+  font-weight: 700;
+  color: $accentTeal;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.sm {
+  font-size: $fontSize18;
+}
+
+.md {
+  font-size: $fontSize24;
+}
+
+.lg {
+  font-size: $fontSize32;
+}

@@ -1,0 +1,218 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.feed {
+  position: relative;
+  height: calc(100vh - $navbarHeight);
+  overflow: hidden;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @include tablet {
+    height: 100vh;
+  }
+}
+
+.reel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  max-width: 480px;
+
+  @include tablet {
+    max-width: 100%;
+  }
+}
+
+.videoWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  pointer-events: none;
+}
+
+.overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: $space6 $space5;
+  z-index: 2;
+
+  @include tablet {
+    padding-bottom: calc($mobileNavHeight + $space4);
+  }
+}
+
+.candidateName {
+  font-size: $fontSize20;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  transition: opacity $transitionFast;
+  text-align: left;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.candidateTitle {
+  font-size: $fontSize14;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: $space1;
+}
+
+.candidateLocation {
+  font-size: $fontSize13;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: $space1;
+}
+
+.candidateSkills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space2;
+  margin-top: $space3;
+}
+
+.skillChip {
+  font-size: $fontSize13;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+// Action buttons — right side, like Instagram
+.actions {
+  position: absolute;
+  right: $space4;
+  bottom: 25%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space5;
+  z-index: 3;
+
+  @include tablet {
+    right: $space3;
+    bottom: calc($mobileNavHeight + 20%);
+  }
+}
+
+.actionBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space1;
+  color: #fff;
+  transition: transform $transitionFast;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+.actionLabel {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+// Desktop nav arrows
+.navArrows {
+  position: absolute;
+  right: $space6;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: $space3;
+  z-index: 3;
+
+  @include tablet {
+    display: none;
+  }
+}
+
+.arrowBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  transition: all $transitionFast;
+  backdrop-filter: blur(8px);
+
+  &:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+}
+
+.counter {
+  position: absolute;
+  top: $space4;
+  right: $space4;
+  font-size: $fontSize13;
+  color: rgba(255, 255, 255, 0.6);
+  z-index: 3;
+}
+
+.loading {
+  height: calc(100vh - $navbarHeight);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.empty {
+  height: calc(100vh - $navbarHeight);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: $fontSize16;
+  background: #000;
+}

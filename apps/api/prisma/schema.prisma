@@ -1,0 +1,94 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["fullTextSearchPostgres"]
+}
+
+model Candidate {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  resume       String?
+  skills       String[]
+  experience   Int      @default(0)
+  videoUrl     String?
+  thumbnailUrl String?
+  resumeUrl    String?
+  resumeText   String?  @db.Text
+  location     String   @default("")
+  title        String   @default("")
+  bio          String   @default("") @db.Text
+  availability String   @default("immediate")
+
+  posts         Post[]
+  vacancies     Vacancy[]
+  conversations Conversation[]
+}
+
+model Recruiter {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  company   String   @default("")
+  position  String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Post {
+  id          String   @id @default(cuid())
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  content     String    @db.Text
+  hashtags    String[]
+  imageUrl    String?
+  createdAt   DateTime  @default(now())
+
+  @@index([candidateId])
+}
+
+model Vacancy {
+  id          String   @id @default(cuid())
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  title       String
+  description String    @db.Text
+  type        String    @default("fulltime")
+  location    String    @default("")
+  createdAt   DateTime  @default(now())
+
+  @@index([candidateId])
+}
+
+model Conversation {
+  id          String   @id @default(cuid())
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  isPinned    Boolean   @default(false)
+  unreadCount Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  messages ChatMessage[]
+
+  @@unique([candidateId])
+  @@index([updatedAt])
+}
+
+model ChatMessage {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  senderRole     String
+  text           String       @db.Text
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+}

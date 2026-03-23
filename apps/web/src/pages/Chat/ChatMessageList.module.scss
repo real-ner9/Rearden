@@ -1,0 +1,9 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.list {
+  flex: 1;
+  overflow-y: auto;
+  padding: $space2 0;
+  @include customScrollbar;
+}
