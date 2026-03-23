@@ -23,7 +23,7 @@ This file provides guidance to Claude Code when working with code in this reposi
 - **Styling**: SCSS Modules with camelCase-only class names
 - **Animation**: Motion v12 (`import { motion } from "motion/react"`)
 - **API**: Hono with typed `ApiResponse<T>` wrapper
-- **Database**: Prisma 7 with SQLite (dev), generated client in `src/generated/prisma`
+- **Database**: Prisma 7 with PostgreSQL (Docker pgvector:pg17), `@prisma/adapter-pg`, generated client in `src/generated/prisma`
 - **API runner**: `tsx` with watch mode for development
 
 ## Development Commands
@@ -53,7 +53,7 @@ npm run format
 - **TypeScript**: v5.9.2 across all workspaces
 - **Vite**: v6.x with @vitejs/plugin-react
 - **Hono**: v4.x with @hono/node-server
-- **Prisma**: v7.x with SQLite
+- **Prisma**: v7.x with PostgreSQL + @prisma/adapter-pg
 - **React**: v19 with Motion v12
 
 ## Turborepo Filters
