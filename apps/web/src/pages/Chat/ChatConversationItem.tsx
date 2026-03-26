@@ -31,17 +31,20 @@ export function ChatConversationItem({
   };
 
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       className={`${styles.item} ${isActive ? styles.active : ""}`}
       onClick={() => onSelect(conversation.id)}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onSelect(conversation.id); }}
     >
       <div className={styles.avatar}>
-        {conversation.candidateName.charAt(0)}
+        {conversation.userName.charAt(0)}
       </div>
 
       <div className={styles.content}>
         <div className={styles.header}>
-          <span className={styles.name}>{conversation.candidateName}</span>
+          <span className={styles.name}>{conversation.userName}</span>
           <div className={styles.meta}>
             {conversation.isPinned && (
               <svg
@@ -91,6 +94,6 @@ export function ChatConversationItem({
           </svg>
         </button>
       </div>
-    </button>
+    </div>
   );
 }

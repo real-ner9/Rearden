@@ -95,6 +95,12 @@
   gap: $space4;
 }
 
+.vacancyHeader {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
 .emptyTab {
   padding: $space10 0;
   text-align: center;

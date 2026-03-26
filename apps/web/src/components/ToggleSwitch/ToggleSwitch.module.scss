@@ -1,0 +1,55 @@
+@use "../../styles/variables" as *;
+
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space4;
+  padding: $space3 0;
+}
+
+.labelWrap {
+  display: flex;
+  align-items: center;
+  gap: $space3;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  color: $textMuted;
+  flex-shrink: 0;
+}
+
+.label {
+  font-size: $fontSize14;
+  font-weight: 500;
+  color: $textPrimary;
+}
+
+.track {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: $bgSurface;
+  border: $borderWidth solid $glassBorder;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background $transitionBase, border-color $transitionBase;
+
+  &.active {
+    background: $accentPurple;
+    border-color: $accentPurple;
+  }
+}
+
+.knob {
+  position: absolute;
+  top: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}

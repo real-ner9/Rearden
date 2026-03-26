@@ -1,6 +1,6 @@
 export interface Vacancy {
   id: string;
-  candidateId: string;
+  userId: string;
   title: string;
   description: string;
   type: "fulltime" | "parttime" | "contract" | "freelance";

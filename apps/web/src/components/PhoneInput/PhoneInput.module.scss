@@ -1,0 +1,253 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+// Country code selector button
+.countrySelector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: $space3 $space4;
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusSm;
+  font-size: $fontSize14;
+  color: $textSecondary;
+  cursor: pointer;
+  transition: border-color $transitionBase;
+
+  &:hover {
+    border-color: $glassBorderHover;
+  }
+}
+
+.countrySelectorInvalid {
+  border-color: $danger;
+}
+
+.countrySelectorValue {
+  display: flex;
+  align-items: center;
+  gap: $space2;
+  color: $textPrimary;
+  font-weight: 500;
+}
+
+.countrySelectorInvalidText {
+  color: $danger;
+  font-weight: 500;
+}
+
+.countrySelectorHint {
+  color: $textMuted;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.chevron {
+  width: 16px;
+  height: 16px;
+  color: $textMuted;
+  flex-shrink: 0;
+}
+
+// Phone number input row
+.phoneRow {
+  display: flex;
+  gap: $space2;
+  align-items: stretch;
+}
+
+.dialCodeWrapper {
+  display: flex;
+  align-items: center;
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusSm;
+  padding: $space3 $space3;
+  font-size: $fontSize16;
+  font-weight: 500;
+  color: $textPrimary;
+  transition: border-color $transitionBase;
+
+  &:focus-within {
+    border-color: $accentPurple;
+  }
+}
+
+.plusSign {
+  color: $textMuted;
+  user-select: none;
+  pointer-events: none;
+}
+
+.dialInput {
+  border: none;
+  background: none;
+  font-size: $fontSize16;
+  font-weight: 500;
+  padding: 0;
+  outline: none;
+  min-width: 1ch;
+  color: inherit;
+
+}
+
+.phoneNumber {
+  flex: 1;
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusSm;
+  padding: $space3 $space4;
+  font-size: $fontSize16;
+  transition: border-color $transitionBase;
+
+  &:focus {
+    outline: none;
+    border-color: $accentPurple;
+  }
+
+  &::placeholder {
+    color: $textMuted;
+  }
+}
+
+// Modal overlay
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: $space6;
+}
+
+// Modal card
+.modal {
+  width: 100%;
+  max-width: 400px;
+  height: 500px;
+  background: $bgBase;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusMd;
+  display: flex;
+  flex-direction: column;
+  box-shadow: $shadowLg;
+  overflow: hidden;
+
+  @include mobile {
+    height: 400px;
+  }
+}
+
+.modalHeader {
+  padding: $space5 $space5 $space3;
+  font-size: $fontSize18;
+  font-weight: 700;
+  color: $accentTeal;
+}
+
+// Search input
+.searchRow {
+  display: flex;
+  align-items: center;
+  gap: $space2;
+  margin: 0 $space5 $space3;
+  padding: $space2 $space3;
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusSm;
+
+  &:focus-within {
+    border-color: $accentPurple;
+  }
+}
+
+.searchIcon {
+  width: 16px;
+  height: 16px;
+  color: $textMuted;
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  background: none;
+  font-size: $fontSize14;
+  outline: none;
+  padding: 0;
+
+  &::placeholder {
+    color: $textMuted;
+  }
+}
+
+// Country list
+.list {
+  flex: 1;
+  overflow-y: auto;
+  @include customScrollbar;
+}
+
+.countryItem {
+  display: flex;
+  align-items: center;
+  gap: $space3;
+  padding: $space3 $space5;
+  cursor: pointer;
+  transition: background $transitionFast;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  font-size: $fontSize14;
+
+  &:hover {
+    background: $glassBgHover;
+  }
+}
+
+.countryName {
+  font-weight: 600;
+  color: $textPrimary;
+}
+
+.countryDial {
+  color: $textSecondary;
+}
+
+.countryItemActive {
+  background: $glassBg;
+}
+
+// Footer
+.modalFooter {
+  padding: $space3 $space5;
+  border-top: $borderWidth solid $glassBorder;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: $accentPurple;
+  font-size: $fontSize14;
+  font-weight: 500;
+  cursor: pointer;
+  padding: $space1 $space2;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.empty {
+  padding: $space6;
+  text-align: center;
+  color: $textMuted;
+  font-size: $fontSize14;
+}

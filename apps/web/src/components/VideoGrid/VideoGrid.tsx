@@ -1,16 +1,16 @@
-import { useState } from "react";
-import { VerticalVideo } from "@/components/VerticalVideo/VerticalVideo";
+import { useNavigate } from "react-router-dom";
+import type { VideoPost } from "@rearden/types";
 import styles from "./VideoGrid.module.scss";
 
 interface VideoGridProps {
-  videoUrl: string | null;
-  thumbnailUrl: string | null;
+  posts: VideoPost[];
+  onVideoClick?: (postId: string) => void;
 }
 
-export function VideoGrid({ videoUrl, thumbnailUrl }: VideoGridProps) {
-  const [expanded, setExpanded] = useState(false);
+export function VideoGrid({ posts, onVideoClick }: VideoGridProps) {
+  const navigate = useNavigate();
 
-  if (!videoUrl) {
+  if (posts.length === 0) {
     return (
       <div className={styles.empty}>
         <svg
@@ -28,31 +28,30 @@ export function VideoGrid({ videoUrl, thumbnailUrl }: VideoGridProps) {
     );
   }
 
-  if (expanded) {
-    return (
-      <div className={styles.expandedView}>
-        <VerticalVideo
-          src={videoUrl}
-          poster={thumbnailUrl ?? undefined}
-        />
-      </div>
-    );
-  }
-
   return (
     <div className={styles.grid}>
-      <button className={styles.thumbnail} onClick={() => setExpanded(true)}>
-        {thumbnailUrl ? (
-          <img src={thumbnailUrl} alt="Video thumbnail" className={styles.thumbImg} />
-        ) : (
-          <div className={styles.thumbPlaceholder} />
-        )}
-        <div className={styles.playOverlay}>
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M8 5v14l11-7z" />
-          </svg>
-        </div>
-      </button>
+      {posts.map((post) => (
+        <button
+          key={post.id}
+          className={styles.thumbnail}
+          onClick={() => onVideoClick ? onVideoClick(post.id) : navigate(`/feed/${post.id}`)}
+        >
+          {post.thumbnailUrl ? (
+            <img
+              src={post.thumbnailUrl}
+              alt="Video thumbnail"
+              className={styles.thumbImg}
+            />
+          ) : (
+            <div className={styles.thumbPlaceholder} />
+          )}
+          <div className={styles.playOverlay}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </div>
+        </button>
+      ))}
     </div>
   );
 }

@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { motion } from "motion/react";
-import type { Candidate, Post, Vacancy } from "@rearden/types";
+import type { User, Post, VideoPost, Vacancy } from "@rearden/types";
 
 import { ProfileTabs, type ProfileTab } from "@/components/ProfileTabs/ProfileTabs";
 import { PostGrid } from "@/components/PostGrid/PostGrid";
@@ -10,8 +10,7 @@ import { VacancyCard } from "@/components/VacancyCard/VacancyCard";
 import { SkillTag } from "@/components/SkillTag/SkillTag";
 import { Button } from "@/components/Button/Button";
 import { useApi } from "@/hooks/useApi";
-import { useChat } from "@/contexts/ChatContext";
-import styles from "./CandidateProfile.module.scss";
+import styles from "./MyProfile.module.scss";
 
 const availabilityLabels: Record<string, string> = {
   immediate: "Available immediately",
@@ -20,15 +19,29 @@ const availabilityLabels: Record<string, string> = {
   "3months": "Available in 3 months",
 };
 
-export function CandidateProfile() {
-  const { id } = useParams<{ id: string }>();
+export function MyProfile() {
   const navigate = useNavigate();
-  const { startConversation } = useChat();
   const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
 
-  const { data: candidate, loading, error } = useApi<Candidate>(`/candidates/${id}`);
-  const { data: posts } = useApi<Post[]>(`/posts?candidateId=${id}`);
-  const { data: vacancies } = useApi<Vacancy[]>(`/vacancies?candidateId=${id}`);
+  const { data: profile, loading, error } = useApi<User>("/me/profile");
+
+  const userId = profile?.id;
+  const { data: posts } = useApi<Post[]>(
+    userId ? `/posts?userId=${userId}` : "",
+  );
+  const { data: videoPosts } = useApi<VideoPost[]>(
+    userId ? `/posts?userId=${userId}&type=video` : "",
+  );
+  const { data: vacancies } = useApi<Vacancy[]>(
+    userId ? `/vacancies?userId=${userId}` : "",
+  );
+
+  // No profile name — go to edit page to fill in
+  useEffect(() => {
+    if (!loading && profile && !profile.name) {
+      navigate("/profile/edit", { replace: true });
+    }
+  }, [loading, profile, navigate]);
 
   if (loading) {
     return (
@@ -39,17 +52,12 @@ export function CandidateProfile() {
     );
   }
 
-  if (error || !candidate) {
-    return (
-      <div className={styles.error}>
-        <h2>Candidate not found</h2>
-        <p>The candidate you're looking for doesn't exist.</p>
-        <Button variant="secondary" onClick={() => navigate("/search")}>
-          Back to Search
-        </Button>
-      </div>
-    );
+  if (error || !profile) {
+    return null;
   }
+
+  const displaySkills =
+    profile.topSkills.length > 0 ? profile.topSkills : profile.skills;
 
   return (
     <div className={styles.profile}>
@@ -59,31 +67,38 @@ export function CandidateProfile() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
       >
-        <h1 className={styles.name}>{candidate.name}</h1>
+        <h1 className={styles.name}>{profile.name}</h1>
 
         <div className={styles.meta}>
-          <span>{candidate.title}</span>
+          <span>{profile.title}</span>
           <span className={styles.dot} />
-          <span>{candidate.location}</span>
+          <span>{profile.location}</span>
           <span className={styles.dot} />
           <span>
-            {candidate.experience} yr{candidate.experience !== 1 ? "s" : ""} exp
+            {profile.experience} yr{profile.experience !== 1 ? "s" : ""} exp
           </span>
           <span className={styles.dot} />
-          <span>{availabilityLabels[candidate.availability]}</span>
+          <span>{availabilityLabels[profile.availability]}</span>
         </div>
 
-        <p className={styles.bio}>{candidate.bio}</p>
+        <p className={styles.bio}>{profile.bio}</p>
 
         <div className={styles.skills}>
-          {candidate.skills.map((skill) => (
+          {displaySkills.slice(0, 13).map((skill) => (
             <SkillTag key={skill} skill={skill} size="sm" />
           ))}
         </div>
 
         <div className={styles.actions}>
-          {candidate.resumeText && (
-            <Link to={`/candidate/${id}/resume`} className={styles.resumeLink}>
+          <Button
+            variant="primary"
+            size="md"
+            onClick={() => navigate("/profile/edit")}
+          >
+            Edit Profile
+          </Button>
+          {profile.resumeText && (
+            <Link to={`/user/${profile.id}/resume`} className={styles.resumeLink}>
               <svg
                 width="14"
                 height="14"
@@ -101,20 +116,6 @@ export function CandidateProfile() {
               Resume
             </Link>
           )}
-          <Button
-            variant="primary"
-            size="md"
-            onClick={() => startConversation(candidate.id, candidate.name)}
-          >
-            Contact
-          </Button>
-          <Button
-            variant="ghost"
-            size="md"
-            onClick={() => navigate("/search")}
-          >
-            Back
-          </Button>
         </div>
       </motion.div>
 
@@ -130,12 +131,21 @@ export function CandidateProfile() {
         {activeTab === "posts" && <PostGrid posts={posts ?? []} />}
         {activeTab === "video" && (
           <VideoGrid
-            videoUrl={candidate.videoUrl}
-            thumbnailUrl={candidate.thumbnailUrl}
+            posts={videoPosts ?? []}
+            onVideoClick={(pid) => navigate(`/user/${profile.id}/reel/${pid}`)}
           />
         )}
         {activeTab === "vacancies" && (
           <div className={styles.vacancyList}>
+            <div className={styles.vacancyHeader}>
+              <Button
+                variant="primary"
+                size="md"
+                onClick={() => navigate("/vacancy/create")}
+              >
+                Post Vacancy
+              </Button>
+            </div>
             {vacancies && vacancies.length > 0 ? (
               vacancies.map((v) => <VacancyCard key={v.id} vacancy={v} />)
             ) : (

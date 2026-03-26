@@ -1,0 +1,130 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.container {
+  position: fixed;
+  bottom: $space5;
+  right: $space5;
+  z-index: 150;
+
+  @include tablet {
+    display: none;
+  }
+}
+
+.pill {
+  display: flex;
+  align-items: center;
+  gap: $space2;
+  padding: $space2 $space4;
+  background: $bgBase;
+  border: $borderWidth solid $glassBorder;
+  border-radius: 24px;
+  box-shadow: $shadowMd;
+  color: $textPrimary;
+  font-size: $fontSize14;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all $transitionFast;
+
+  &:hover {
+    background: $glassBgHover;
+    box-shadow: $shadowLg;
+  }
+}
+
+.pillLabel {
+  white-space: nowrap;
+}
+
+.pillBadge {
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: $danger;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  line-height: 1;
+}
+
+.popup {
+  position: absolute;
+  bottom: calc(100% + $space2);
+  right: 0;
+  width: 350px;
+  height: 420px;
+  background: $bgBase;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusLg;
+  box-shadow: $shadowLg;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space3 $space4;
+  border-bottom: $borderWidth solid $glassBorder;
+  flex-shrink: 0;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: $space2;
+}
+
+.headerTitle {
+  font-size: $fontSize14;
+  font-weight: 600;
+}
+
+.headerBadge {
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: $danger;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  line-height: 1;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: $space1;
+}
+
+.headerBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: $radiusSm;
+  color: $textSecondary;
+  transition: all $transitionFast;
+
+  &:hover {
+    color: $textPrimary;
+    background: $glassBgHover;
+  }
+}
+
+.body {
+  flex: 1;
+  overflow: hidden;
+}

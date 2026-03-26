@@ -1,5 +1,5 @@
 export type NotificationType =
-  | "new_candidate"
+  | "new_user"
   | "interview_scheduled"
   | "message_received"
   | "status_change";
@@ -18,13 +18,13 @@ export interface Notification {
 export const initialNotifications: Notification[] = [
   {
     id: "n1",
-    type: "new_candidate",
-    message: "New candidate match",
+    type: "new_user",
+    message: "New profile match",
     detail: "Sarah Chen matches your React Senior role — 92% fit",
     timestamp: new Date(Date.now() - 1000 * 60 * 5),
     read: false,
     actionLabel: "View Profile",
-    actionPath: "/candidate/1",
+    actionPath: "/user/1",
   },
   {
     id: "n2",
@@ -45,7 +45,7 @@ export const initialNotifications: Notification[] = [
   {
     id: "n4",
     type: "status_change",
-    message: "Candidate status updated",
+    message: "Status updated",
     detail: "Morgan Blake moved to Final Round",
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5),
     read: true,
@@ -56,13 +56,13 @@ export const incomingNotifications: { notification: Notification; delayMs: numbe
   {
     notification: {
       id: "n5",
-      type: "new_candidate",
-      message: "New candidate match",
+      type: "new_user",
+      message: "New profile match",
       detail: "Priya Sharma — 88% match for your Full Stack role",
       timestamp: new Date(),
       read: false,
       actionLabel: "View Profile",
-      actionPath: "/candidate/2",
+      actionPath: "/user/2",
     },
     delayMs: 15_000,
   },

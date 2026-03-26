@@ -65,7 +65,7 @@ ol {
   color: $textPrimary;
 }
 
-:focus-visible {
-  outline: 2px solid $accentPurple;
-  outline-offset: 2px;
+*:focus,
+*:focus-visible {
+  outline: none;
 }

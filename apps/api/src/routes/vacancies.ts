@@ -7,7 +7,7 @@ export const vacancyRoutes = new Hono();
 function toVacancy(row: any): Vacancy {
   return {
     id: row.id,
-    candidateId: row.candidateId,
+    userId: row.userId,
     title: row.title,
     description: row.description,
     type: row.type as Vacancy["type"],
@@ -16,12 +16,12 @@ function toVacancy(row: any): Vacancy {
   };
 }
 
-// GET /api/vacancies?candidateId=:id
+// GET /api/vacancies?userId=:id
 vacancyRoutes.get("/", async (c) => {
-  const candidateId = c.req.query("candidateId");
+  const userId = c.req.query("userId");
 
   const rows = await db.vacancy.findMany({
-    where: candidateId ? { candidateId } : undefined,
+    where: userId ? { userId } : undefined,
     orderBy: { createdAt: "desc" },
   });
 
@@ -38,7 +38,7 @@ vacancyRoutes.post("/", async (c) => {
 
     const row = await db.vacancy.create({
       data: {
-        candidateId: body.candidateId,
+        userId: body.userId,
         title: body.title,
         description: body.description,
         type: body.type ?? "fulltime",

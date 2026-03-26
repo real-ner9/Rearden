@@ -25,10 +25,10 @@ export function ConversationList({ conversations, onSelect }: ConversationListPr
           className={styles.item}
           onClick={() => onSelect(conv.id)}
         >
-          <div className={styles.avatar}>{conv.candidateName.charAt(0)}</div>
+          <div className={styles.avatar}>{conv.userName.charAt(0)}</div>
           <div className={styles.content}>
             <div className={styles.header}>
-              <span className={styles.name}>{conv.candidateName}</span>
+              <span className={styles.name}>{conv.userName}</span>
               {conv.lastMessage && (
                 <span className={styles.time}>{timeAgo(conv.lastMessage.createdAt)}</span>
               )}

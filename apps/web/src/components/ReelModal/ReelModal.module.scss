@@ -1,0 +1,26 @@
+@use "../../styles/variables" as *;
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeBtn {
+  position: fixed;
+  top: $space4;
+  left: $space4;
+  z-index: 101;
+  color: #fff;
+  opacity: 0.7;
+  transition: opacity $transitionFast;
+  padding: $space2;
+
+  &:hover {
+    opacity: 1;
+  }
+}

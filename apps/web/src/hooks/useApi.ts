@@ -3,10 +3,11 @@ import { apiFetch } from "@/lib/api";
 
 export function useApi<T>(path: string) {
   const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!!path);
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
+    if (!path) return;
     setLoading(true);
     setError(null);
     try {
@@ -20,8 +21,13 @@ export function useApi<T>(path: string) {
   }, [path]);
 
   useEffect(() => {
+    if (!path) {
+      setData(null);
+      setLoading(false);
+      return;
+    }
     fetchData();
-  }, [fetchData]);
+  }, [fetchData, path]);
 
   return { data, loading, error, refetch: fetchData };
 }

@@ -75,7 +75,7 @@ export function ChatMessageList() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
           >
-            <ChatTypingIndicator name={typing.candidateName} />
+            <ChatTypingIndicator name={typing.userName} />
           </motion.div>
         )}
       </AnimatePresence>

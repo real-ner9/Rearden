@@ -1,21 +1,21 @@
 import { motion } from "motion/react";
-import type { Candidate } from "@rearden/types";
+import type { User } from "@rearden/types";
 import { ScoreBadge } from "@/components/ScoreBadge/ScoreBadge";
-import styles from "./CandidateCard.module.scss";
+import styles from "./UserCard.module.scss";
 
-interface CandidateCardProps {
-  candidate: Candidate;
+interface UserCardProps {
+  user: User;
   score?: number;
   matchReason?: string;
   onClick?: () => void;
 }
 
-export function CandidateCard({
-  candidate,
+export function UserCard({
+  user,
   score,
   matchReason,
   onClick,
-}: CandidateCardProps) {
+}: UserCardProps) {
   return (
     <motion.div
       className={styles.card}
@@ -27,14 +27,14 @@ export function CandidateCard({
       tabIndex={onClick ? 0 : undefined}
     >
       <div className={styles.thumbnail}>
-        {candidate.thumbnailUrl ? (
-          <img src={candidate.thumbnailUrl} alt={candidate.name} />
+        {user.thumbnailUrl ? (
+          <img src={user.thumbnailUrl} alt={user.name ?? ""} />
         ) : (
           <div className={styles.placeholder} />
         )}
 
         {/* Play icon overlay */}
-        {candidate.videoUrl && (
+        {user.videoUrl && (
           <div className={styles.playIcon}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
               <path d="M8 5v14l11-7z" />
@@ -51,10 +51,10 @@ export function CandidateCard({
         {/* Bottom gradient + info overlay */}
         <div className={styles.gradient} />
         <div className={styles.overlay}>
-          <h3 className={styles.name}>{candidate.name}</h3>
-          <p className={styles.title}>{candidate.title}</p>
+          <h3 className={styles.name}>{user.name}</h3>
+          <p className={styles.title}>{user.title}</p>
           <div className={styles.skills}>
-            {candidate.skills.slice(0, 3).map((skill) => (
+            {user.skills.slice(0, 3).map((skill) => (
               <span key={skill} className={styles.skillChip}>
                 #{skill.toLowerCase().replace(/\s+/g, "")}
               </span>

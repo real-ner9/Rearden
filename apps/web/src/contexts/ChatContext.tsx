@@ -17,7 +17,7 @@ import type {
 import { useWebSocket } from "@/hooks/useWebSocket";
 
 interface TypingIndicator {
-  candidateName: string;
+  userName: string;
   conversationId: string;
 }
 
@@ -34,10 +34,10 @@ interface ChatContextValue {
   setActiveTab: (tab: ChatTab) => void;
   setSearchQuery: (query: string) => void;
   openConversation: (id: string) => void;
-  openConversationByCandidate: (candidateId: string) => void;
+  openConversationByUser: (userId: string) => void;
   closeConversation: () => void;
   sendMessage: (text: string) => void;
-  startConversation: (candidateId: string, candidateName: string) => void;
+  startConversation: (userId: string, userName: string) => void;
   togglePin: (id: string) => void;
 }
 
@@ -69,11 +69,11 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       }
 
       case "typing:indicator": {
-        const { conversationId, candidateName, isTyping } = event;
+        const { conversationId, userName, isTyping } = event;
         if (isTyping) {
           setTypingIndicators((prev) => {
             if (prev.some((t) => t.conversationId === conversationId)) return prev;
-            return [...prev, { candidateName, conversationId }];
+            return [...prev, { userName, conversationId }];
           });
           // Auto-clear after 10s
           const existing = typingTimers.current.get(conversationId);
@@ -161,9 +161,9 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     [messagesCache, send],
   );
 
-  const openConversationByCandidate = useCallback(
-    (candidateId: string) => {
-      const conv = conversations.find((c) => c.candidateId === candidateId);
+  const openConversationByUser = useCallback(
+    (userId: string) => {
+      const conv = conversations.find((c) => c.userId === userId);
       if (conv) openConversation(conv.id);
     },
     [conversations, openConversation],
@@ -208,8 +208,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   );
 
   const startConversation = useCallback(
-    (candidateId: string, candidateName: string) => {
-      const existing = conversations.find((c) => c.candidateId === candidateId);
+    (userId: string, userName: string) => {
+      const existing = conversations.find((c) => c.userId === userId);
       if (existing) {
         openConversation(existing.id);
         return;
@@ -218,7 +218,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ candidateId, candidateName }),
+        body: JSON.stringify({ userId, userName }),
       })
         .then((r) => r.json())
         .then((res) => {
@@ -273,7 +273,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       const q = searchQuery.toLowerCase();
       result = result.filter(
         (c) =>
-          c.candidateName.toLowerCase().includes(q) ||
+          c.userName.toLowerCase().includes(q) ||
           c.lastMessage?.text.toLowerCase().includes(q),
       );
     }
@@ -302,7 +302,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         setActiveTab,
         setSearchQuery,
         openConversation,
-        openConversationByCandidate,
+        openConversationByUser,
         closeConversation,
         sendMessage,
         startConversation,

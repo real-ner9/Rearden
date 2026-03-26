@@ -4,6 +4,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "kill-ports": "powershell -ExecutionPolicy Bypass -File scripts/kill-ports.ps1",
     "format": "prettier --write \"**/*.{ts,tsx,scss,md}\"",
     "check-types": "turbo run check-types"
   },

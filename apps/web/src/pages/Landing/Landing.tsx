@@ -10,19 +10,19 @@ const features = [
     icon: "M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z",
     title: "Video-First Profiles",
     description:
-      "Candidates showcase their skills through short video introductions, giving you a real sense of who they are.",
+      "Showcase your skills through short video introductions, giving others a real sense of who you are.",
   },
   {
     icon: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z",
     title: "AI-Powered Search",
     description:
-      "Describe your ideal candidate in natural language and our AI finds the best matches instantly.",
+      "Describe who you're looking for in natural language and our AI finds the best matches instantly.",
   },
   {
     icon: "M13 10V3L4 14h7v7l9-11h-7z",
     title: "Lightning Fast",
     description:
-      "Skip the resume pile. Watch candidate videos, assess fit, and reach out — all in minutes.",
+      "Skip the resume pile. Watch video profiles, assess fit, and reach out — all in minutes.",
   },
 ];
 
@@ -73,7 +73,7 @@ export function Landing() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 30, delay: 0.2 }}
             >
-              Rearden connects recruiters with candidates through AI-powered video
+              Rearden connects people through AI-powered video
               profiles. See beyond the resume — discover personality, communication,
               and culture fit.
             </motion.p>
@@ -90,9 +90,9 @@ export function Landing() {
               <Button
                 variant="secondary"
                 size="lg"
-                onClick={() => navigate("/register")}
+                onClick={() => navigate("/auth")}
               >
-                Join as Candidate
+                Create Profile
               </Button>
             </motion.div>
           </div>
@@ -175,7 +175,7 @@ export function Landing() {
               size="lg"
               onClick={() => navigate("/search")}
             >
-              Explore Candidates
+              Explore Profiles
             </Button>
           </motion.div>
         </section>

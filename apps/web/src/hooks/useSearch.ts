@@ -1,24 +1,24 @@
 import { useState, useEffect, useCallback } from "react";
 import { apiFetch } from "@/lib/api";
-import type { Candidate } from "@rearden/types";
+import type { User } from "@rearden/types";
 
-export interface SearchResultWithCandidate {
-  candidateId: string;
+export interface SearchResultWithUser {
+  userId: string;
   score: number;
   matchReason: string;
-  candidate: Candidate;
+  user: User;
 }
 
 interface SearchApiResponse {
-  results: SearchResultWithCandidate[];
+  results: SearchResultWithUser[];
   query: string;
-  totalCandidates: number;
+  totalUsers: number;
   searchTimeMs: number;
 }
 
 export function useSearch() {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<SearchResultWithCandidate[]>([]);
+  const [results, setResults] = useState<SearchResultWithUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,13 +28,13 @@ export function useSearch() {
 
     try {
       if (!searchQuery.trim()) {
-        const response = await apiFetch<{ success: boolean; data: Candidate[] }>("/candidates");
+        const response = await apiFetch<{ success: boolean; data: User[] }>("/users");
         setResults(
-          response.data.map((candidate, i) => ({
-            candidateId: candidate.id,
+          response.data.map((user, i) => ({
+            userId: user.id,
             score: 90 - i * 2,
             matchReason: "Featured Talent",
-            candidate,
+            user,
           }))
         );
       } else {

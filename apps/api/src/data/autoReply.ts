@@ -40,14 +40,14 @@ export function scheduleAutoReply(
   const delay = 2000 + Math.random() * 3000; // 2-5 seconds
 
   const typingTimer = setTimeout(() => {
-    // Fetch conversation to get candidate name
+    // Fetch conversation to get user name
     getConversation(conversationId).then((conv) => {
       if (!conv) return;
 
       broadcast({
         type: "typing:indicator",
         conversationId,
-        candidateName: conv.candidateName,
+        userName: conv.userName,
         isTyping: true,
       });
 
@@ -55,11 +55,11 @@ export function scheduleAutoReply(
         broadcast({
           type: "typing:indicator",
           conversationId,
-          candidateName: conv.candidateName,
+          userName: conv.userName,
           isTyping: false,
         });
 
-        addMessage(conversationId, conv.candidateId, "candidate", getNextReply()).then(
+        addMessage(conversationId, conv.userId, "user", getNextReply()).then(
           (result) => {
             if (result) {
               broadcast({

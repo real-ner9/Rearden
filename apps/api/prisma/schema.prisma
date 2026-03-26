@@ -8,19 +8,26 @@ generator client {
   previewFeatures = ["fullTextSearchPostgres"]
 }
 
-model Candidate {
+model User {
   id           String   @id @default(cuid())
-  email        String   @unique
-  name         String
+  phone        String   @unique
+  passwordHash String
+  username     String?
+  onboarded    Boolean  @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  resume       String?
+
+  // Profile fields (merged from Candidate)
+  email        String?
+  name         String?
   skills       String[]
+  topSkills    String[]
   experience   Int      @default(0)
   videoUrl     String?
   thumbnailUrl String?
   resumeUrl    String?
   resumeText   String?  @db.Text
+  resume       String?
   location     String   @default("")
   title        String   @default("")
   bio          String   @default("") @db.Text
@@ -31,53 +38,49 @@ model Candidate {
   conversations Conversation[]
 }
 
-model Recruiter {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String
-  company   String   @default("")
-  position  String   @default("")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
 model Post {
-  id          String   @id @default(cuid())
-  candidateId String
-  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  content     String    @db.Text
-  hashtags    String[]
-  imageUrl    String?
-  createdAt   DateTime  @default(now())
+  id                 String   @id @default(cuid())
+  userId             String
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type               String   @default("text")
+  content            String   @db.Text
+  hashtags           String[]
+  imageUrl           String?
+  videoUrl           String?
+  thumbnailUrl       String?
+  crossPostInstagram Boolean  @default(false)
+  crossPostShorts    Boolean  @default(false)
+  crossPostTiktok    Boolean  @default(false)
+  createdAt          DateTime @default(now())
 
-  @@index([candidateId])
+  @@index([userId])
 }
 
 model Vacancy {
   id          String   @id @default(cuid())
-  candidateId String
-  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   title       String
-  description String    @db.Text
-  type        String    @default("fulltime")
-  location    String    @default("")
-  createdAt   DateTime  @default(now())
+  description String   @db.Text
+  type        String   @default("fulltime")
+  location    String   @default("")
+  createdAt   DateTime @default(now())
 
-  @@index([candidateId])
+  @@index([userId])
 }
 
 model Conversation {
   id          String   @id @default(cuid())
-  candidateId String
-  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  isPinned    Boolean   @default(false)
-  unreadCount Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isPinned    Boolean  @default(false)
+  unreadCount Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   messages ChatMessage[]
 
-  @@unique([candidateId])
+  @@unique([userId])
   @@index([updatedAt])
 }
 
@@ -91,4 +94,15 @@ model ChatMessage {
   createdAt      DateTime     @default(now())
 
   @@index([conversationId, createdAt])
+}
+
+model OtpCode {
+  id        String   @id @default(cuid())
+  phone     String
+  code      String
+  verified  Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([phone, code])
 }

@@ -2,30 +2,43 @@
 @use "../../styles/mixins" as *;
 
 .feed {
-  position: relative;
-  height: calc(100vh - $navbarHeight);
-  overflow: hidden;
+  height: 100vh;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
   background: #000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  scrollbar-width: none;
+  position: relative;
 
-  @include tablet {
-    height: 100vh;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }
 
 .reel {
-  position: relative;
+  height: 100vh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  width: 100%;
-  max-width: 480px;
+}
+
+.reelCard {
+  position: relative;
+  height: calc(100vh - 24px);
+  aspect-ratio: 9 / 16;
+  max-width: 100vw;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
 
   @include tablet {
-    max-width: 100%;
+    width: 100%;
+    height: 100vh;
+    max-height: none;
+    aspect-ratio: unset;
+    border-radius: 0;
   }
 }
 
@@ -37,12 +50,18 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  border-radius: 12px;
+
+  @include tablet {
+    border-radius: 0;
+  }
 }
 
 .video {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  background: #000;
   cursor: pointer;
 }
 
@@ -54,6 +73,11 @@
   height: 50%;
   background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
   pointer-events: none;
+  border-radius: 0 0 12px 12px;
+
+  @include tablet {
+    border-radius: 0;
+  }
 }
 
 .overlay {
@@ -69,7 +93,7 @@
   }
 }
 
-.candidateName {
+.authorName {
   font-size: $fontSize20;
   font-weight: 700;
   color: #fff;
@@ -82,19 +106,19 @@
   }
 }
 
-.candidateTitle {
+.authorTitle {
   font-size: $fontSize14;
   color: rgba(255, 255, 255, 0.8);
   margin-top: $space1;
 }
 
-.candidateLocation {
+.authorLocation {
   font-size: $fontSize13;
   color: rgba(255, 255, 255, 0.6);
   margin-top: $space1;
 }
 
-.candidateSkills {
+.authorSkills {
   display: flex;
   flex-wrap: wrap;
   gap: $space2;
@@ -107,10 +131,10 @@
   color: rgba(255, 255, 255, 0.85);
 }
 
-// Action buttons — right side, like Instagram
+// Action buttons — right side outside the video card on desktop, like Instagram
 .actions {
   position: absolute;
-  right: $space4;
+  right: -80px;
   bottom: 25%;
   display: flex;
   flex-direction: column;
@@ -143,55 +167,8 @@
   font-weight: 500;
 }
 
-// Desktop nav arrows
-.navArrows {
-  position: absolute;
-  right: $space6;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: $space3;
-  z-index: 3;
-
-  @include tablet {
-    display: none;
-  }
-}
-
-.arrowBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  transition: all $transitionFast;
-  backdrop-filter: blur(8px);
-
-  &:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.2);
-  }
-
-  &:disabled {
-    opacity: 0.3;
-    cursor: default;
-  }
-}
-
-.counter {
-  position: absolute;
-  top: $space4;
-  right: $space4;
-  font-size: $fontSize13;
-  color: rgba(255, 255, 255, 0.6);
-  z-index: 3;
-}
-
 .loading {
-  height: calc(100vh - $navbarHeight);
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -208,11 +185,58 @@
 }
 
 .empty {
-  height: calc(100vh - $navbarHeight);
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   color: rgba(255, 255, 255, 0.5);
   font-size: $fontSize16;
   background: #000;
+}
+
+.sentinel {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Scroll buttons
+.scrollButtons {
+  position: fixed;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: $space3;
+  z-index: 50;
+
+  @include tablet {
+    display: none;
+  }
+}
+
+.scrollBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  cursor: pointer;
+  transition: background $transitionFast;
+  backdrop-filter: blur(8px);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

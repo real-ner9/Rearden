@@ -1,0 +1,206 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.sideNav {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: $sideNavWidth;
+  background: $bgBase;
+  border-right: $borderWidth solid $glassBorder;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: $space4 0;
+  transition: width 200ms ease;
+  overflow: hidden;
+
+  &:hover {
+    width: $sideNavExpandedWidth;
+  }
+
+  @include tablet {
+    display: none;
+  }
+}
+
+.top,
+.bottom {
+  display: flex;
+  flex-direction: column;
+  gap: $space1;
+}
+
+.logoLink {
+  display: flex;
+  align-items: center;
+  gap: $space3;
+  height: 48px;
+  padding: 0 $space4;
+  margin-bottom: $space3;
+  transition: opacity $transitionFast;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.logoIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  font-size: $fontSize18;
+  font-weight: 800;
+  color: $accentPurple;
+}
+
+.navItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: $space3;
+  height: 48px;
+  padding: 0 $space4;
+  font-size: $fontSize14;
+  font-weight: 500;
+  color: $textSecondary;
+  transition: color $transitionFast, background $transitionFast;
+  white-space: nowrap;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+
+  &:hover {
+    color: $textPrimary;
+    background: $glassBgHover;
+  }
+}
+
+.active {
+  color: $textPrimary;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 24px;
+    background: $accentPurple;
+    border-radius: 0 2px 2px 0;
+  }
+}
+
+.iconWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+}
+
+.label {
+  opacity: 0;
+  transition: opacity 150ms ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  .sideNav:hover & {
+    opacity: 1;
+  }
+}
+
+.badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background: $danger;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+// More popup
+.moreWrapper {
+  position: relative;
+}
+
+.morePopup {
+  position: absolute;
+  left: calc($sideNavWidth + $space2);
+  bottom: 0;
+  width: 200px;
+  background: $bgBase;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusLg;
+  box-shadow: $shadowLg;
+  z-index: 200;
+  padding: $space1;
+  overflow: hidden;
+
+  .sideNav:hover & {
+    left: calc($sideNavExpandedWidth + $space2);
+  }
+}
+
+.moreItem {
+  display: flex;
+  align-items: center;
+  gap: $space3;
+  width: 100%;
+  padding: $space3 $space4;
+  font-size: $fontSize14;
+  font-weight: 500;
+  color: $textSecondary;
+  background: none;
+  border: none;
+  border-radius: $radiusSm;
+  cursor: pointer;
+  transition: color $transitionFast, background $transitionFast;
+  text-align: left;
+
+  &:hover {
+    color: $danger;
+    background: $glassBgHover;
+  }
+}
+
+// Notification popup — positioned to the right of sidebar
+.notifWrapper {
+  position: relative;
+}
+
+.notifPopup {
+  position: absolute;
+  left: calc($sideNavWidth + $space2);
+  top: 0;
+  width: 340px;
+  max-height: 420px;
+  overflow-y: auto;
+  background: $bgBase;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusLg;
+  box-shadow: $shadowLg;
+  z-index: 200;
+  @include customScrollbar;
+
+  .sideNav:hover & {
+    left: calc($sideNavExpandedWidth + $space2);
+  }
+}

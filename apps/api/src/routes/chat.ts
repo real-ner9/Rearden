@@ -25,14 +25,14 @@ chatRoutes.get("/:id/messages", async (c) => {
 
 // Create conversation
 chatRoutes.post("/", async (c) => {
-  const body = await c.req.json<{ candidateId: string; candidateName: string }>();
-  if (!body.candidateId || !body.candidateName) {
+  const body = await c.req.json<{ userId: string; userName: string }>();
+  if (!body.userId || !body.userName) {
     return c.json<ApiResponse>(
-      { success: false, error: "candidateId and candidateName are required" },
+      { success: false, error: "userId and userName are required" },
       400,
     );
   }
-  const conv = await createConversation(body.candidateId, body.candidateName);
+  const conv = await createConversation(body.userId, body.userName);
   return c.json<ApiResponse>({ success: true, data: conv }, 201);
 });
 

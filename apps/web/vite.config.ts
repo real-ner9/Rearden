@@ -1,8 +1,17 @@
-import { defineConfig } from "vite";
+import { defineConfig, createLogger } from "vite";
 import react from "@vitejs/plugin-react";
 import { resolve } from "path";
 
+// Filter out noisy proxy errors when API is not yet ready
+const logger = createLogger();
+const originalError = logger.error.bind(logger);
+logger.error = (msg, options) => {
+  if (typeof msg === "string" && msg.includes("ws proxy socket error")) return;
+  originalError(msg, options);
+};
+
 export default defineConfig({
+  customLogger: logger,
   plugins: [react()],
   resolve: {
     alias: {
@@ -26,6 +35,6 @@ export default defineConfig({
         ws: true,
       },
     },
-    allowedHosts: true
+    allowedHosts: true,
   },
 });

@@ -1,0 +1,335 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.page {
+  @include container;
+  max-width: 560px;
+  padding-top: $space8;
+  padding-bottom: $space10;
+
+  @include mobile {
+    padding-top: $space4;
+    padding-bottom: $space6;
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $space6;
+}
+
+// ── Profile card (avatar + name) ──
+.profileCard {
+  display: flex;
+  align-items: center;
+  gap: $space4;
+  padding: $space4 $space5;
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusLg;
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  border-radius: 50%;
+  background: $bgSurface;
+  border: $borderWidth solid $glassBorder;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarInitials {
+  font-size: $fontSize20;
+  font-weight: 700;
+  color: $accentPurple;
+  letter-spacing: 1px;
+}
+
+.cardInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cardName {
+  font-size: $fontSize16;
+  font-weight: 600;
+  color: $textPrimary;
+  @include truncate;
+}
+
+.cardTitle {
+  font-size: $fontSize13;
+  color: $textSecondary;
+  @include truncate;
+}
+
+// ── Fields ──
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $space2;
+}
+
+.fieldRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $space4;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.label {
+  font-size: $fontSize13;
+  font-weight: 600;
+  color: $textSecondary;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.input {
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusSm;
+  padding: $space3 $space4;
+  font-size: $fontSize14;
+  color: $textPrimary;
+  transition: border-color $transitionBase;
+  width: 100%;
+
+  &:focus {
+    outline: none;
+    border-color: $accentPurple;
+  }
+
+  &::placeholder {
+    color: $textMuted;
+  }
+}
+
+.textarea {
+  @extend .input;
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.6;
+}
+
+// ── Skills ──
+.skillsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.skillsCount {
+  font-size: $fontSize12;
+  color: $textMuted;
+}
+
+.skillsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space2;
+  min-height: 36px;
+  padding: $space3;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusSm;
+  background: $glassBg;
+}
+
+.skillChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px $space2 3px 6px;
+  background: $bgSurface;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusSm;
+  font-size: $fontSize12;
+  color: $textPrimary;
+  cursor: grab;
+  user-select: none;
+  transition: border-color $transitionFast, box-shadow $transitionFast;
+
+  &:hover {
+    border-color: $accentPurple;
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.skillChipDragging {
+  opacity: 0.3;
+}
+
+.skillChipOver {
+  border-color: $accentTeal;
+  background: $glassBgHover;
+}
+
+.dragHandle {
+  color: $textMuted;
+  display: flex;
+  align-items: center;
+}
+
+.removeSkill {
+  display: flex;
+  align-items: center;
+  color: $textMuted;
+  cursor: pointer;
+  padding: 0;
+  background: none;
+  border: none;
+  transition: color $transitionFast;
+
+  &:hover {
+    color: $danger;
+  }
+}
+
+.emptySkills {
+  color: $textMuted;
+  font-size: $fontSize12;
+}
+
+.availableSkills {
+  display: flex;
+  flex-direction: column;
+  gap: $space2;
+  margin-top: $space1;
+}
+
+.availableLabel {
+  font-size: $fontSize12;
+  color: $textMuted;
+}
+
+.availableList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space1;
+}
+
+.availableChip {
+  padding: 2px $space2;
+  background: none;
+  border: $borderWidth dashed $glassBorder;
+  border-radius: $radiusSm;
+  font-size: $fontSize12;
+  color: $textSecondary;
+  cursor: pointer;
+  transition: border-color $transitionFast, color $transitionFast;
+
+  &:hover {
+    border-color: $accentPurple;
+    color: $textPrimary;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+}
+
+// ── Resume ──
+.resumeDropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space3 $space4;
+  border: $borderWidth dashed $glassBorder;
+  border-radius: $radiusSm;
+  cursor: pointer;
+  transition: border-color $transitionBase;
+
+  &:hover {
+    border-color: $accentPurple;
+  }
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.resumeStatus {
+  display: flex;
+  align-items: center;
+  gap: $space2;
+  font-size: $fontSize13;
+  color: $textSecondary;
+}
+
+// ── Create badge ──
+.createBadge {
+  margin-left: auto;
+  padding: 3px $space3;
+  background: $accentPurple;
+  color: #fff;
+  font-size: $fontSize12;
+  font-weight: 600;
+  border-radius: $radiusSm;
+  white-space: nowrap;
+}
+
+// ── Skill input (create mode) ──
+.skillInput {
+  @extend .input;
+  margin-top: $space1;
+}
+
+// ── Error ──
+.error {
+  color: $danger;
+  font-size: $fontSize13;
+}
+
+// ── Actions ──
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: $space3;
+  padding-top: $space2;
+}
+
+// ── Loading ──
+.loading {
+  @include container;
+  padding-top: $space20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space4;
+  color: $textSecondary;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid $bgSurface;
+  border-top-color: $accentPurple;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

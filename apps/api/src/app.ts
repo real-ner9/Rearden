@@ -3,12 +3,14 @@ import { logger } from "hono/logger";
 import { cors } from "hono/cors";
 import { createNodeWebSocket } from "@hono/node-ws";
 import type { ApiResponse } from "@rearden/types";
-import { candidateRoutes } from "./routes/candidates.js";
+import { userRoutes } from "./routes/users.js";
 import { searchRoutes } from "./routes/search.js";
 import { uploadRoutes } from "./routes/upload.js";
 import { chatRoutes } from "./routes/chat.js";
 import { postRoutes } from "./routes/posts.js";
 import { vacancyRoutes } from "./routes/vacancies.js";
+import { authRoutes } from "./routes/auth.js";
+import { profileRoutes } from "./routes/profile.js";
 import { createWSHandlers } from "./ws/chatWebSocket.js";
 
 export const app = new Hono();
@@ -37,9 +39,11 @@ app.get("/health", (c) => {
 app.get("/ws", upgradeWebSocket(() => createWSHandlers()));
 
 // API routes
-app.route("/api/candidates", candidateRoutes);
+app.route("/api/users", userRoutes);
 app.route("/api/search", searchRoutes);
 app.route("/api/upload", uploadRoutes);
 app.route("/api/chat", chatRoutes);
 app.route("/api/posts", postRoutes);
 app.route("/api/vacancies", vacancyRoutes);
+app.route("/api/auth", authRoutes);
+app.route("/api/me/profile", profileRoutes);

@@ -25,11 +25,11 @@ export function ChatConversationHeader() {
       </button>
 
       <div className={styles.avatar}>
-        {activeConversation.candidateName.charAt(0)}
+        {activeConversation.userName.charAt(0)}
       </div>
 
-      <Link to={`/candidate/${activeConversation.candidateId}`} className={styles.info}>
-        <h3 className={styles.name}>{activeConversation.candidateName}</h3>
+      <Link to={`/user/${activeConversation.userId}`} className={styles.info}>
+        <h3 className={styles.name}>{activeConversation.userName}</h3>
       </Link>
 
       <button

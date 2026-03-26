@@ -20,7 +20,7 @@ function timeAgo(date: Date): string {
 }
 
 const typeIcons: Record<NotificationType, string> = {
-  new_candidate: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2",
+  new_user: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2",
   interview_scheduled: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z",
   message_received: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z",
   status_change: "M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z",
@@ -59,7 +59,7 @@ export function NotificationItem({
           strokeLinejoin="round"
         >
           <path d={typeIcons[notification.type]} />
-          {notification.type === "new_candidate" && <circle cx="12" cy="7" r="4" />}
+          {notification.type === "new_user" && <circle cx="12" cy="7" r="4" />}
         </svg>
       </div>
 

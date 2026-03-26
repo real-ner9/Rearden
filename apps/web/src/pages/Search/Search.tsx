@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 
 import { SearchBar } from "@/components/SearchBar/SearchBar";
-import { CandidateCard } from "@/components/CandidateCard/CandidateCard";
+import { UserCard } from "@/components/UserCard/UserCard";
 import { useSearch } from "@/hooks/useSearch";
 import styles from "./Search.module.scss";
 
@@ -43,8 +43,8 @@ export function Search() {
             transition={{ type: "spring", stiffness: 300, damping: 30, delay: 0.1 }}
           >
             {query
-              ? `${results.length} candidate${results.length !== 1 ? "s" : ""} found`
-              : "Use AI-powered search to find your perfect candidates"}
+              ? `${results.length} user${results.length !== 1 ? "s" : ""} found`
+              : "Use AI-powered search to find your perfect match"}
           </motion.p>
         </div>
 
@@ -80,12 +80,12 @@ export function Search() {
             key={query}
           >
             {results.map((result) => (
-              <motion.div key={result.candidateId} variants={cardVariants}>
-                <CandidateCard
-                  candidate={result.candidate}
+              <motion.div key={result.userId} variants={cardVariants}>
+                <UserCard
+                  user={result.user}
                   score={result.score}
                   matchReason={result.matchReason}
-                  onClick={() => navigate(`/candidate/${result.candidateId}`)}
+                  onClick={() => navigate(`/user/${result.userId}`)}
                 />
               </motion.div>
             ))}
@@ -108,7 +108,7 @@ export function Search() {
                 <circle cx="11" cy="11" r="8" />
                 <path d="m21 21-4.35-4.35" />
               </svg>
-              <h3>No candidates found</h3>
+              <h3>No users found</h3>
               <p>Try adjusting your search query</p>
             </motion.div>
           )

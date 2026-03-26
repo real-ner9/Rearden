@@ -1,7 +1,7 @@
 @use "../../styles/variables" as *;
 @use "../../styles/mixins" as *;
 
-.register {
+.page {
   @include container;
   max-width: 720px;
   padding-top: $space10;
@@ -38,7 +38,7 @@
   color: $textSecondary;
 }
 
-.form {
+.card {
   background: $glassBg;
   border: $borderWidth solid $glassBorder;
   border-radius: $radiusMd;
@@ -53,20 +53,70 @@
   }
 }
 
-.formGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: $space5;
+// Step 1 — Type selector tabs
+.typeTabs {
+  display: flex;
+  gap: $space2;
+  background: $bgSurface;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusSm;
+  padding: 3px;
+}
 
-  @include mobile {
-    grid-template-columns: 1fr;
+.typeTab {
+  flex: 1;
+  padding: $space3 $space4;
+  border: none;
+  border-radius: $radiusSm;
+  background: none;
+  font-size: $fontSize14;
+  font-weight: 600;
+  color: $textMuted;
+  cursor: pointer;
+  transition: all $transitionBase;
+  position: relative;
+
+  &.active {
+    background: $glassBg;
+    color: $accentPurple;
+    box-shadow: $shadowSm;
+  }
+
+  &:hover:not(.active) {
+    color: $textPrimary;
   }
 }
 
-.bioField {
+// Step 2 — Details
+.miniPreview {
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: $radiusSm;
+  border: $borderWidth solid $glassBorder;
+  flex-shrink: 0;
+}
+
+.miniPreviewVideo {
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: $radiusSm;
+  border: $borderWidth solid $glassBorder;
+  flex-shrink: 0;
+}
+
+.detailsTop {
+  display: flex;
+  gap: $space4;
+  align-items: flex-start;
+}
+
+.field {
   display: flex;
   flex-direction: column;
   gap: $space2;
+  flex: 1;
 }
 
 .label {
@@ -83,8 +133,9 @@
   font-size: $fontSize14;
   line-height: 1.6;
   resize: vertical;
-  min-height: 100px;
+  min-height: 120px;
   transition: border-color $transitionBase;
+  width: 100%;
 
   &:focus {
     outline: none;
@@ -97,73 +148,33 @@
   }
 }
 
-.videoSection {
+.divider {
+  height: 1px;
+  background: $glassBorder;
+  margin: $space2 0;
+}
+
+.crossPostSection {
   display: flex;
   flex-direction: column;
-  gap: $space2;
+  gap: $space1;
 }
 
-.videoHint {
-  font-size: $fontSize13;
-  color: $textMuted;
-  margin-bottom: $space2;
-}
-
-.resumeSection {
-  display: flex;
-  flex-direction: column;
-  gap: $space2;
-}
-
-.resumeUpload {
-  display: flex;
-  flex-direction: column;
-}
-
-.resumeDropzone {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: $space5;
-  border: $borderWidth dashed $glassBorder;
-  border-radius: $radiusMd;
-  cursor: pointer;
-  transition: border-color $transitionBase, background $transitionBase;
-
-  &:hover {
-    border-color: $accentPurple;
-    background: rgba(0, 0, 0, 0.01);
-  }
-}
-
-.hiddenInput {
-  display: none;
-}
-
-.resumePlaceholder {
-  display: flex;
-  align-items: center;
-  gap: $space2;
+.crossPostTitle {
   font-size: $fontSize14;
-  color: $textMuted;
-}
-
-.resumeFile {
-  display: flex;
-  align-items: center;
-  gap: $space2;
-  font-size: $fontSize14;
-  color: $accentPurple;
   font-weight: 500;
-}
-
-.resumeProgress {
-  font-size: $fontSize14;
   color: $textSecondary;
+  margin-bottom: $space1;
 }
 
 .actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   padding-top: $space2;
+}
+
+.stepIndicator {
+  font-size: $fontSize13;
+  color: $textMuted;
 }

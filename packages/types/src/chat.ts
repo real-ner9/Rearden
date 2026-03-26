@@ -2,16 +2,16 @@ export interface ChatMessage {
   id: string;
   conversationId: string;
   senderId: string;
-  senderRole: "recruiter" | "candidate";
+  senderRole: string;
   text: string;
   createdAt: string;
 }
 
 export interface ChatConversation {
   id: string;
-  candidateId: string;
-  candidateName: string;
-  candidateAvatar: string | null;
+  userId: string;
+  userName: string;
+  userAvatar: string | null;
   isPinned: boolean;
   unreadCount: number;
   lastMessage: ChatMessage | null;
@@ -31,7 +31,7 @@ export type WSClientEvent =
 // WebSocket events: Server → Client
 export type WSServerEvent =
   | { type: "message:new"; message: ChatMessage; conversation: ChatConversation }
-  | { type: "typing:indicator"; conversationId: string; candidateName: string; isTyping: boolean }
+  | { type: "typing:indicator"; conversationId: string; userName: string; isTyping: boolean }
   | { type: "conversation:updated"; conversation: ChatConversation }
-  | { type: "connected"; recruiterId: string }
+  | { type: "connected"; userId: string }
   | { type: "error"; code: string; message: string };

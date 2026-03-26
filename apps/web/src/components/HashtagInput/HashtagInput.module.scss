@@ -1,0 +1,79 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: $space2;
+}
+
+.label {
+  font-size: $fontSize14;
+  font-weight: 500;
+  color: $textSecondary;
+}
+
+.inputArea {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space2;
+  padding: $space3 $space4;
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusSm;
+  cursor: text;
+  transition: border-color $transitionBase;
+  min-height: 44px;
+  align-items: center;
+
+  &:focus-within {
+    border-color: $accentPurple;
+  }
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: $space1;
+  padding: 2px $space3;
+  background: $bgSurface;
+  border: 1px solid $glassBorder;
+  border-radius: $radiusSm;
+  font-size: $fontSize13;
+  color: $accentPurple;
+  font-weight: 500;
+}
+
+.chipRemove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: $textMuted;
+  cursor: pointer;
+  font-size: $fontSize14;
+  line-height: 1;
+
+  &:hover {
+    color: $danger;
+  }
+}
+
+.input {
+  border: none;
+  outline: none;
+  background: none;
+  font-size: $fontSize14;
+  color: $textPrimary;
+  flex: 1;
+  min-width: 120px;
+  padding: 0;
+
+  &::placeholder {
+    color: $textMuted;
+  }
+}

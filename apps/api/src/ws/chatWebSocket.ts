@@ -22,7 +22,7 @@ export function createWSHandlers() {
       clients.add(ws);
       const connected: WSServerEvent = {
         type: "connected",
-        recruiterId: "recruiter-1",
+        userId: "system",
       };
       ws.send(JSON.stringify(connected));
     },
@@ -76,7 +76,7 @@ async function handleClientEvent(event: WSClientEvent, _ws: WSContext) {
       broadcast({
         type: "typing:indicator",
         conversationId: event.conversationId,
-        candidateName: "You",
+        userName: "You",
         isTyping: event.type === "typing:start",
       });
       break;

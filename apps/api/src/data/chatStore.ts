@@ -5,9 +5,9 @@ function toConversation(row: any): ChatConversation {
   const lastMsg = row.messages?.[0];
   return {
     id: row.id,
-    candidateId: row.candidateId,
-    candidateName: row.candidate?.name ?? "",
-    candidateAvatar: row.candidate?.thumbnailUrl ?? null,
+    userId: row.userId,
+    userName: row.user?.name ?? "",
+    userAvatar: row.user?.thumbnailUrl ?? null,
     isPinned: row.isPinned,
     unreadCount: row.unreadCount,
     lastMessage: lastMsg
@@ -37,7 +37,7 @@ function toMessage(row: any): ChatMessage {
 }
 
 const conversationInclude = {
-  candidate: { select: { name: true, thumbnailUrl: true } },
+  user: { select: { name: true, thumbnailUrl: true } },
   messages: { orderBy: { createdAt: "desc" as const }, take: 1 },
 };
 
@@ -68,7 +68,7 @@ export async function getMessages(conversationId: string): Promise<ChatMessage[]
 export async function addMessage(
   conversationId: string,
   senderId: string,
-  senderRole: "recruiter" | "candidate",
+  senderRole: string,
   text: string,
 ): Promise<{ message: ChatMessage; conversation: ChatConversation } | null> {
   const conv = await db.conversation.findUnique({ where: { id: conversationId } });
@@ -87,7 +87,7 @@ export async function addMessage(
     where: { id: conversationId },
     data: {
       updatedAt: new Date(),
-      unreadCount: senderRole === "candidate" ? { increment: 1 } : undefined,
+      unreadCount: senderRole !== "recruiter" ? { increment: 1 } : undefined,
     },
     include: conversationInclude,
   });
@@ -124,16 +124,16 @@ export async function markAsRead(conversationId: string): Promise<ChatConversati
   }
 }
 
-export async function createConversation(candidateId: string, _candidateName: string): Promise<ChatConversation> {
-  // Check if conversation already exists for this candidate
+export async function createConversation(userId: string, _userName: string): Promise<ChatConversation> {
+  // Check if conversation already exists for this user
   const existing = await db.conversation.findUnique({
-    where: { candidateId },
+    where: { userId },
     include: conversationInclude,
   });
   if (existing) return toConversation(existing);
 
   const row = await db.conversation.create({
-    data: { candidateId },
+    data: { userId },
     include: conversationInclude,
   });
   return toConversation(row);

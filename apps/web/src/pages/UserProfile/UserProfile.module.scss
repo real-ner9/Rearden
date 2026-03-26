@@ -1,0 +1,154 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.profile {
+  @include container;
+  max-width: 720px;
+  padding-top: $space10;
+  padding-bottom: $space10;
+
+  @include mobile {
+    padding-top: $space6;
+    padding-bottom: $space6;
+  }
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: $space4;
+  padding-bottom: $space6;
+}
+
+.name {
+  font-size: $fontSize32;
+  font-weight: 700;
+  color: $accentTeal;
+
+  @include tablet {
+    font-size: $fontSize24;
+  }
+
+  @include mobile {
+    font-size: $fontSize20;
+  }
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $space2;
+  font-size: $fontSize14;
+  color: $textSecondary;
+}
+
+.dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: $textMuted;
+  flex-shrink: 0;
+}
+
+.bio {
+  font-size: $fontSize14;
+  line-height: 1.7;
+  color: $textSecondary;
+}
+
+.skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space2;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: $space3;
+  padding-top: $space2;
+}
+
+.resumeLink {
+  display: inline-flex;
+  align-items: center;
+  gap: $space1;
+  font-size: $fontSize14;
+  font-weight: 500;
+  color: $accentPurple;
+  text-decoration: none;
+  transition: opacity $transitionBase;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.tabContent {
+  padding: $space6 0;
+}
+
+.vacancyList {
+  display: flex;
+  flex-direction: column;
+  gap: $space4;
+}
+
+.vacancyHeader {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.emptyTab {
+  padding: $space10 0;
+  text-align: center;
+  color: $textMuted;
+  font-size: $fontSize14;
+}
+
+
+.loading {
+  @include container;
+  padding-top: $space20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space4;
+  color: $textSecondary;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid $bgSurface;
+  border-top-color: $accentPurple;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.error {
+  @include container;
+  padding-top: $space20;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space4;
+
+  h2 {
+    font-size: $fontSize24;
+    color: $accentTeal;
+  }
+
+  p {
+    color: $textSecondary;
+  }
+}

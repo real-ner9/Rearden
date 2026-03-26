@@ -12,7 +12,7 @@ export interface SearchFilters {
 }
 
 export interface SearchResult {
-  candidateId: string;
+  userId: string;
   score: number;
   matchReason: string;
 }
@@ -20,6 +20,6 @@ export interface SearchResult {
 export interface SearchResponse {
   results: SearchResult[];
   query: string;
-  totalCandidates: number;
+  totalUsers: number;
   searchTimeMs: number;
 }

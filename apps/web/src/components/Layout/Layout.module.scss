@@ -10,10 +10,10 @@
 .body {
   display: flex;
   flex: 1;
-  padding-top: $navbarHeight;
+  padding-left: $sideNavWidth;
 
   @include tablet {
-    padding-top: 0;
+    padding-left: 0;
     padding-bottom: $mobileNavHeight;
   }
 }
@@ -22,6 +22,10 @@
   @include tablet {
     padding-bottom: 0;
   }
+}
+
+.authBody {
+  padding-left: 0;
 }
 
 .main {

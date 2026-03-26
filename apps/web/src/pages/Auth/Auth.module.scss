@@ -1,0 +1,201 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: $space6;
+
+  @include mobile {
+    padding: $space4;
+    align-items: flex-start;
+    padding-top: $space10;
+  }
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusMd;
+  padding: $space8;
+  display: flex;
+  flex-direction: column;
+  gap: $space6;
+  box-shadow: $shadowSm;
+
+  @include mobile {
+    padding: $space5;
+    gap: $space5;
+  }
+}
+
+.header {
+  text-align: center;
+}
+
+.title {
+  font-size: $fontSize24;
+  font-weight: 700;
+  color: $accentTeal;
+  margin-bottom: $space1;
+
+  @include mobile {
+    font-size: $fontSize20;
+  }
+}
+
+.subtitle {
+  font-size: $fontSize14;
+  color: $textSecondary;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $space2;
+}
+
+.label {
+  font-size: $fontSize14;
+  font-weight: 500;
+  color: $textSecondary;
+}
+
+.input {
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusSm;
+  padding: $space3 $space4;
+  font-size: $fontSize16;
+  transition: border-color $transitionBase;
+  width: 100%;
+
+  &:focus {
+    outline: none;
+    border-color: $accentPurple;
+  }
+
+  &::placeholder {
+    color: $textMuted;
+  }
+}
+
+.otpRow {
+  display: flex;
+  gap: $space2;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.otpInput {
+  width: 48px;
+  height: 56px;
+  text-align: center;
+  font-size: $fontSize24;
+  font-weight: 700;
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusSm;
+  transition: border-color $transitionBase, box-shadow $transitionBase, background $transitionBase;
+
+  &:focus {
+    outline: none;
+    border-color: $accentPurple;
+  }
+
+  @include mobile {
+    width: 42px;
+    height: 48px;
+    font-size: $fontSize20;
+  }
+}
+
+.otpError {
+  border-color: $danger;
+  box-shadow: 0 0 8px rgba(248, 113, 113, 0.4);
+}
+
+.otpSuccess {
+  border-color: $success;
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.4);
+}
+
+.submitBtn {
+  width: 100%;
+  padding: $space3 $space4;
+  border: none;
+  border-radius: $radiusSm;
+  background: $accentPurple;
+  color: #fff;
+  font-size: $fontSize14;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity $transitionFast;
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.resend {
+  text-align: center;
+  font-size: $fontSize13;
+  color: $textMuted;
+}
+
+.resendLink {
+  color: $accentPurple;
+  cursor: pointer;
+  font-weight: 500;
+  background: none;
+  border: none;
+  font-size: $fontSize13;
+  padding: 0;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:disabled {
+    color: $textMuted;
+    cursor: not-allowed;
+    text-decoration: none;
+  }
+}
+
+.error {
+  font-size: $fontSize13;
+  color: $danger;
+  text-align: center;
+}
+
+.stepIndicator {
+  font-size: $fontSize12;
+  color: $textMuted;
+  text-align: center;
+}
+
+// Dots loader
+.dotsLoader {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 0;
+}
+
+.dot {
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  margin-left: 2px;
+}

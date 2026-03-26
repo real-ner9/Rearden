@@ -1,104 +1,237 @@
-import { useState, useRef, useCallback, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "motion/react";
-import type { Candidate } from "@rearden/types";
+import { useRef, useEffect, useLayoutEffect, useCallback, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import type { VideoPost } from "@rearden/types";
 
-import { useApi } from "@/hooks/useApi";
 import { useChat } from "@/contexts/ChatContext";
+import { apiFetch } from "@/lib/api";
 import styles from "./Feed.module.scss";
 
-export function Feed() {
+const PAGE_SIZE = 5;
+
+interface FeedProps {
+  /** Filter by user (enables chronological mode) */
+  userId?: string;
+  /** Post ID to start from (deep link / reel modal) */
+  initialPostId?: string;
+}
+
+export function Feed({ userId, initialPostId }: FeedProps) {
   const navigate = useNavigate();
+  const { postId: routePostId } = useParams<{ postId?: string }>();
+  const postId = initialPostId ?? routePostId;
   const { startConversation } = useChat();
-  const { data: candidates } = useApi<Candidate[]>("/candidates");
-  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Shuffled mode for main feed, chronological for user reels
+  const shuffled = !userId;
+  const [seed] = useState(() => crypto.randomUUID());
+
+  const [posts, setPosts] = useState<VideoPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  // Pagination refs (not state — no re-render needed)
+  const offsetRef = useRef(0);
+  const cursorRef = useRef<string | null>(null);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const reelRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const activeIndexRef = useRef(0);
+  const hasScrolledToInitial = useRef(false);
 
-  // Only candidates with videos
-  const videoCandidates = candidates?.filter((c) => c.videoUrl) ?? [];
-  const current = videoCandidates[currentIndex];
+  // Build fetch URL
+  const buildUrl = useCallback(
+    (mode: "initial" | "more") => {
+      const params = new URLSearchParams();
+      params.set("type", "video");
+      params.set("limit", String(PAGE_SIZE));
 
-  const goTo = useCallback(
-    (index: number) => {
-      if (index < 0 || index >= videoCandidates.length) return;
-      // Pause previous video
-      videoRefs.current[currentIndex]?.pause();
-      setCurrentIndex(index);
+      if (userId) params.set("userId", userId);
+
+      if (shuffled) {
+        params.set("seed", seed);
+        params.set("offset", String(mode === "more" ? offsetRef.current : 0));
+        if (postId) params.set("startFrom", postId);
+      } else {
+        if (mode === "more" && cursorRef.current) {
+          params.set("cursor", cursorRef.current);
+        } else if (postId) {
+          params.set("startFrom", postId);
+        }
+      }
+
+      return `/posts?${params}`;
     },
-    [currentIndex, videoCandidates.length]
+    [userId, shuffled, seed, postId]
   );
 
-  const goNext = useCallback(() => goTo(currentIndex + 1), [goTo, currentIndex]);
-  const goPrev = useCallback(() => goTo(currentIndex - 1), [goTo, currentIndex]);
+  // Parse pagination from response meta
+  const updatePagination = useCallback(
+    (meta?: Record<string, unknown>) => {
+      if (shuffled) {
+        offsetRef.current = (meta?.nextOffset as number) ?? offsetRef.current;
+        setHasMore((meta?.hasMore as boolean) ?? false);
+      } else {
+        cursorRef.current = (meta?.nextCursor as string) ?? null;
+        setHasMore(!!meta?.nextCursor);
+      }
+    },
+    [shuffled]
+  );
+
+  // Initial fetch
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    offsetRef.current = 0;
+    cursorRef.current = null;
+
+    apiFetch<{ success: boolean; data: VideoPost[]; meta?: Record<string, unknown> }>(
+      buildUrl("initial")
+    )
+      .then((res) => {
+        if (cancelled) return;
+        setPosts(res.data);
+        updatePagination(res.meta);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [buildUrl, updatePagination]);
+
+  // Load more
+  const loadMore = useCallback(async () => {
+    if (!hasMore || loadingMore) return;
+    setLoadingMore(true);
+
+    try {
+      const res = await apiFetch<{
+        success: boolean;
+        data: VideoPost[];
+        meta?: Record<string, unknown>;
+      }>(buildUrl("more"));
+
+      setPosts((prev) => [...prev, ...res.data]);
+      updatePagination(res.meta);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [hasMore, loadingMore, buildUrl, updatePagination]);
+
+  // Load more when approaching the end (replaces sentinel — scroll-snap blocks sentinel visibility)
+  const loadMoreRef = useRef(loadMore);
+  loadMoreRef.current = loadMore;
+  const hasMoreRef = useRef(hasMore);
+  hasMoreRef.current = hasMore;
+
+  // Scroll to initial post before paint
+  useLayoutEffect(() => {
+    if (!postId || hasScrolledToInitial.current || posts.length === 0) return;
+
+    const container = containerRef.current;
+    const targetIndex = posts.findIndex((p) => p.id === postId);
+    if (targetIndex >= 0 && container) {
+      hasScrolledToInitial.current = true;
+      container.scrollTop = targetIndex * container.clientHeight;
+    }
+  }, [postId, posts]);
+
+  // IntersectionObserver: autoplay visible, pause hidden, update URL
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || posts.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const index = Number((entry.target as HTMLElement).dataset.index);
+          const video = videoRefs.current[index];
+          if (!video) continue;
+
+          if (entry.isIntersecting) {
+            activeIndexRef.current = index;
+            video.currentTime = 0;
+            video.play().catch(() => {});
+
+            // Update URL (standalone feed only)
+            if (!initialPostId && !userId) {
+              const currentPost = posts[index];
+              if (currentPost) {
+                history.replaceState(null, "", `/feed/${currentPost.id}`);
+              }
+            }
+          } else {
+            video.pause();
+          }
+        }
+
+        // Preload only ±2 from active
+        const active = activeIndexRef.current;
+        videoRefs.current.forEach((v, i) => {
+          if (!v) return;
+          v.preload = Math.abs(i - active) <= 2 ? "auto" : "none";
+        });
+
+        // Load more when within 2 reels of the end
+        if (hasMoreRef.current && active >= posts.length - 3) {
+          loadMoreRef.current();
+        }
+      },
+      { root: container, threshold: 0.5 }
+    );
+
+    reelRefs.current.forEach((el) => {
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [posts, initialPostId, userId]);
 
   // Keyboard navigation
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "ArrowDown" || e.key === "j") goNext();
-      if (e.key === "ArrowUp" || e.key === "k") goPrev();
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [goNext, goPrev]);
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (posts.length === 0) return;
 
-  // Wheel/scroll navigation with debounce
-  useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout>;
-    let locked = false;
-
-    const handler = (e: WheelEvent) => {
-      e.preventDefault();
-      if (locked) return;
-      locked = true;
-      timeout = setTimeout(() => (locked = false), 600);
-
-      if (e.deltaY > 0) goNext();
-      else if (e.deltaY < 0) goPrev();
-    };
-
-    const el = containerRef.current;
-    el?.addEventListener("wheel", handler, { passive: false });
-    return () => {
-      el?.removeEventListener("wheel", handler);
-      clearTimeout(timeout);
-    };
-  }, [goNext, goPrev]);
-
-  // Touch swipe
-  useEffect(() => {
-    let startY = 0;
-    const el = containerRef.current;
-
-    const onTouchStart = (e: TouchEvent) => {
-      startY = e.touches[0].clientY;
-    };
-    const onTouchEnd = (e: TouchEvent) => {
-      const diff = startY - e.changedTouches[0].clientY;
-      if (Math.abs(diff) > 50) {
-        if (diff > 0) goNext();
-        else goPrev();
+      let nextIndex: number | null = null;
+      if (e.key === "ArrowDown" || e.key === "j") {
+        nextIndex = Math.min(activeIndexRef.current + 1, posts.length - 1);
+      } else if (e.key === "ArrowUp" || e.key === "k") {
+        nextIndex = Math.max(activeIndexRef.current - 1, 0);
       }
-    };
 
-    el?.addEventListener("touchstart", onTouchStart, { passive: true });
-    el?.addEventListener("touchend", onTouchEnd, { passive: true });
-    return () => {
-      el?.removeEventListener("touchstart", onTouchStart);
-      el?.removeEventListener("touchend", onTouchEnd);
-    };
-  }, [goNext, goPrev]);
+      if (nextIndex !== null && nextIndex !== activeIndexRef.current) {
+        reelRefs.current[nextIndex]?.scrollIntoView({ behavior: "smooth" });
+      }
+    },
+    [posts.length]
+  );
 
-  // Autoplay current video
   useEffect(() => {
-    const vid = videoRefs.current[currentIndex];
-    if (vid) {
-      vid.currentTime = 0;
-      vid.play().catch(() => {});
-    }
-  }, [currentIndex]);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
 
-  if (!candidates) {
+  const scrollUp = useCallback(() => {
+    const nextIndex = Math.max(activeIndexRef.current - 1, 0);
+    if (nextIndex !== activeIndexRef.current) {
+      reelRefs.current[nextIndex]?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, []);
+
+  const scrollDown = useCallback(() => {
+    const nextIndex = Math.min(activeIndexRef.current + 1, posts.length - 1);
+    if (nextIndex !== activeIndexRef.current) {
+      reelRefs.current[nextIndex]?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [posts.length]);
+
+  if (loading) {
     return (
       <div className={styles.loading}>
         <div className={styles.spinner} />
@@ -106,7 +239,7 @@ export function Feed() {
     );
   }
 
-  if (videoCandidates.length === 0) {
+  if (posts.length === 0) {
     return (
       <div className={styles.empty}>
         <p>No video reels yet</p>
@@ -115,24 +248,27 @@ export function Feed() {
   }
 
   return (
+    <>
     <div className={styles.feed} ref={containerRef}>
-      <AnimatePresence mode="wait">
-        {current && (
-          <motion.div
-            key={current.id}
-            className={styles.reel}
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -40 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          >
-            {/* Video */}
+      {posts.map((post, i) => (
+        <div
+          key={post.id}
+          className={styles.reel}
+          data-index={i}
+          ref={(el) => {
+            reelRefs.current[i] = el;
+          }}
+        >
+          <div className={styles.reelCard}>
             <div className={styles.videoWrapper}>
               <video
-                ref={(el) => { videoRefs.current[currentIndex] = el; }}
+                ref={(el) => {
+                  videoRefs.current[i] = el;
+                }}
                 className={styles.video}
-                src={current.videoUrl!}
-                poster={current.thumbnailUrl ?? undefined}
+                src={post.videoUrl}
+                poster={post.thumbnailUrl ?? undefined}
+                preload={i < 3 ? "auto" : "none"}
                 loop
                 muted
                 playsInline
@@ -142,34 +278,33 @@ export function Feed() {
                 }}
               />
 
-              {/* Gradient overlay */}
               <div className={styles.gradient} />
 
-              {/* Candidate info overlay */}
               <div className={styles.overlay}>
                 <button
-                  className={styles.candidateName}
-                  onClick={() => navigate(`/candidate/${current.id}`)}
+                  className={styles.authorName}
+                  onClick={() => navigate(`/user/${post.author.id}`)}
                 >
-                  {current.name}
+                  {post.author.name}
                 </button>
-                <p className={styles.candidateTitle}>{current.title}</p>
-                <p className={styles.candidateLocation}>
-                  {current.location} &middot; {current.experience}yr exp
+                <p className={styles.authorTitle}>{post.author.title}</p>
+                <p className={styles.authorLocation}>
+                  {post.author.location} &middot; {post.author.experience}yr exp
                 </p>
-                <div className={styles.candidateSkills}>
-                  {current.skills.slice(0, 4).map((s) => (
-                    <span key={s} className={styles.skillChip}>#{s.toLowerCase().replace(/\s+/g, "")}</span>
+                <div className={styles.authorSkills}>
+                  {post.author.skills.slice(0, 4).map((s) => (
+                    <span key={s} className={styles.skillChip}>
+                      #{s.toLowerCase().replace(/\s+/g, "")}
+                    </span>
                   ))}
                 </div>
               </div>
             </div>
 
-            {/* Action buttons */}
             <div className={styles.actions}>
               <button
                 className={styles.actionBtn}
-                onClick={() => navigate(`/candidate/${current.id}`)}
+                onClick={() => navigate(`/user/${post.author.id}`)}
                 title="View profile"
               >
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -181,7 +316,7 @@ export function Feed() {
 
               <button
                 className={styles.actionBtn}
-                onClick={() => startConversation(current.id, current.name)}
+                onClick={() => startConversation(post.author.id, post.author.name)}
                 title="Message"
               >
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -190,10 +325,10 @@ export function Feed() {
                 <span className={styles.actionLabel}>Chat</span>
               </button>
 
-              {current.resumeText && (
+              {post.author.resumeText && (
                 <button
                   className={styles.actionBtn}
-                  onClick={() => navigate(`/candidate/${current.id}/resume`)}
+                  onClick={() => navigate(`/user/${post.author.id}/resume`)}
                   title="Resume"
                 >
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -204,36 +339,29 @@ export function Feed() {
                 </button>
               )}
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      ))}
 
-      {/* Navigation arrows (desktop) */}
-      <div className={styles.navArrows}>
-        <button
-          className={styles.arrowBtn}
-          onClick={goPrev}
-          disabled={currentIndex === 0}
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polyline points="18 15 12 9 6 15" />
-          </svg>
-        </button>
-        <button
-          className={styles.arrowBtn}
-          onClick={goNext}
-          disabled={currentIndex >= videoCandidates.length - 1}
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
-        </button>
-      </div>
-
-      {/* Counter */}
-      <div className={styles.counter}>
-        {currentIndex + 1} / {videoCandidates.length}
-      </div>
+      {loadingMore && (
+        <div className={styles.sentinel}>
+          <div className={styles.spinner} />
+        </div>
+      )}
     </div>
+
+    <div className={styles.scrollButtons}>
+      <button className={styles.scrollBtn} onClick={scrollUp} aria-label="Previous reel">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="18 15 12 9 6 15" />
+        </svg>
+      </button>
+      <button className={styles.scrollBtn} onClick={scrollDown} aria-label="Next reel">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+    </div>
+    </>
   );
 }

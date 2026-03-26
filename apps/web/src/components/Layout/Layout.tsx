@@ -1,22 +1,24 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { Navbar } from "@/components/Navbar/Navbar";
-import { Sidebar } from "@/components/Sidebar/Sidebar";
+import { SideNav } from "@/components/SideNav/SideNav";
+import { MessagesPopup } from "@/components/MessagesPopup/MessagesPopup";
 import styles from "./Layout.module.scss";
 
 export function Layout() {
   const location = useLocation();
-  const isChatPage = location.pathname.startsWith("/chat");
-  const isFeedPage = location.pathname === "/feed";
+  const isFeedPage = location.pathname === "/feed" || location.pathname.startsWith("/feed/");
+  const isAuthPage = location.pathname === "/auth";
 
   return (
     <div className={styles.layout}>
+      <SideNav />
       <Navbar />
-      <div className={`${styles.body} ${isFeedPage ? styles.feedBody : ""}`}>
+      <div className={`${styles.body} ${isFeedPage ? styles.feedBody : ""} ${isAuthPage ? styles.authBody : ""}`}>
         <main className={styles.main}>
           <Outlet />
         </main>
-        {!isChatPage && !isFeedPage && <Sidebar />}
       </div>
+      <MessagesPopup />
     </div>
   );
 }

@@ -1,22 +1,22 @@
-import type { Candidate, SearchFilters } from "@rearden/types";
+import type { User, SearchFilters } from "@rearden/types";
 
-export interface ScoredCandidate {
-  candidate: Candidate;
+export interface ScoredUser {
+  user: User;
   score: number;
   matchReason: string;
 }
 
-export function searchCandidates(
-  candidates: Candidate[],
+export function searchUsers(
+  users: User[],
   query: string,
   filters?: SearchFilters
-): ScoredCandidate[] {
-  // Handle empty query - return all candidates with random scores
+): ScoredUser[] {
+  // Handle empty query - return all users with random scores
   if (!query.trim()) {
-    return candidates
-      .filter((candidate) => applyFilters(candidate, filters))
-      .map((candidate) => ({
-        candidate,
+    return users
+      .filter((user) => applyFilters(user, filters))
+      .map((user) => ({
+        user,
         score: Math.floor(Math.random() * 16) + 85, // 85-100
         matchReason: "Featured Talent",
       }))
@@ -26,15 +26,15 @@ export function searchCandidates(
   // Parse query into lowercase tokens
   const tokens = query.toLowerCase().trim().split(/\s+/);
 
-  // Score each candidate
-  const scoredCandidates = candidates
-    .map((candidate): ScoredCandidate => {
+  // Score each user
+  const scoredUsers = users
+    .map((user): ScoredUser => {
       let totalScore = 0;
       const matchReasons: string[] = [];
       const matchedSkills: string[] = [];
 
       // Skill matching
-      for (const skill of candidate.skills) {
+      for (const skill of user.skills) {
         const skillLower = skill.toLowerCase();
 
         // Exact match
@@ -54,23 +54,23 @@ export function searchCandidates(
       }
 
       // Title matching
-      const titleLower = candidate.title.toLowerCase();
+      const titleLower = user.title.toLowerCase();
       const titleMatches = tokens.filter((token) => titleLower.includes(token));
       if (titleMatches.length > 0) {
         totalScore += titleMatches.length * 20;
-        matchReasons.push(`Title: ${candidate.title}`);
+        matchReasons.push(`Title: ${user.title}`);
       }
 
       // Location matching
-      const locationLower = candidate.location.toLowerCase();
+      const locationLower = user.location.toLowerCase();
       const locationMatches = tokens.filter((token) => locationLower.includes(token));
       if (locationMatches.length > 0) {
         totalScore += locationMatches.length * 15;
-        matchReasons.push(`Location: ${candidate.location}`);
+        matchReasons.push(`Location: ${user.location}`);
       }
 
       // Bio matching
-      const bioLower = candidate.bio.toLowerCase();
+      const bioLower = user.bio.toLowerCase();
       const bioMatches = tokens.filter((token) => bioLower.includes(token));
       if (bioMatches.length > 0) {
         totalScore += bioMatches.length * 5;
@@ -78,13 +78,13 @@ export function searchCandidates(
 
       // Experience keywords
       const queryLower = query.toLowerCase();
-      if (queryLower.includes("senior") && candidate.experience >= 5) {
+      if (queryLower.includes("senior") && user.experience >= 5) {
         totalScore += 10;
       }
-      if (queryLower.includes("junior") && candidate.experience <= 3) {
+      if (queryLower.includes("junior") && user.experience <= 3) {
         totalScore += 10;
       }
-      if (queryLower.includes("lead") && candidate.experience >= 8) {
+      if (queryLower.includes("lead") && user.experience >= 8) {
         totalScore += 10;
       }
 
@@ -107,49 +107,49 @@ export function searchCandidates(
         : "General match";
 
       return {
-        candidate,
+        user,
         score: normalizedScore,
         matchReason,
       };
     })
     .filter((scored) => scored.score > 0) // Filter out zero scores
-    .filter((scored) => applyFilters(scored.candidate, filters)) // Apply additional filters
+    .filter((scored) => applyFilters(scored.user, filters)) // Apply additional filters
     .sort((a, b) => b.score - a.score); // Sort by score descending
 
-  return scoredCandidates;
+  return scoredUsers;
 }
 
-function applyFilters(candidate: Candidate, filters?: SearchFilters): boolean {
+function applyFilters(user: User, filters?: SearchFilters): boolean {
   if (!filters) return true;
 
   // Skills filter
   if (filters.skills && filters.skills.length > 0) {
-    const candidateSkillsLower = candidate.skills.map((s) => s.toLowerCase());
+    const userSkillsLower = user.skills.map((s) => s.toLowerCase());
     const hasAllSkills = filters.skills.every((skill) =>
-      candidateSkillsLower.some((cs) => cs.includes(skill.toLowerCase()))
+      userSkillsLower.some((us) => us.includes(skill.toLowerCase()))
     );
     if (!hasAllSkills) return false;
   }
 
   // Location filter
   if (filters.location) {
-    const locationMatch = candidate.location
+    const locationMatch = user.location
       .toLowerCase()
       .includes(filters.location.toLowerCase());
     if (!locationMatch) return false;
   }
 
   // Experience range filter
-  if (filters.experienceMin !== undefined && candidate.experience < filters.experienceMin) {
+  if (filters.experienceMin !== undefined && user.experience < filters.experienceMin) {
     return false;
   }
-  if (filters.experienceMax !== undefined && candidate.experience > filters.experienceMax) {
+  if (filters.experienceMax !== undefined && user.experience > filters.experienceMax) {
     return false;
   }
 
   // Availability filter
   if (filters.availability && filters.availability.length > 0) {
-    if (!filters.availability.includes(candidate.availability)) {
+    if (!filters.availability.includes(user.availability)) {
       return false;
     }
   }

@@ -49,7 +49,7 @@ export function ChatPanel() {
                 </svg>
               </button>
               <span className={styles.convName}>
-                {activeConversation.candidateName}
+                {activeConversation.userName}
               </span>
             </div>
 
