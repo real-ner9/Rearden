@@ -1,17 +1,12 @@
 @use "../../styles/variables" as *;
-@use "../../styles/mixins" as *;
 
 .chat {
   display: flex;
   height: 100vh;
 }
 
-.sidebarDesktop {
+.sidebar {
   flex-shrink: 0;
-
-  @include tablet {
-    display: none;
-  }
 }
 
 .resizeHandle {
@@ -25,35 +20,9 @@
   &:active {
     background: $accentPurple;
   }
-
-  @include tablet {
-    display: none;
-  }
 }
 
-.conversationDesktop {
+.conversation {
   flex: 1;
   min-width: 0;
-
-  @include tablet {
-    display: none;
-  }
-}
-
-// Mobile: single panel
-.mobileContainer {
-  display: none;
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-
-  @include tablet {
-    display: block;
-  }
-}
-
-.mobilePanel {
-  position: absolute;
-  inset: 0;
 }

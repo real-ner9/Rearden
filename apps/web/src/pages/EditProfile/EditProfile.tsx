@@ -90,6 +90,12 @@ export function EditProfile() {
   const handleAvatarFile = useCallback(
     async (file: File) => {
       if (!file.type.startsWith("image/")) return;
+
+      // Revoke previous preview URL to prevent memory leak
+      if (avatarPreview && avatarPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(avatarPreview);
+      }
+
       setAvatarPreview(URL.createObjectURL(file));
       try {
         const url = await avatarUpload.upload(file);
@@ -98,8 +104,17 @@ export function EditProfile() {
         /* handled by hook */
       }
     },
-    [avatarUpload],
+    [avatarUpload, avatarPreview],
   );
+
+  // Cleanup avatar preview URL on unmount
+  useEffect(() => {
+    return () => {
+      if (avatarPreview && avatarPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(avatarPreview);
+      }
+    };
+  }, [avatarPreview]);
 
   const handleResumeUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -116,7 +131,7 @@ export function EditProfile() {
   };
 
   // Drag and drop
-  const handleDragStart =
+  const handleDragStart = useCallback(
     (index: number) => (e: React.DragEvent<HTMLDivElement>) => {
       setDragIndex(index);
       dragNode.current = e.currentTarget;
@@ -125,36 +140,53 @@ export function EditProfile() {
       requestAnimationFrame(() => {
         dragNode.current?.classList.add(styles.skillChipDragging);
       });
-    };
+    },
+    []
+  );
 
-  const handleDragOver = (index: number) => (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-    if (dragIndex === null || dragIndex === index) return;
-    setOverIndex(index);
-  };
+  const handleDragOver = useCallback(
+    (index: number) => (e: React.DragEvent) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      if (dragIndex === null || dragIndex === index) return;
+      setOverIndex(index);
+    },
+    [dragIndex]
+  );
 
-  const handleDragLeave = () => setOverIndex(null);
+  const handleDragLeave = useCallback(() => setOverIndex(null), []);
 
-  const handleDrop = (index: number) => (e: React.DragEvent) => {
-    e.preventDefault();
-    if (dragIndex === null || dragIndex === index) return;
-    setTopSkills((prev) => {
-      const next = [...prev];
-      const [moved] = next.splice(dragIndex, 1);
-      next.splice(index, 0, moved);
-      return next;
-    });
-    setDragIndex(null);
-    setOverIndex(null);
-  };
+  const handleDrop = useCallback(
+    (index: number) => (e: React.DragEvent) => {
+      e.preventDefault();
+      if (dragIndex === null || dragIndex === index) return;
+      setTopSkills((prev) => {
+        const next = [...prev];
+        const [moved] = next.splice(dragIndex, 1);
+        next.splice(index, 0, moved);
+        return next;
+      });
+      setDragIndex(null);
+      setOverIndex(null);
+    },
+    [dragIndex]
+  );
 
-  const handleDragEnd = () => {
+  const handleDragEnd = useCallback(() => {
     dragNode.current?.classList.remove(styles.skillChipDragging);
     setDragIndex(null);
     setOverIndex(null);
     dragNode.current = null;
-  };
+  }, []);
+
+  // Cleanup drag state on unmount
+  useEffect(() => {
+    return () => {
+      if (dragNode.current) {
+        dragNode.current.classList.remove(styles.skillChipDragging);
+      }
+    };
+  }, []);
 
   const addSkill = (skill: string) => {
     if (topSkills.length >= 13) return;

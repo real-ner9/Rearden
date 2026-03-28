@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { TabBar, type TabItem } from "@/components/TabBar/TabBar";
 import styles from "./ProfileTabs.module.scss";
 
 export type ProfileTab = "posts" | "video" | "vacancies";
@@ -8,31 +8,20 @@ interface ProfileTabsProps {
   onTabChange: (tab: ProfileTab) => void;
 }
 
-const tabs: { key: ProfileTab; label: string }[] = [
-  { key: "posts", label: "Posts" },
-  { key: "video", label: "Video" },
-  { key: "vacancies", label: "Vacancies" },
+const tabs: TabItem[] = [
+  { id: "posts", label: "Posts" },
+  { id: "video", label: "Video" },
+  { id: "vacancies", label: "Vacancies" },
 ];
 
 export function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps) {
   return (
-    <div className={styles.tabBar}>
-      {tabs.map((tab) => (
-        <button
-          key={tab.key}
-          className={`${styles.tab} ${activeTab === tab.key ? styles.active : ""}`}
-          onClick={() => onTabChange(tab.key)}
-        >
-          {tab.label}
-          {activeTab === tab.key && (
-            <motion.div
-              className={styles.indicator}
-              layoutId="profileTabIndicator"
-              transition={{ type: "spring", stiffness: 400, damping: 30 }}
-            />
-          )}
-        </button>
-      ))}
-    </div>
+    <TabBar
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={(id) => onTabChange(id as ProfileTab)}
+      layoutId="profileTabIndicator"
+      className={styles.tabBar}
+    />
   );
 }

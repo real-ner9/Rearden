@@ -23,7 +23,7 @@
 .list {
   flex: 1;
   overflow-y: auto;
-  padding: $space1 0;
+  padding: $space3 0 $space1;
   @include customScrollbar;
 }
 

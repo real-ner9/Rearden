@@ -1,4 +1,5 @@
 import "dotenv/config";
+import "./lib/env.js"; // Validate environment variables at startup
 import { serve } from "@hono/node-server";
 import { app, injectWebSocket } from "./app.js";
 

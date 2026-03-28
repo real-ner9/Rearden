@@ -11,8 +11,14 @@ import {
   updateFolder,
   deleteFolder,
 } from "../data/chatStore.js";
+import { authMiddleware } from "../middleware/auth.js";
 
-export const chatRoutes = new Hono();
+type AuthEnv = { Variables: { userId: string } };
+
+export const chatRoutes = new Hono<AuthEnv>();
+
+// Apply authentication to all chat routes
+chatRoutes.use("*", authMiddleware);
 
 // List conversations
 chatRoutes.get("/", async (c) => {
@@ -22,25 +28,28 @@ chatRoutes.get("/", async (c) => {
 
 // List folders
 chatRoutes.get("/folders", async (c) => {
-  const folders = await getFolders("recruiter-1");
+  const userId = c.get("userId");
+  const folders = await getFolders(userId);
   return c.json<ApiResponse>({ success: true, data: folders });
 });
 
 // Create folder
 chatRoutes.post("/folders", async (c) => {
+  const userId = c.get("userId");
   const { name } = await c.req.json<{ name: string }>();
   if (!name?.trim()) {
     return c.json<ApiResponse>({ success: false, error: "name is required" }, 400);
   }
-  const folder = await createFolder("recruiter-1", name.trim());
+  const folder = await createFolder(userId, name.trim());
   return c.json<ApiResponse>({ success: true, data: folder }, 201);
 });
 
 // Update folder
 chatRoutes.patch("/folders/:id", async (c) => {
+  const userId = c.get("userId");
   const id = c.req.param("id");
   const body = await c.req.json<{ name?: string; conversationIds?: string[]; order?: number }>();
-  const folder = await updateFolder(id, "recruiter-1", body);
+  const folder = await updateFolder(id, userId, body);
   if (!folder) {
     return c.json<ApiResponse>({ success: false, error: "Folder not found" }, 404);
   }
@@ -49,8 +58,9 @@ chatRoutes.patch("/folders/:id", async (c) => {
 
 // Delete folder
 chatRoutes.delete("/folders/:id", async (c) => {
+  const userId = c.get("userId");
   const id = c.req.param("id");
-  const ok = await deleteFolder(id, "recruiter-1");
+  const ok = await deleteFolder(id, userId);
   if (!ok) {
     return c.json<ApiResponse>({ success: false, error: "Folder not found" }, 404);
   }
@@ -79,12 +89,13 @@ chatRoutes.post("/", async (c) => {
 
 // Send message
 chatRoutes.post("/:id/messages", async (c) => {
+  const userId = c.get("userId");
   const id = c.req.param("id");
   const body = await c.req.json<{ text: string }>();
   if (!body.text?.trim()) {
     return c.json<ApiResponse>({ success: false, error: "text is required" }, 400);
   }
-  const result = await addMessage(id, "recruiter-1", "recruiter", body.text.trim());
+  const result = await addMessage(id, userId, "recruiter", body.text.trim());
   if (!result) {
     return c.json<ApiResponse>({ success: false, error: "Conversation not found" }, 404);
   }

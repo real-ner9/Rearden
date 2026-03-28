@@ -21,6 +21,7 @@ export const router = createBrowserRouter([
       { path: "/feed/:postId", element: <Feed /> },
       { path: "/search", element: <Search /> },
       { path: "/user/:id", element: <MyProfile /> },
+      { path: "/user/:id/:tab", element: <MyProfile /> },
       { path: "/user/:id/reel/:postId", element: <MyProfile /> },
       { path: "/user/:id/resume", element: <Resume /> },
       { path: "/auth", element: <Auth /> },
@@ -28,6 +29,7 @@ export const router = createBrowserRouter([
         element: <RequireAuth />,
         children: [
           { path: "/profile", element: <MyProfile /> },
+          { path: "/profile/:tab", element: <MyProfile /> },
           { path: "/profile/edit", element: <EditProfile /> },
           { path: "/chat", element: <Chat /> },
           { path: "/chat/:conversationId", element: <Chat /> },

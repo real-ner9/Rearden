@@ -1,15 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export function useVideoUpload() {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const previewUrlRef = useRef<string | null>(null);
 
   const upload = async (file: File): Promise<string> => {
     setUploading(true);
     setProgress(0);
 
+    // Revoke previous URL before creating new one
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current);
+    }
+
     const objectUrl = URL.createObjectURL(file);
+    previewUrlRef.current = objectUrl;
     setPreviewUrl(objectUrl);
 
     return new Promise((resolve, reject) => {
@@ -45,6 +52,15 @@ export function useVideoUpload() {
       xhr.send(formData);
     });
   };
+
+  // Cleanup: revoke Object URL on unmount
+  useEffect(() => {
+    return () => {
+      if (previewUrlRef.current) {
+        URL.revokeObjectURL(previewUrlRef.current);
+      }
+    };
+  }, []);
 
   return { upload, uploading, progress, previewUrl };
 }

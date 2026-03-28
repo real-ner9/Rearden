@@ -4,41 +4,35 @@ import { db } from "../lib/db.js";
 import { hashPassword, verifyPassword, signToken } from "../lib/auth.js";
 import { generateOtp, sendOtp, otpExpiresAt } from "../lib/otp.js";
 import { authMiddleware } from "../middleware/auth.js";
+import { toUser } from "../lib/mappers.js";
+import { rateLimit } from "../lib/rateLimit.js";
 
 export const authRoutes = new Hono();
 
 // TODO: remove — artificial delay for testing loading animations
-const DEV_DELAY = () => new Promise((r) => setTimeout(r, 5000));
+const DEV_DELAY = () => {
+  if (process.env.NODE_ENV !== "production") {
+    return new Promise((r) => setTimeout(r, 5000));
+  }
+  return Promise.resolve();
+};
 
 const PHONE_RE = /^\+?\d{10,15}$/;
 
-function toUser(row: any): User {
-  return {
-    id: row.id,
-    phone: row.phone,
-    username: row.username ?? null,
-    onboarded: row.onboarded,
-    email: row.email ?? null,
-    name: row.name ?? null,
-    skills: row.skills ?? [],
-    topSkills: row.topSkills ?? [],
-    experience: row.experience ?? 0,
-    videoUrl: row.videoUrl ?? null,
-    thumbnailUrl: row.thumbnailUrl ?? null,
-    resumeUrl: row.resumeUrl ?? null,
-    resumeText: row.resumeText ?? null,
-    resume: row.resume ?? null,
-    location: row.location ?? "",
-    title: row.title ?? "",
-    bio: row.bio ?? "",
-    availability: row.availability ?? "immediate",
-    createdAt: row.createdAt.toISOString(),
-    updatedAt: row.updatedAt.toISOString(),
-  };
-}
-
 // POST /api/auth/send-otp
-authRoutes.post("/send-otp", async (c) => {
+authRoutes.post(
+  "/send-otp",
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    maxRequests: 5,
+    keyExtractor: (c) => {
+      const body = c.req.raw.clone();
+      // Extract phone from request body for rate limiting
+      // Note: This is a best-effort approach since body parsing is async
+      return c.req.header("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    },
+  }),
+  async (c) => {
   await DEV_DELAY();
   const { phone } = await c.req.json<{ phone: string }>();
 
@@ -49,7 +43,7 @@ authRoutes.post("/send-otp", async (c) => {
     );
   }
 
-  const code = generateOtp();
+  const code = process.env.NODE_ENV === "production" ? generateOtp() : "000000";
   await db.otpCode.create({
     data: {
       phone,
@@ -61,10 +55,17 @@ authRoutes.post("/send-otp", async (c) => {
   sendOtp(phone, code);
 
   return c.json<ApiResponse>({ success: true, data: { code } });
-});
+  }
+);
 
 // POST /api/auth/verify-otp
-authRoutes.post("/verify-otp", async (c) => {
+authRoutes.post(
+  "/verify-otp",
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    maxRequests: 10,
+  }),
+  async (c) => {
   await DEV_DELAY();
   const { phone, code } = await c.req.json<{ phone: string; code: string }>();
 
@@ -96,7 +97,8 @@ authRoutes.post("/verify-otp", async (c) => {
     success: true,
     data: { isNewUser: !existingUser },
   });
-});
+  }
+);
 
 // POST /api/auth/complete
 authRoutes.post("/complete", async (c) => {

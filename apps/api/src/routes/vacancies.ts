@@ -1,8 +1,11 @@
 import { Hono } from "hono";
 import type { ApiResponse, Vacancy } from "@rearden/types";
 import { db } from "../lib/db.js";
+import { authMiddleware } from "../middleware/auth.js";
 
-export const vacancyRoutes = new Hono();
+type AuthEnv = { Variables: { userId: string } };
+
+export const vacancyRoutes = new Hono<AuthEnv>();
 
 function toVacancy(row: any): Vacancy {
   return {
@@ -32,7 +35,7 @@ vacancyRoutes.get("/", async (c) => {
 });
 
 // POST /api/vacancies
-vacancyRoutes.post("/", async (c) => {
+vacancyRoutes.post("/", authMiddleware, async (c) => {
   try {
     const body = await c.req.json();
 

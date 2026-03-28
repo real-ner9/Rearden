@@ -3,23 +3,64 @@ import type { WSClientEvent, WSServerEvent } from "@rearden/types";
 import { addMessage, markAsRead } from "../data/chatStore.js";
 import { scheduleAutoReply } from "../data/autoReply.js";
 
-const clients = new Set<WSContext>();
+interface ClientMeta {
+  userId: string | null;
+  alive: boolean;
+}
+
+const clients = new Map<WSContext, ClientMeta>();
 
 export function broadcast(event: WSServerEvent) {
   const data = JSON.stringify(event);
-  for (const ws of clients) {
+  const dead: WSContext[] = [];
+  for (const [ws] of clients) {
     try {
       ws.send(data);
     } catch {
-      clients.delete(ws);
+      dead.push(ws);
     }
   }
+  for (const ws of dead) {
+    clients.delete(ws);
+  }
 }
+
+// Heartbeat: ping every 30s, disconnect if no pong within 10s
+const PING_INTERVAL = 30000;
+const PONG_TIMEOUT = 10000;
+
+setInterval(() => {
+  const now = Date.now();
+  const dead: WSContext[] = [];
+
+  for (const [ws, meta] of clients) {
+    if (!meta.alive) {
+      dead.push(ws);
+      continue;
+    }
+
+    meta.alive = false;
+    try {
+      ws.send(JSON.stringify({ type: "ping" }));
+    } catch {
+      dead.push(ws);
+    }
+  }
+
+  for (const ws of dead) {
+    try {
+      ws.close();
+    } catch {
+      // ignore
+    }
+    clients.delete(ws);
+  }
+}, PING_INTERVAL);
 
 export function createWSHandlers() {
   return {
     onOpen(_event: Event, ws: WSContext) {
-      clients.add(ws);
+      clients.set(ws, { userId: null, alive: true });
       const connected: WSServerEvent = {
         type: "connected",
         userId: "system",
@@ -29,8 +70,16 @@ export function createWSHandlers() {
 
     onMessage(event: MessageEvent, ws: WSContext) {
       try {
-        const data = JSON.parse(String(event.data)) as WSClientEvent;
-        handleClientEvent(data, ws);
+        const raw = JSON.parse(String(event.data));
+
+        // Handle pong response (not part of WSClientEvent union)
+        if (raw.type === "pong") {
+          const meta = clients.get(ws);
+          if (meta) meta.alive = true;
+          return;
+        }
+
+        handleClientEvent(raw as WSClientEvent, ws);
       } catch {
         const error: WSServerEvent = {
           type: "error",

@@ -57,10 +57,16 @@ export async function getConversation(id: string): Promise<ChatConversation | nu
   return row ? toConversation(row) : null;
 }
 
-export async function getMessages(conversationId: string): Promise<ChatMessage[]> {
+export async function getMessages(
+  conversationId: string,
+  cursor?: string,
+  limit = 50,
+): Promise<ChatMessage[]> {
   const rows = await db.chatMessage.findMany({
     where: { conversationId },
     orderBy: { createdAt: "asc" },
+    take: limit,
+    ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
   });
   return rows.map(toMessage);
 }
@@ -140,11 +146,33 @@ export async function createConversation(userId: string, _userName: string): Pro
   });
   if (existing) return toConversation(existing);
 
-  const row = await db.conversation.create({
-    data: { userId },
-    include: conversationInclude,
-  });
-  return toConversation(row);
+  try {
+    const row = await db.conversation.create({
+      data: { userId },
+      include: conversationInclude,
+    });
+    return toConversation(row);
+  } catch {
+    // Unique constraint violation — another request created it first
+    const row = await db.conversation.findUnique({
+      where: { userId },
+      include: conversationInclude,
+    });
+    if (!row) {
+      // Fallback: return empty conversation if still not found
+      return toConversation({
+        id: "",
+        userId,
+        isPinned: false,
+        unreadCount: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        messages: [],
+        user: null,
+      });
+    }
+    return toConversation(row);
+  }
 }
 
 export async function getFolders(userId: string): Promise<ChatFolder[]> {
@@ -161,9 +189,13 @@ export async function getFolders(userId: string): Promise<ChatFolder[]> {
 }
 
 export async function createFolder(userId: string, name: string): Promise<ChatFolder> {
-  const count = await db.chatFolder.count({ where: { userId } });
+  const maxOrder = await db.chatFolder.aggregate({
+    where: { userId },
+    _max: { order: true },
+  });
+  const nextOrder = (maxOrder._max.order ?? -1) + 1;
   const row = await db.chatFolder.create({
-    data: { userId, name, order: count },
+    data: { userId, name, order: nextOrder },
   });
   return { id: row.id, name: row.name, order: row.order, conversationIds: row.conversationIds };
 }

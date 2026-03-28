@@ -1,8 +1,11 @@
 import { Hono } from "hono";
 import type { ApiResponse, Post, VideoPost } from "@rearden/types";
 import { db } from "../lib/db.js";
+import { authMiddleware } from "../middleware/auth.js";
 
-export const postRoutes = new Hono();
+type AuthEnv = { Variables: { userId: string } };
+
+export const postRoutes = new Hono<AuthEnv>();
 
 function toPost(row: any): Post {
   return {
@@ -197,7 +200,7 @@ postRoutes.get("/:id", async (c) => {
 });
 
 // POST /api/posts
-postRoutes.post("/", async (c) => {
+postRoutes.post("/", authMiddleware, async (c) => {
   try {
     const body = await c.req.json();
 

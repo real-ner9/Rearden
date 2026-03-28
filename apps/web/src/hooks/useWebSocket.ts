@@ -14,6 +14,7 @@ export function useWebSocket({ onMessage }: UseWebSocketOptions) {
   onMessageRef.current = onMessage;
   const retriesRef = useRef(0);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const mountedRef = useRef(true);
 
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
@@ -30,8 +31,10 @@ export function useWebSocket({ onMessage }: UseWebSocketOptions) {
 
     ws.onmessage = (e) => {
       try {
-        const data = JSON.parse(e.data) as WSServerEvent;
-        onMessageRef.current(data);
+        const event = JSON.parse(e.data);
+        if (event && typeof event.type === 'string') {
+          onMessageRef.current(event as WSServerEvent);
+        }
       } catch {
         // ignore malformed messages
       }
@@ -40,6 +43,9 @@ export function useWebSocket({ onMessage }: UseWebSocketOptions) {
     ws.onclose = () => {
       setStatus("disconnected");
       wsRef.current = null;
+
+      // Only reconnect if still mounted
+      if (!mountedRef.current) return;
 
       // Exponential backoff: 1s, 2s, 4s, 8s, max 30s
       const delay = Math.min(1000 * 2 ** retriesRef.current, 30000);
@@ -68,8 +74,8 @@ export function useWebSocket({ onMessage }: UseWebSocketOptions) {
   useEffect(() => {
     connect();
     return () => {
+      mountedRef.current = false;
       if (timerRef.current) clearTimeout(timerRef.current);
-      retriesRef.current = Infinity; // prevent reconnect after unmount
       wsRef.current?.close();
     };
   }, [connect]);

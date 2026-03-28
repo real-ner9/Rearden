@@ -1,16 +1,21 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
-const endpoint = process.env.S3_ENDPOINT || "http://localhost:9002";
-const bucket = process.env.S3_BUCKET || "rearden-media";
-const publicUrl = process.env.S3_PUBLIC_URL || `${endpoint}/${bucket}`;
+const endpoint = process.env.S3_ENDPOINT;
+const bucket = process.env.S3_BUCKET;
+const publicUrl = process.env.S3_PUBLIC_URL;
+const accessKeyId = process.env.S3_ACCESS_KEY;
+const secretAccessKey = process.env.S3_SECRET_KEY;
+
+if (!endpoint) throw new Error("S3_ENDPOINT environment variable is required");
+if (!bucket) throw new Error("S3_BUCKET environment variable is required");
+if (!publicUrl) throw new Error("S3_PUBLIC_URL environment variable is required");
+if (!accessKeyId) throw new Error("S3_ACCESS_KEY environment variable is required");
+if (!secretAccessKey) throw new Error("S3_SECRET_KEY environment variable is required");
 
 const s3 = new S3Client({
   endpoint,
   region: "us-east-1",
-  credentials: {
-    accessKeyId: process.env.S3_ACCESS_KEY || "rearden",
-    secretAccessKey: process.env.S3_SECRET_KEY || "reardenpass",
-  },
+  credentials: { accessKeyId, secretAccessKey },
   forcePathStyle: true,
 });
 

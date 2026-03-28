@@ -27,22 +27,34 @@ function getNextReply(): string {
   return reply;
 }
 
-const activeTimers = new Map<string, ReturnType<typeof setTimeout>>();
+interface ActiveTimers {
+  typingTimer: ReturnType<typeof setTimeout>;
+  msgTimer?: ReturnType<typeof setTimeout>;
+}
+
+const activeTimers = new Map<string, ActiveTimers>();
 
 export function scheduleAutoReply(
   conversationId: string,
   broadcast: (event: WSServerEvent) => void,
 ) {
-  // Cancel any existing timer for this conversation
+  // Cancel any existing timers for this conversation (both typing and message)
   const existing = activeTimers.get(conversationId);
-  if (existing) clearTimeout(existing);
+  if (existing) {
+    clearTimeout(existing.typingTimer);
+    if (existing.msgTimer) clearTimeout(existing.msgTimer);
+    activeTimers.delete(conversationId);
+  }
 
   const delay = 2000 + Math.random() * 3000; // 2-5 seconds
 
   const typingTimer = setTimeout(() => {
     // Fetch conversation to get user name
     getConversation(conversationId).then((conv) => {
-      if (!conv) return;
+      if (!conv) {
+        activeTimers.delete(conversationId);
+        return;
+      }
 
       broadcast({
         type: "typing:indicator",
@@ -68,15 +80,17 @@ export function scheduleAutoReply(
                 conversation: result.conversation,
               });
             }
+            activeTimers.delete(conversationId);
           },
         );
-
-        activeTimers.delete(conversationId);
       }, 1000 + Math.random() * 2000);
 
-      activeTimers.set(conversationId, msgTimer);
+      const timers = activeTimers.get(conversationId);
+      if (timers) {
+        timers.msgTimer = msgTimer;
+      }
     });
   }, delay);
 
-  activeTimers.set(conversationId, typingTimer);
+  activeTimers.set(conversationId, { typingTimer });
 }

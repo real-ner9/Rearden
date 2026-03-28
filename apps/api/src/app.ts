@@ -19,7 +19,23 @@ const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
 export { injectWebSocket };
 
 app.use("*", logger());
-app.use("*", cors());
+
+// CORS configuration
+app.use(
+  "*",
+  cors({
+    origin: process.env.CORS_ORIGIN || "http://localhost:3000",
+    credentials: true,
+  })
+);
+
+// Security headers
+app.use("*", async (c, next) => {
+  await next();
+  c.header("X-Content-Type-Options", "nosniff");
+  c.header("X-Frame-Options", "DENY");
+  c.header("X-XSS-Protection", "1; mode=block");
+});
 
 app.get("/", (c) => {
   return c.json<ApiResponse>({
