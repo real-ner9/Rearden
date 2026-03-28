@@ -19,7 +19,14 @@ export interface ChatConversation {
   updatedAt: string;
 }
 
-export type ChatTab = "all" | "unread" | "pinned";
+export type ChatTab = "all" | "unread" | string;
+
+export interface ChatFolder {
+  id: string;
+  name: string;
+  order: number;
+  conversationIds: string[];
+}
 
 // WebSocket events: Client → Server
 export type WSClientEvent =

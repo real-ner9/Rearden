@@ -1,21 +1,35 @@
 @use "../../styles/variables" as *;
 
+.tabBarWrapper {
+  display: flex;
+  align-items: center;
+  gap: $space2;
+  padding: 0 $space4 $space3;
+}
+
 .tabs {
   display: flex;
   gap: $space1;
-  padding: 0 $space4 $space3;
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .tab {
   position: relative;
-  flex: 1;
   padding: $space2 $space3;
   font-size: $fontSize13;
   font-weight: 500;
   color: $textMuted;
   border-radius: $radiusSm;
   background: var(--tab-bg);
-  transition: all $transitionFast;
+  transition: color $transitionFast;
+  white-space: nowrap;
+  flex-shrink: 0;
 
   &:hover {
     color: $textSecondary;
@@ -24,16 +38,31 @@
 
 .active {
   color: $textPrimary;
-  background: $glassBg;
-  border: $borderWidth solid $glassBorder;
 }
 
 .indicator {
   position: absolute;
   bottom: 0;
-  left: $space2;
-  right: $space2;
+  left: 0;
+  right: 0;
   height: 2px;
   background: $accentPurple;
   border-radius: $radiusSm;
+}
+
+.settingsBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: $radiusSm;
+  color: $textMuted;
+  transition: all $transitionFast;
+
+  &:hover {
+    color: $textPrimary;
+    background: $glassBgHover;
+  }
 }

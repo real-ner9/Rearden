@@ -7,9 +7,24 @@
 }
 
 .sidebarDesktop {
-  width: 340px;
   flex-shrink: 0;
-  border-right: $borderWidth solid $glassBorder;
+
+  @include tablet {
+    display: none;
+  }
+}
+
+.resizeHandle {
+  width: 4px;
+  flex-shrink: 0;
+  cursor: col-resize;
+  background: $glassBorder;
+  transition: background $transitionFast;
+
+  &:hover,
+  &:active {
+    background: $accentPurple;
+  }
 
   @include tablet {
     display: none;

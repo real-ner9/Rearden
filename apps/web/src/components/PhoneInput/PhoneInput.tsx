@@ -55,9 +55,35 @@ export function PhoneInput({
   autoFocus,
   onValidChange,
 }: PhoneInputProps) {
-  const [country, setCountry] = useState<Country | null>(DEFAULT_COUNTRY);
-  const [dialDigits, setDialDigits] = useState(DEFAULT_COUNTRY.dial.slice(1)); // without "+"
-  const [localNumber, setLocalNumber] = useState("");
+  // Parse initial value to set country + local number
+  const [country, setCountry] = useState<Country | null>(() => {
+    if (!value) return DEFAULT_COUNTRY;
+    const digits = value.replace(/[^\d]/g, "");
+    // Try longest dial code first (e.g. +44 before +4)
+    for (let len = Math.min(4, digits.length); len >= 1; len--) {
+      const c = countries.find((c) => c.dial === "+" + digits.slice(0, len));
+      if (c) return c;
+    }
+    return DEFAULT_COUNTRY;
+  });
+  const [dialDigits, setDialDigits] = useState(() => {
+    if (!value) return DEFAULT_COUNTRY.dial.slice(1);
+    const digits = value.replace(/[^\d]/g, "");
+    for (let len = Math.min(4, digits.length); len >= 1; len--) {
+      const c = countries.find((c) => c.dial === "+" + digits.slice(0, len));
+      if (c) return digits.slice(0, len);
+    }
+    return DEFAULT_COUNTRY.dial.slice(1);
+  });
+  const [localNumber, setLocalNumber] = useState(() => {
+    if (!value) return "";
+    const digits = value.replace(/[^\d]/g, "");
+    for (let len = Math.min(4, digits.length); len >= 1; len--) {
+      const c = countries.find((c) => c.dial === "+" + digits.slice(0, len));
+      if (c) return digits.slice(len);
+    }
+    return "";
+  });
   const [modalOpen, setModalOpen] = useState(false);
   const phoneRef = useRef<HTMLInputElement>(null);
   const dialRef = useRef<HTMLInputElement>(null);

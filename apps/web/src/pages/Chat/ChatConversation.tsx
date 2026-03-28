@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useChat } from "@/contexts/ChatContext";
 import { ChatConversationHeader } from "./ChatConversationHeader";
 import { ChatMessageList } from "./ChatMessageList";
@@ -6,7 +7,18 @@ import { ChatEmptyState } from "./ChatEmptyState";
 import styles from "./ChatConversation.module.scss";
 
 export function ChatConversation() {
-  const { activeConversation } = useChat();
+  const { activeConversation, setMessageSearchOpen } = useChat();
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "f" && activeConversation) {
+        e.preventDefault();
+        setMessageSearchOpen(true);
+      }
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [activeConversation, setMessageSearchOpen]);
 
   if (!activeConversation) {
     return (
@@ -19,7 +31,7 @@ export function ChatConversation() {
   return (
     <div className={styles.conversation}>
       <ChatConversationHeader />
-      <ChatMessageList />
+      <ChatMessageList key={activeConversation.id} />
       <ChatMessageInput />
     </div>
   );

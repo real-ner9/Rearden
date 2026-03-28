@@ -17,7 +17,7 @@ export function Auth() {
   const redirectTo = (location.state as { from?: string })?.from || "/feed";
 
   const [step, setStep] = useState<Step>("phone");
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState("+79132537745");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");

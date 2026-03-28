@@ -1,0 +1,121 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: $space2;
+  padding: $space3 $space4;
+  border-bottom: $borderWidth solid $glassBorder;
+}
+
+.inputWrapper {
+  position: relative;
+  flex: 1;
+}
+
+.searchIcon {
+  position: absolute;
+  left: $space2;
+  top: 50%;
+  transform: translateY(-50%);
+  color: $textMuted;
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  padding: $space2 $space3 $space2 $space8;
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusSm;
+  font-size: $fontSize13;
+  color: $textPrimary;
+  outline: none;
+  transition: border-color $transitionFast;
+
+  &::placeholder {
+    color: $textMuted;
+  }
+
+  &:focus {
+    border-color: $accentPurple;
+  }
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: $radiusSm;
+  color: $textMuted;
+  transition: all $transitionFast;
+
+  &:hover {
+    color: $textPrimary;
+    background: $glassBgHover;
+  }
+}
+
+.counter {
+  padding: $space2 $space4;
+  font-size: $fontSize12;
+  color: $textMuted;
+  border-bottom: $borderWidth solid $glassBorder;
+}
+
+.results {
+  flex: 1;
+  overflow-y: auto;
+  @include customScrollbar;
+}
+
+.resultItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: $space2 $space4;
+  cursor: pointer;
+  transition: background $transitionFast;
+
+  &:hover {
+    background: $glassBgHover;
+  }
+}
+
+.resultActive {
+  background: color-mix(in srgb, $accentPurple 10%, transparent);
+}
+
+.resultSender {
+  font-size: $fontSize12;
+  font-weight: 600;
+  color: $textSecondary;
+}
+
+.resultText {
+  font-size: $fontSize13;
+  color: $textPrimary;
+  @include truncate;
+}
+
+.resultDate {
+  font-size: 10px;
+  color: $textMuted;
+}
+
+.empty {
+  text-align: center;
+  color: $textMuted;
+  font-size: $fontSize13;
+  padding: $space8 $space4;
+}

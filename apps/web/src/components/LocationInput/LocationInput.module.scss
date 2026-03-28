@@ -1,0 +1,59 @@
+@use "../../styles/variables" as *;
+
+.wrapper {
+  position: relative;
+}
+
+.input {
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusSm;
+  padding: $space3 $space4;
+  font-size: $fontSize14;
+  color: $textPrimary;
+  transition: border-color $transitionBase;
+  width: 100%;
+
+  &:focus {
+    outline: none;
+    border-color: $accentPurple;
+  }
+
+  &::placeholder {
+    color: $textMuted;
+  }
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusSm;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 100;
+  list-style: none;
+  padding: $space1 0;
+}
+
+.option {
+  padding: $space2 $space4;
+  font-size: $fontSize13;
+  color: $textSecondary;
+  cursor: pointer;
+  transition: background $transitionFast, color $transitionFast;
+
+  &:hover {
+    background: $glassBgHover;
+    color: $textPrimary;
+  }
+}
+
+.optionHighlight {
+  background: $glassBgHover;
+  color: $textPrimary;
+}

@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useChat } from "@/contexts/ChatContext";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { NotificationPanel } from "@/components/NotificationPanel/NotificationPanel";
+import { MoreMenu } from "@/components/MoreMenu/MoreMenu";
 import styles from "./SideNav.module.scss";
 
 export function SideNav() {
@@ -57,8 +58,10 @@ export function SideNav() {
     [user, navigate],
   );
 
+  const popupOpen = notifOpen || moreOpen;
+
   return (
-    <nav className={styles.sideNav}>
+    <nav className={`${styles.sideNav} ${popupOpen ? styles.expanded : ""}`}>
       <div className={styles.top}>
         {/* Logo */}
         <NavLink to="/" className={styles.logoLink}>
@@ -249,23 +252,14 @@ export function SideNav() {
                 exit={{ opacity: 0, x: -10, scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 400, damping: 30 }}
               >
-                {user && (
-                  <button
-                    className={styles.moreItem}
-                    onClick={() => {
-                      setMoreOpen(false);
-                      logout();
-                      navigate("/");
-                    }}
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
-                      <polyline points="16 17 21 12 16 7" />
-                      <line x1="21" y1="12" x2="9" y2="12" />
-                    </svg>
-                    Logout
-                  </button>
-                )}
+                <MoreMenu
+                  onLogout={() => {
+                    setMoreOpen(false);
+                    logout();
+                    navigate("/");
+                  }}
+                  onClose={() => setMoreOpen(false)}
+                />
               </motion.div>
             )}
           </AnimatePresence>

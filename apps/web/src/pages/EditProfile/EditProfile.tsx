@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import type { User } from "@rearden/types";
 
 import { Button } from "@/components/Button/Button";
-import { VideoUpload } from "@/components/VideoUpload/VideoUpload";
+import { LocationInput } from "@/components/LocationInput/LocationInput";
 import { useVideoUpload } from "@/hooks/useVideoUpload";
 import { useApi } from "@/hooks/useApi";
 import { apiFetch } from "@/lib/api";
@@ -27,7 +27,7 @@ export function EditProfile() {
     profile ? "/me/profile/skills/all" : "",
   );
 
-  const videoUpload = useVideoUpload();
+  const avatarUpload = useVideoUpload();
   const resumeUpload = useVideoUpload();
 
   const [form, setForm] = useState({
@@ -37,9 +37,11 @@ export function EditProfile() {
     location: "",
     bio: "",
     experience: "",
-    availability: "immediate",
   });
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarDragging, setAvatarDragging] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
   const [resumeUrl, setResumeUrl] = useState<string | null>(null);
   const [resumeFileName, setResumeFileName] = useState<string | null>(null);
   const [topSkills, setTopSkills] = useState<string[]>([]);
@@ -62,9 +64,8 @@ export function EditProfile() {
         location: profile.location,
         bio: profile.bio,
         experience: String(profile.experience),
-        availability: profile.availability,
       });
-      setVideoUrl(profile.videoUrl);
+      setThumbnailUrl(profile.thumbnailUrl);
       setResumeUrl(profile.resumeUrl);
       if (profile.resumeUrl) setResumeFileName("Current resume");
       setTopSkills(
@@ -86,14 +87,19 @@ export function EditProfile() {
       setForm((prev) => ({ ...prev, [field]: e.target.value }));
     };
 
-  const handleVideoUpload = async (file: File) => {
-    try {
-      const url = await videoUpload.upload(file);
-      setVideoUrl(url);
-    } catch {
-      /* handled by hook */
-    }
-  };
+  const handleAvatarFile = useCallback(
+    async (file: File) => {
+      if (!file.type.startsWith("image/")) return;
+      setAvatarPreview(URL.createObjectURL(file));
+      try {
+        const url = await avatarUpload.upload(file);
+        setThumbnailUrl(url);
+      } catch {
+        /* handled by hook */
+      }
+    },
+    [avatarUpload],
+  );
 
   const handleResumeUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -175,8 +181,7 @@ export function EditProfile() {
           location: form.location,
           bio: form.bio,
           experience: parseInt(form.experience) || 0,
-          availability: form.availability,
-          videoUrl,
+          thumbnailUrl,
           resumeUrl,
         }),
       });
@@ -219,18 +224,63 @@ export function EditProfile() {
       >
         {/* Profile card — avatar + name */}
         <div className={styles.profileCard}>
-          <div className={styles.avatar}>
-            {profile?.thumbnailUrl ? (
-              <img
-                src={profile.thumbnailUrl}
-                alt={displayName}
-                className={styles.avatarImg}
-              />
-            ) : (
-              <span className={styles.avatarInitials}>
-                {getInitials(displayName)}
-              </span>
-            )}
+          <div
+            className={`${styles.avatarUpload} ${avatarDragging ? styles.avatarDragging : ""}`}
+            onClick={() => avatarInputRef.current?.click()}
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.dataTransfer.dropEffect = "copy";
+              setAvatarDragging(true);
+            }}
+            onDragLeave={() => setAvatarDragging(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setAvatarDragging(false);
+              const file = e.dataTransfer.files[0];
+              if (file) handleAvatarFile(file);
+            }}
+          >
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/*"
+              className={styles.hiddenInput}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleAvatarFile(file);
+              }}
+            />
+            <div className={styles.avatar}>
+              {(avatarPreview || thumbnailUrl) ? (
+                <img
+                  src={avatarPreview || thumbnailUrl!}
+                  alt={displayName}
+                  className={styles.avatarImg}
+                />
+              ) : (
+                <span className={styles.avatarInitials}>
+                  {getInitials(displayName)}
+                </span>
+              )}
+            </div>
+            <div className={styles.avatarOverlay}>
+              {avatarUpload.uploading ? (
+                <svg className={styles.avatarProgress} viewBox="0 0 36 36" width="28" height="28">
+                  <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="3" />
+                  <circle
+                    cx="18" cy="18" r="15" fill="none" stroke="#fff" strokeWidth="3"
+                    strokeDasharray={`${avatarUpload.progress * 0.9425} 94.25`}
+                    strokeLinecap="round"
+                    transform="rotate(-90 18 18)"
+                  />
+                </svg>
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">
+                  <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
+              )}
+            </div>
           </div>
           <div className={styles.cardInfo}>
             <span className={styles.cardName}>
@@ -276,11 +326,9 @@ export function EditProfile() {
 
         <div className={styles.field}>
           <label className={styles.label}>Location</label>
-          <input
-            className={styles.input}
+          <LocationInput
             value={form.location}
-            onChange={updateField("location")}
-            placeholder="San Francisco, CA"
+            onChange={(v) => setForm((prev) => ({ ...prev, location: v }))}
           />
         </div>
 
@@ -295,30 +343,15 @@ export function EditProfile() {
           />
         </div>
 
-        <div className={styles.fieldRow}>
-          <div className={styles.field}>
-            <label className={styles.label}>Experience</label>
-            <input
-              className={styles.input}
-              type="number"
-              value={form.experience}
-              onChange={updateField("experience")}
-              placeholder="5"
-            />
-          </div>
-          <div className={styles.field}>
-            <label className={styles.label}>Availability</label>
-            <select
-              className={styles.input}
-              value={form.availability}
-              onChange={updateField("availability")}
-            >
-              <option value="immediate">Immediately</option>
-              <option value="2weeks">In 2 weeks</option>
-              <option value="1month">In 1 month</option>
-              <option value="3months">In 3 months</option>
-            </select>
-          </div>
+        <div className={styles.field}>
+          <label className={styles.label}>Experience (years)</label>
+          <input
+            className={styles.input}
+            type="number"
+            value={form.experience}
+            onChange={updateField("experience")}
+            placeholder="5"
+          />
         </div>
 
         {/* Skills */}
@@ -409,17 +442,6 @@ export function EditProfile() {
           )}
         </div>
 
-        {/* Video */}
-        <div className={styles.field}>
-          <label className={styles.label}>Video Introduction</label>
-          <VideoUpload
-            onUpload={handleVideoUpload}
-            uploading={videoUpload.uploading}
-            progress={videoUpload.progress}
-            previewUrl={videoUpload.previewUrl ?? videoUrl ?? undefined}
-          />
-        </div>
-
         {/* Resume */}
         <div className={styles.field}>
           <label className={styles.label}>Resume</label>
@@ -483,7 +505,7 @@ export function EditProfile() {
             variant="primary"
             size="md"
             type="submit"
-            disabled={saving || !form.name || !form.email}
+            disabled={saving}
           >
             {saving ? "Saving..." : "Save"}
           </Button>

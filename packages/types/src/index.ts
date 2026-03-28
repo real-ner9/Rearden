@@ -18,6 +18,7 @@ export type {
   ChatMessage,
   ChatConversation,
   ChatTab,
+  ChatFolder,
   WSClientEvent,
   WSServerEvent,
 } from "./chat";

@@ -81,6 +81,7 @@ profileRoutes.put("/", async (c) => {
       bio: body.bio ?? user.bio,
       experience: body.experience ?? user.experience,
       availability: body.availability ?? user.availability,
+      thumbnailUrl: body.thumbnailUrl !== undefined ? body.thumbnailUrl : user.thumbnailUrl,
       videoUrl: body.videoUrl !== undefined ? body.videoUrl : user.videoUrl,
       resumeUrl: body.resumeUrl !== undefined ? body.resumeUrl : user.resumeUrl,
     },

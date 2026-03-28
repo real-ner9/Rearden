@@ -60,7 +60,7 @@ authRoutes.post("/send-otp", async (c) => {
 
   sendOtp(phone, code);
 
-  return c.json<ApiResponse>({ success: true, data: null });
+  return c.json<ApiResponse>({ success: true, data: { code } });
 });
 
 // POST /api/auth/verify-otp

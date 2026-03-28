@@ -1,0 +1,216 @@
+@use "../../styles/variables" as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.modal {
+  width: 400px;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  background: $bgElevated;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusLg;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space4;
+  border-bottom: $borderWidth solid $glassBorder;
+}
+
+.title {
+  font-size: $fontSize16;
+  font-weight: 600;
+  color: $accentTeal;
+}
+
+.closeBtn {
+  font-size: $fontSize20;
+  color: $textMuted;
+  line-height: 1;
+
+  &:hover {
+    color: $textPrimary;
+  }
+}
+
+.createRow {
+  display: flex;
+  gap: $space2;
+  padding: $space3 $space4;
+  border-bottom: $borderWidth solid $glassBorder;
+}
+
+.input {
+  flex: 1;
+  padding: $space2 $space3;
+  font-size: $fontSize13;
+  color: $textPrimary;
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusSm;
+  outline: none;
+
+  &:focus {
+    border-color: $accentPurple;
+  }
+
+  &::placeholder {
+    color: $textMuted;
+  }
+}
+
+.createBtn {
+  padding: $space2 $space3;
+  font-size: $fontSize13;
+  font-weight: 500;
+  color: white;
+  background: $accentPurple;
+  border-radius: $radiusSm;
+  transition: opacity $transitionFast;
+
+  &:hover:not(:disabled) {
+    opacity: 0.85;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.folderList {
+  flex: 1;
+  overflow-y: auto;
+  padding: $space2 0;
+}
+
+.folderItem {
+  border-bottom: $borderWidth solid $glassBorder;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.folderRow {
+  display: flex;
+  align-items: center;
+  gap: $space2;
+  padding: $space3 $space4;
+}
+
+.folderName {
+  flex: 1;
+  font-size: $fontSize14;
+  font-weight: 500;
+  color: $textPrimary;
+}
+
+.folderCount {
+  font-size: $fontSize12;
+  color: $textMuted;
+}
+
+.editBtn,
+.deleteBtn {
+  padding: $space1 $space2;
+  font-size: $fontSize12;
+  border-radius: $radiusSm;
+  transition: all $transitionFast;
+}
+
+.editBtn {
+  color: $accentTeal;
+
+  &:hover {
+    background: $glassBgHover;
+  }
+}
+
+.deleteBtn {
+  color: $danger;
+
+  &:hover {
+    background: $glassBgHover;
+  }
+}
+
+.editForm {
+  padding: $space3 $space4;
+  display: flex;
+  flex-direction: column;
+  gap: $space3;
+}
+
+.convList {
+  display: flex;
+  flex-direction: column;
+  gap: $space1;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.convCheckbox {
+  display: flex;
+  align-items: center;
+  gap: $space2;
+  padding: $space1 0;
+  font-size: $fontSize13;
+  color: $textSecondary;
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    accent-color: var(--color-accent);
+  }
+}
+
+.editActions {
+  display: flex;
+  gap: $space2;
+}
+
+.saveBtn {
+  padding: $space2 $space3;
+  font-size: $fontSize13;
+  font-weight: 500;
+  color: white;
+  background: $accentPurple;
+  border-radius: $radiusSm;
+  transition: opacity $transitionFast;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+.cancelBtn {
+  padding: $space2 $space3;
+  font-size: $fontSize13;
+  color: $textMuted;
+  border-radius: $radiusSm;
+  transition: all $transitionFast;
+
+  &:hover {
+    color: $textPrimary;
+    background: $glassBgHover;
+  }
+}
+
+.emptyText {
+  text-align: center;
+  color: $textMuted;
+  font-size: $fontSize13;
+  padding: $space6 $space4;
+}

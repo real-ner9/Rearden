@@ -1,0 +1,99 @@
+@use "../../styles/variables" as *;
+
+.menu {
+  min-width: 220px;
+  background: $bgElevated;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusLg;
+  box-shadow: $shadowLg;
+  overflow: hidden;
+}
+
+.section {
+  padding: $space1;
+}
+
+.separator {
+  height: $borderWidth;
+  background: $glassBorder;
+  margin: 0;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: $space3;
+  width: 100%;
+  padding: $space3 $space4;
+  font-size: $fontSize14;
+  font-weight: 500;
+  color: $textPrimary;
+  background: none;
+  border: none;
+  border-radius: $radiusSm;
+  cursor: pointer;
+  transition: background $transitionFast;
+  text-align: left;
+
+  &:hover {
+    background: $glassBgHover;
+  }
+}
+
+.logout {
+  color: $danger;
+}
+
+// Logout confirmation panel
+.confirmPanel {
+  padding: $space5;
+  text-align: center;
+}
+
+.confirmText {
+  font-size: $fontSize14;
+  font-weight: 500;
+  color: $textPrimary;
+  margin-bottom: $space4;
+}
+
+.confirmActions {
+  display: flex;
+  flex-direction: column;
+  gap: $space2;
+}
+
+.confirmBtn {
+  width: 100%;
+  padding: $space2 $space4;
+  font-size: $fontSize14;
+  font-weight: 600;
+  color: #fff;
+  background: $danger;
+  border: none;
+  border-radius: $radiusSm;
+  cursor: pointer;
+  transition: opacity $transitionFast;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+.cancelBtn {
+  width: 100%;
+  padding: $space2 $space4;
+  font-size: $fontSize14;
+  font-weight: 500;
+  color: $textSecondary;
+  background: none;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusSm;
+  cursor: pointer;
+  transition: background $transitionFast, color $transitionFast;
+
+  &:hover {
+    background: $glassBgHover;
+    color: $textPrimary;
+  }
+}

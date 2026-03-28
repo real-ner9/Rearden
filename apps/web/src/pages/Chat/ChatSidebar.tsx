@@ -2,10 +2,20 @@ import { useChat } from "@/contexts/ChatContext";
 import { ChatSearch } from "./ChatSearch";
 import { ChatTabBar } from "./ChatTabBar";
 import { ChatConversationItem } from "./ChatConversationItem";
+import { ChatFolderSettings } from "./ChatFolderSettings";
+import { ChatMessageSearch } from "./ChatMessageSearch";
 import styles from "./ChatSidebar.module.scss";
 
 export function ChatSidebar() {
-  const { filteredConversations, activeConversationId, openConversation } = useChat();
+  const { filteredConversations, activeConversationId, openConversation, messageSearchOpen, activeConversation } = useChat();
+
+  if (messageSearchOpen && activeConversation) {
+    return (
+      <div className={styles.sidebar}>
+        <ChatMessageSearch />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.sidebar}>
@@ -27,6 +37,7 @@ export function ChatSidebar() {
           <p className={styles.empty}>No conversations found</p>
         )}
       </div>
+      <ChatFolderSettings />
     </div>
   );
 }

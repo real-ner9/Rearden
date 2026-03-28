@@ -3,7 +3,6 @@ import { Layout } from "@/components/Layout/Layout";
 import { RequireAuth } from "@/components/RequireAuth/RequireAuth";
 import { Landing } from "@/pages/Landing/Landing";
 import { Search } from "@/pages/Search/Search";
-import { UserProfile } from "@/pages/UserProfile/UserProfile";
 import { Resume } from "@/pages/Resume/Resume";
 import { Feed } from "@/pages/Feed/Feed";
 import { Chat } from "@/pages/Chat/Chat";
@@ -21,8 +20,8 @@ export const router = createBrowserRouter([
       { path: "/feed", element: <Feed /> },
       { path: "/feed/:postId", element: <Feed /> },
       { path: "/search", element: <Search /> },
-      { path: "/user/:id", element: <UserProfile /> },
-      { path: "/user/:id/reel/:postId", element: <UserProfile /> },
+      { path: "/user/:id", element: <MyProfile /> },
+      { path: "/user/:id/reel/:postId", element: <MyProfile /> },
       { path: "/user/:id/resume", element: <Resume /> },
       { path: "/auth", element: <Auth /> },
       {

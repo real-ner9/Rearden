@@ -1,31 +1,44 @@
-import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "motion/react";
 import type { User, Post, VideoPost, Vacancy } from "@rearden/types";
 
 import { ProfileTabs, type ProfileTab } from "@/components/ProfileTabs/ProfileTabs";
 import { PostGrid } from "@/components/PostGrid/PostGrid";
 import { VideoGrid } from "@/components/VideoGrid/VideoGrid";
+import { ReelModal } from "@/components/ReelModal/ReelModal";
 import { VacancyCard } from "@/components/VacancyCard/VacancyCard";
 import { SkillTag } from "@/components/SkillTag/SkillTag";
 import { Button } from "@/components/Button/Button";
 import { useApi } from "@/hooks/useApi";
+import { useAuth } from "@/contexts/AuthContext";
+import { useChat } from "@/contexts/ChatContext";
 import styles from "./MyProfile.module.scss";
 
-const availabilityLabels: Record<string, string> = {
-  immediate: "Available immediately",
-  "2weeks": "Available in 2 weeks",
-  "1month": "Available in 1 month",
-  "3months": "Available in 3 months",
-};
+function getInitials(name: string) {
+  if (!name) return "?";
+  return name
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
 
 export function MyProfile() {
+  const { id: paramId, postId } = useParams<{ id?: string; postId?: string }>();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
+  const { user: authUser } = useAuth();
+  const { startConversation } = useChat();
+  const [activeTab, setActiveTab] = useState<ProfileTab>(postId ? "video" : "posts");
 
-  const { data: profile, loading, error } = useApi<User>("/me/profile");
+  // Own profile if no param id, or param id matches current user
+  const isOwn = !paramId || paramId === authUser?.id;
+  const apiUrl = isOwn ? "/me/profile" : `/users/${paramId}`;
 
-  const userId = profile?.id;
+  const { data: profile, loading, error } = useApi<User>(apiUrl);
+
+  const userId = profile?.id ?? paramId;
   const { data: posts } = useApi<Post[]>(
     userId ? `/posts?userId=${userId}` : "",
   );
@@ -35,13 +48,6 @@ export function MyProfile() {
   const { data: vacancies } = useApi<Vacancy[]>(
     userId ? `/vacancies?userId=${userId}` : "",
   );
-
-  // No profile name — go to edit page to fill in
-  useEffect(() => {
-    if (!loading && profile && !profile.name) {
-      navigate("/profile/edit", { replace: true });
-    }
-  }, [loading, profile, navigate]);
 
   if (loading) {
     return (
@@ -53,11 +59,29 @@ export function MyProfile() {
   }
 
   if (error || !profile) {
+    if (!isOwn) {
+      return (
+        <div className={styles.error}>
+          <h2>User not found</h2>
+          <p>The user you're looking for doesn't exist.</p>
+          <Button variant="secondary" onClick={() => navigate("/search")}>
+            Back to Search
+          </Button>
+        </div>
+      );
+    }
     return null;
   }
 
   const displaySkills =
     profile.topSkills.length > 0 ? profile.topSkills : profile.skills;
+
+  const displayName = profile.name || profile.username || "User";
+  const metaItems = [
+    profile.title,
+    profile.location,
+    profile.experience ? `${profile.experience} yr${profile.experience !== 1 ? "s" : ""} exp` : null,
+  ].filter(Boolean);
 
   return (
     <div className={styles.profile}>
@@ -67,54 +91,114 @@ export function MyProfile() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
       >
-        <h1 className={styles.name}>{profile.name}</h1>
-
-        <div className={styles.meta}>
-          <span>{profile.title}</span>
-          <span className={styles.dot} />
-          <span>{profile.location}</span>
-          <span className={styles.dot} />
-          <span>
-            {profile.experience} yr{profile.experience !== 1 ? "s" : ""} exp
-          </span>
-          <span className={styles.dot} />
-          <span>{availabilityLabels[profile.availability]}</span>
+        <div className={styles.profileTop}>
+          <div className={styles.avatar}>
+            {profile.thumbnailUrl ? (
+              <img
+                src={profile.thumbnailUrl}
+                alt={displayName}
+                className={styles.avatarImg}
+              />
+            ) : (
+              <span className={styles.avatarInitials}>
+                {getInitials(displayName)}
+              </span>
+            )}
+          </div>
+          <div className={styles.profileTopInfo}>
+            <h1 className={styles.name}>{displayName}</h1>
+            {metaItems.length > 0 && (
+              <div className={styles.meta}>
+                {metaItems.map((item, i) => (
+                  <span key={i}>
+                    {i > 0 && <span className={styles.dot} />}
+                    {item}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
-        <p className={styles.bio}>{profile.bio}</p>
+        {profile.bio && <p className={styles.bio}>{profile.bio}</p>}
 
-        <div className={styles.skills}>
-          {displaySkills.slice(0, 13).map((skill) => (
-            <SkillTag key={skill} skill={skill} size="sm" />
-          ))}
-        </div>
+        {displaySkills.length > 0 && (
+          <div className={styles.skills}>
+            {displaySkills.slice(0, 13).map((skill) => (
+              <SkillTag key={skill} skill={skill} size="sm" />
+            ))}
+          </div>
+        )}
 
         <div className={styles.actions}>
-          <Button
-            variant="primary"
-            size="md"
-            onClick={() => navigate("/profile/edit")}
-          >
-            Edit Profile
-          </Button>
-          {profile.resumeText && (
-            <Link to={`/user/${profile.id}/resume`} className={styles.resumeLink}>
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
+          {isOwn ? (
+            <>
+              <Button
+                variant="primary"
+                size="md"
+                onClick={() => navigate("/profile/edit")}
               >
-                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="16" y1="13" x2="8" y2="13" />
-                <line x1="16" y1="17" x2="8" y2="17" />
-                <polyline points="10 9 9 9 8 9" />
-              </svg>
-              Resume
-            </Link>
+                Edit Profile
+              </Button>
+              {profile.resumeText && (
+                <Link to={`/user/${profile.id}/resume`} className={styles.resumeLink}>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                    <polyline points="10 9 9 9 8 9" />
+                  </svg>
+                  Resume
+                </Link>
+              )}
+            </>
+          ) : (
+            <>
+              {profile.resumeText && (
+                <Link to={`/user/${profile.id}/resume`} className={styles.resumeLink}>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                    <polyline points="10 9 9 9 8 9" />
+                  </svg>
+                  Resume
+                </Link>
+              )}
+              <Button
+                variant="primary"
+                size="md"
+                onClick={async () => {
+                  await startConversation(profile.id, profile.name ?? "");
+                  navigate("/chat");
+                }}
+              >
+                Contact
+              </Button>
+              <Button
+                variant="ghost"
+                size="md"
+                onClick={() => navigate(-1)}
+              >
+                Back
+              </Button>
+            </>
           )}
         </div>
       </motion.div>
@@ -156,6 +240,14 @@ export function MyProfile() {
           </div>
         )}
       </motion.div>
+
+      {postId && (
+        <ReelModal
+          initialPostId={postId}
+          userId={profile.id}
+          onClose={() => navigate(`/user/${profile.id}`)}
+        />
+      )}
     </div>
   );
 }
