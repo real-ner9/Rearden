@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import type { ChatMessage } from "@rearden/types";
-import { useChat } from "@/contexts/ChatContext";
+import { useShallow } from "zustand/react/shallow";
+import { useChatStore, selectActiveMessages } from "@/stores/chatStore";
 import { ChatMessageBubble } from "./ChatMessageBubble";
 import { ChatDateDivider } from "./ChatDateDivider";
 import { ChatTypingIndicator } from "./ChatTypingIndicator";
@@ -36,7 +37,12 @@ function groupByDate(messages: ChatMessage[]): { date: string; messages: ChatMes
 }
 
 export function ChatMessageList() {
-  const { activeMessages, activeConversationId, typingIndicators, highlightedMessageId, highlightedMessageNonce, registerScrollToBottom } = useChat();
+  const activeMessages = useChatStore(useShallow(selectActiveMessages));
+  const activeConversationId = useChatStore((s) => s.activeConversationId);
+  const typingIndicators = useChatStore((s) => s.typingIndicators);
+  const highlightedMessageId = useChatStore((s) => s.highlightedMessageId);
+  const highlightedMessageNonce = useChatStore((s) => s.highlightedMessageNonce);
+  const registerScrollToBottom = useChatStore((s) => s.registerScrollToBottom);
   const listRef = useRef<HTMLDivElement>(null);
   const didInitialScroll = useRef(false);
 

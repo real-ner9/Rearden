@@ -1,35 +1,32 @@
-import { motion } from "motion/react";
-import { useChat } from "@/contexts/ChatContext";
+import { useMemo } from "react";
+import { useChatStore } from "@/stores/chatStore";
+import { TabBar, type TabItem } from "@/components/TabBar/TabBar";
 import styles from "./ChatTabBar.module.scss";
 
 export function ChatTabBar() {
-  const { activeTab, setActiveTab, folders, setFolderSettingsOpen } = useChat();
+  const activeTab = useChatStore((s) => s.activeTab);
+  const setActiveTab = useChatStore((s) => s.setActiveTab);
+  const folders = useChatStore((s) => s.folders);
+  const setFolderSettingsOpen = useChatStore((s) => s.setFolderSettingsOpen);
+
+  const tabs: TabItem[] = useMemo(
+    () => [
+      { id: "all", label: "All" },
+      { id: "unread", label: "Unread" },
+      ...folders.map((f) => ({ id: f.id, label: f.name })),
+    ],
+    [folders],
+  );
 
   return (
     <div className={styles.tabBarWrapper}>
-      <div className={styles.tabs}>
-        {[
-          { id: "all", label: "All" },
-          { id: "unread", label: "Unread" },
-          ...folders.map((f) => ({ id: f.id, label: f.name })),
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            className={`${styles.tab} ${activeTab === tab.id ? styles.active : ""}`}
-            onClick={() => setActiveTab(tab.id)}
-          >
-            {tab.label}
-            {activeTab === tab.id && (
-              <motion.div
-                layoutId="chatTabIndicator"
-                className={styles.indicator}
-                layout="position"
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
-              />
-            )}
-          </button>
-        ))}
-      </div>
+      <TabBar
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        layoutId="chatTabIndicator"
+        className={styles.tabs}
+      />
       <button
         className={styles.settingsBtn}
         onClick={() => setFolderSettingsOpen(true)}

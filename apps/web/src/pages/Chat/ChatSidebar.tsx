@@ -1,4 +1,5 @@
-import { useChat } from "@/contexts/ChatContext";
+import { useShallow } from "zustand/react/shallow";
+import { useChatStore, selectFilteredConversations, selectActiveConversation } from "@/stores/chatStore";
 import { ChatSearch } from "./ChatSearch";
 import { ChatTabBar } from "./ChatTabBar";
 import { ChatConversationItem } from "./ChatConversationItem";
@@ -7,7 +8,11 @@ import { ChatMessageSearch } from "./ChatMessageSearch";
 import styles from "./ChatSidebar.module.scss";
 
 export function ChatSidebar() {
-  const { filteredConversations, activeConversationId, openConversation, messageSearchOpen, activeConversation } = useChat();
+  const filteredConversations = useChatStore(useShallow(selectFilteredConversations));
+  const activeConversationId = useChatStore((s) => s.activeConversationId);
+  const openConversation = useChatStore((s) => s.openConversation);
+  const messageSearchOpen = useChatStore((s) => s.messageSearchOpen);
+  const activeConversation = useChatStore(selectActiveConversation);
 
   if (messageSearchOpen && activeConversation) {
     return (

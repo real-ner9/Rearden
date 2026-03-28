@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "motion/react";
 import type { User, Post, VideoPost, Vacancy } from "@rearden/types";
@@ -11,8 +11,8 @@ import { VacancyCard } from "@/components/VacancyCard/VacancyCard";
 import { SkillTag } from "@/components/SkillTag/SkillTag";
 import { Button } from "@/components/Button/Button";
 import { useApi } from "@/hooks/useApi";
-import { useAuth } from "@/contexts/AuthContext";
-import { useChat } from "@/contexts/ChatContext";
+import { useAuthStore } from "@/stores/authStore";
+import { useChatStore } from "@/stores/chatStore";
 import styles from "./MyProfile.module.scss";
 
 function getInitials(name: string) {
@@ -26,11 +26,25 @@ function getInitials(name: string) {
 }
 
 export function MyProfile() {
-  const { id: paramId, postId } = useParams<{ id?: string; postId?: string }>();
+  const { id: paramId, postId, tab: tabParam } = useParams<{ id?: string; postId?: string; tab?: string }>();
   const navigate = useNavigate();
-  const { user: authUser } = useAuth();
-  const { startConversation } = useChat();
-  const [activeTab, setActiveTab] = useState<ProfileTab>(postId ? "video" : "posts");
+  const authUser = useAuthStore((s) => s.user);
+  const startConversation = useChatStore((s) => s.startConversation);
+
+  const urlToTab: Record<string, ProfileTab> = { videos: "video", vacancies: "vacancies" };
+  const tabToUrl: Record<string, string> = { video: "videos", vacancies: "vacancies" };
+  const activeTab: ProfileTab = tabParam && urlToTab[tabParam]
+    ? urlToTab[tabParam]
+    : postId ? "video" : "posts";
+
+  const basePath = paramId ? `/user/${paramId}` : "/profile";
+  const setActiveTab = useCallback(
+    (tab: ProfileTab) => {
+      const slug = tabToUrl[tab];
+      navigate(slug ? `${basePath}/${slug}` : basePath, { replace: true });
+    },
+    [basePath, navigate],
+  );
 
   // Own profile if no param id, or param id matches current user
   const isOwn = !paramId || paramId === authUser?.id;
@@ -185,7 +199,7 @@ export function MyProfile() {
                 variant="primary"
                 size="md"
                 onClick={async () => {
-                  await startConversation(profile.id, profile.name ?? "");
+                  await startConversation(profile.id, profile.name ?? profile.username ?? "User");
                   navigate("/chat");
                 }}
               >

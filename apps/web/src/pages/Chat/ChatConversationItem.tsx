@@ -1,5 +1,5 @@
 import type { ChatConversation } from "@rearden/types";
-import { useChat } from "@/contexts/ChatContext";
+import { useChatStore } from "@/stores/chatStore";
 import styles from "./ChatConversationItem.module.scss";
 
 interface ChatConversationItemProps {
@@ -23,7 +23,7 @@ export function ChatConversationItem({
   isActive,
   onSelect,
 }: ChatConversationItemProps) {
-  const { togglePin } = useChat();
+  const togglePin = useChatStore((s) => s.togglePin);
 
   const handlePin = (e: React.MouseEvent) => {
     e.stopPropagation();

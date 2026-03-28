@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useChat } from "@/contexts/ChatContext";
+import { useChatStore, selectActiveConversation } from "@/stores/chatStore";
 import { ChatConversationHeader } from "./ChatConversationHeader";
 import { ChatMessageList } from "./ChatMessageList";
 import { ChatMessageInput } from "./ChatMessageInput";
@@ -7,7 +7,8 @@ import { ChatEmptyState } from "./ChatEmptyState";
 import styles from "./ChatConversation.module.scss";
 
 export function ChatConversation() {
-  const { activeConversation, setMessageSearchOpen } = useChat();
+  const activeConversation = useChatStore(selectActiveConversation);
+  const setMessageSearchOpen = useChatStore((s) => s.setMessageSearchOpen);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {

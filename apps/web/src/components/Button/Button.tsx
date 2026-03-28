@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import type { ReactNode } from "react";
-import { useSound } from "@/hooks/useSound";
+import { useSoundStore } from "@/stores/soundStore";
 import styles from "./Button.module.scss";
 
 interface ButtonProps {
@@ -24,7 +24,7 @@ export function Button({
   onClick,
   type = "button",
 }: ButtonProps) {
-  const { playSound } = useSound();
+  const playSound = useSoundStore((s) => s.playSound);
 
   const classNames = [
     styles.button,

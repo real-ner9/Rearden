@@ -1,9 +1,12 @@
 import { Link } from "react-router-dom";
-import { useChat } from "@/contexts/ChatContext";
+import { useChatStore, selectActiveConversation } from "@/stores/chatStore";
 import styles from "./ChatConversationHeader.module.scss";
 
 export function ChatConversationHeader() {
-  const { activeConversation, closeConversation, togglePin, setMessageSearchOpen } = useChat();
+  const activeConversation = useChatStore(selectActiveConversation);
+  const closeConversation = useChatStore((s) => s.closeConversation);
+  const togglePin = useChatStore((s) => s.togglePin);
+  const setMessageSearchOpen = useChatStore((s) => s.setMessageSearchOpen);
 
   if (!activeConversation) return null;
 

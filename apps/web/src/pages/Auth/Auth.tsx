@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuthStore } from "@/stores/authStore";
 import { apiFetch } from "@/lib/api";
 import { PhoneInput } from "@/components/PhoneInput/PhoneInput";
 import type { ApiResponse } from "@rearden/types";
@@ -13,7 +13,8 @@ type OtpStatus = "idle" | "verifying" | "success" | "error";
 export function Auth() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, login } = useAuth();
+  const user = useAuthStore((s) => s.user);
+  const login = useAuthStore((s) => s.login);
   const redirectTo = (location.state as { from?: string })?.from || "/feed";
 
   const [step, setStep] = useState<Step>("phone");
@@ -110,8 +111,12 @@ export function Auth() {
 
       if (pasted.length === 6) {
         verifyOtp(pasted);
-      } else {
-        otpRefs.current[pasted.length]?.focus();
+      } else if (pasted.length < 6) {
+        // Focus next empty field after pasted digits
+        const nextIndex = pasted.length;
+        if (nextIndex < 6) {
+          otpRefs.current[nextIndex]?.focus();
+        }
       }
     },
     [otp] // eslint-disable-line react-hooks/exhaustive-deps

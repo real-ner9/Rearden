@@ -2,7 +2,7 @@ import { useRef, useEffect, useLayoutEffect, useCallback, useState } from "react
 import { useNavigate, useParams } from "react-router-dom";
 import type { VideoPost } from "@rearden/types";
 
-import { useChat } from "@/contexts/ChatContext";
+import { useChatStore } from "@/stores/chatStore";
 import { apiFetch } from "@/lib/api";
 import styles from "./Feed.module.scss";
 
@@ -19,7 +19,7 @@ export function Feed({ userId, initialPostId }: FeedProps) {
   const navigate = useNavigate();
   const { postId: routePostId } = useParams<{ postId?: string }>();
   const postId = initialPostId ?? routePostId;
-  const { startConversation } = useChat();
+  const startConversation = useChatStore((s) => s.startConversation);
 
   // Shuffled mode for main feed, chronological for user reels
   const shuffled = !userId;
@@ -143,9 +143,10 @@ export function Feed({ userId, initialPostId }: FeedProps) {
   }, [postId, posts]);
 
   // IntersectionObserver: autoplay visible, pause hidden, update URL
+  const prevActiveRef = useRef(-1);
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || posts.length === 0) return;
+    if (!container) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -171,12 +172,15 @@ export function Feed({ userId, initialPostId }: FeedProps) {
           }
         }
 
-        // Preload only ±2 from active
+        // Preload only ±2 from active (optimize by checking if active changed)
         const active = activeIndexRef.current;
-        videoRefs.current.forEach((v, i) => {
-          if (!v) return;
-          v.preload = Math.abs(i - active) <= 2 ? "auto" : "none";
-        });
+        if (active !== prevActiveRef.current) {
+          videoRefs.current.forEach((v, i) => {
+            if (!v) return;
+            v.preload = Math.abs(i - active) <= 2 ? "auto" : "none";
+          });
+          prevActiveRef.current = active;
+        }
 
         // Load more when within 2 reels of the end
         if (hasMoreRef.current && active >= posts.length - 3) {
@@ -190,13 +194,19 @@ export function Feed({ userId, initialPostId }: FeedProps) {
       if (el) observer.observe(el);
     });
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+    };
   }, [posts, initialPostId, userId]);
 
   // Keyboard navigation
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (posts.length === 0) return;
+
+      // Ignore keyboard nav when focus is in input/textarea/select
+      const tag = (document.activeElement as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
 
       let nextIndex: number | null = null;
       if (e.key === "ArrowDown" || e.key === "j") {

@@ -1,1 +1,1 @@
-export { useSound } from "@/contexts/SoundContext";
+export { useSoundStore as useSound } from "@/stores/soundStore";

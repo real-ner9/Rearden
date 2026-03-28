@@ -1,24 +1,7 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 type SoundName = "click" | "hover" | "success" | "error" | "notify" | "navigate";
-
-interface SoundContextValue {
-  enabled: boolean;
-  setEnabled: (enabled: boolean) => void;
-  playSound: (name: SoundName) => void;
-}
-
-const SoundContext = createContext<SoundContextValue | null>(null);
-
-const STORAGE_KEY = "rearden-sound";
 
 function synthesize(
   ctx: AudioContext,
@@ -68,41 +51,29 @@ const soundRecipes: Record<SoundName, (ctx: AudioContext) => void> = {
   },
 };
 
-export function SoundProvider({ children }: { children: ReactNode }) {
-  const [enabled, setEnabled] = useState(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored === "true";
-  });
-  const ctxRef = useRef<AudioContext | null>(null);
+let audioCtx: AudioContext | null = null;
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, String(enabled));
-  }, [enabled]);
-
-  const playSound = useCallback(
-    (name: SoundName) => {
-      if (!enabled) return;
-      if (!ctxRef.current) {
-        ctxRef.current = new AudioContext();
-      }
-      const ctx = ctxRef.current;
-      if (ctx.state === "suspended") {
-        ctx.resume();
-      }
-      soundRecipes[name](ctx);
-    },
-    [enabled],
-  );
-
-  return (
-    <SoundContext.Provider value={{ enabled, setEnabled, playSound }}>
-      {children}
-    </SoundContext.Provider>
-  );
+interface SoundState {
+  enabled: boolean;
+  setEnabled: (enabled: boolean) => void;
+  playSound: (name: SoundName) => void;
 }
 
-export function useSound() {
-  const ctx = useContext(SoundContext);
-  if (!ctx) throw new Error("useSound must be used within SoundProvider");
-  return ctx;
-}
+export const useSoundStore = create<SoundState>()(
+  persist(
+    (set, get) => ({
+      enabled: false,
+      setEnabled: (enabled) => set({ enabled }),
+      playSound: (name) => {
+        if (!get().enabled) return;
+        if (!audioCtx) audioCtx = new AudioContext();
+        if (audioCtx.state === "suspended") audioCtx.resume();
+        soundRecipes[name](audioCtx);
+      },
+    }),
+    {
+      name: "rearden-sound",
+      partialize: (s) => ({ enabled: s.enabled }),
+    }
+  )
+);

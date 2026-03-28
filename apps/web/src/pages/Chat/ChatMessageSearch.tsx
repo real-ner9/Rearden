@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
-import { useChat } from "@/contexts/ChatContext";
+import { useShallow } from "zustand/react/shallow";
+import { useChatStore, selectMessageSearchResults, selectActiveConversation } from "@/stores/chatStore";
 import styles from "./ChatMessageSearch.module.scss";
 
 function formatDate(dateStr: string): string {
@@ -13,15 +14,13 @@ function formatDate(dateStr: string): string {
 }
 
 export function ChatMessageSearch() {
-  const {
-    messageSearchQuery,
-    messageSearchResults,
-    highlightedMessageId,
-    setMessageSearchQuery,
-    setMessageSearchOpen,
-    setHighlightedMessageId,
-    activeConversation,
-  } = useChat();
+  const messageSearchQuery = useChatStore((s) => s.messageSearchQuery);
+  const messageSearchResults = useChatStore(useShallow(selectMessageSearchResults));
+  const highlightedMessageId = useChatStore((s) => s.highlightedMessageId);
+  const setMessageSearchQuery = useChatStore((s) => s.setMessageSearchQuery);
+  const setMessageSearchOpen = useChatStore((s) => s.setMessageSearchOpen);
+  const setHighlightedMessageId = useChatStore((s) => s.setHighlightedMessageId);
+  const activeConversation = useChatStore(selectActiveConversation);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {

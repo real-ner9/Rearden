@@ -1,8 +1,9 @@
-import { useChat } from "@/contexts/ChatContext";
+import { useChatStore } from "@/stores/chatStore";
 import styles from "./ChatSearch.module.scss";
 
 export function ChatSearch() {
-  const { searchQuery, setSearchQuery } = useChat();
+  const searchQuery = useChatStore((s) => s.searchQuery);
+  const setSearchQuery = useChatStore((s) => s.setSearchQuery);
 
   return (
     <div className={styles.searchWrapper}>

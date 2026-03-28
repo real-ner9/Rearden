@@ -1,20 +1,19 @@
 import { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { useChat } from "@/contexts/ChatContext";
+import { useShallow } from "zustand/react/shallow";
+import { useChatStore, selectFilteredConversations, selectActiveConversation, selectActiveMessages } from "@/stores/chatStore";
 import { ConversationList } from "@/components/ConversationList/ConversationList";
 import { ChatMessage } from "@/components/ChatMessage/ChatMessage";
 import { ChatInput } from "@/components/ChatInput/ChatInput";
 import styles from "./ChatPanel.module.scss";
 
 export function ChatPanel() {
-  const {
-    filteredConversations,
-    activeConversation,
-    activeMessages,
-    openConversation,
-    closeConversation,
-    sendMessage,
-  } = useChat();
+  const filteredConversations = useChatStore(useShallow(selectFilteredConversations));
+  const activeConversation = useChatStore(selectActiveConversation);
+  const activeMessages = useChatStore(useShallow(selectActiveMessages));
+  const openConversation = useChatStore((s) => s.openConversation);
+  const closeConversation = useChatStore((s) => s.closeConversation);
+  const sendMessage = useChatStore((s) => s.sendMessage);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

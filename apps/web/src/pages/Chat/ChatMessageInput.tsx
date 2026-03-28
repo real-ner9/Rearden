@@ -1,10 +1,12 @@
 import { useCallback, useRef, useState, type KeyboardEvent } from "react";
 import { motion } from "motion/react";
-import { useChat } from "@/contexts/ChatContext";
+import { useChatStore } from "@/stores/chatStore";
 import styles from "./ChatMessageInput.module.scss";
 
 export function ChatMessageInput() {
-  const { sendMessage, scrollToBottom, connectionStatus } = useChat();
+  const sendMessage = useChatStore((s) => s.sendMessage);
+  const scrollToBottom = useChatStore((s) => s.scrollToBottom);
+  const connectionStatus = useChatStore((s) => s.connectionStatus);
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 

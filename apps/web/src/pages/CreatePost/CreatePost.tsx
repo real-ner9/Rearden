@@ -7,7 +7,7 @@ import { HashtagInput } from "@/components/HashtagInput/HashtagInput";
 import { ToggleSwitch } from "@/components/ToggleSwitch/ToggleSwitch";
 import { Button } from "@/components/Button/Button";
 import { useVideoUpload } from "@/hooks/useVideoUpload";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuthStore } from "@/stores/authStore";
 import { apiFetch } from "@/lib/api";
 import type { CreatePostPayload } from "@rearden/types";
 import styles from "./CreatePost.module.scss";
@@ -16,7 +16,7 @@ type PostType = "video" | "image";
 
 export function CreatePost() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const user = useAuthStore((s) => s.user);
 
   const [step, setStep] = useState<1 | 2>(1);
   const [postType, setPostType] = useState<PostType>("video");

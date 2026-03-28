@@ -1,12 +1,18 @@
 import { AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router-dom";
-import { useNotifications } from "@/contexts/NotificationContext";
+import {
+  useNotificationStore,
+  selectUnreadCount,
+} from "@/stores/notificationStore";
 import { NotificationItem } from "@/components/NotificationItem/NotificationItem";
 import styles from "./NotificationPanel.module.scss";
 
 export function NotificationPanel() {
-  const { notifications, unreadCount, dismiss, markRead, markAllRead } =
-    useNotifications();
+  const notifications = useNotificationStore((s) => s.notifications);
+  const unreadCount = useNotificationStore(selectUnreadCount);
+  const dismiss = useNotificationStore((s) => s.dismiss);
+  const markRead = useNotificationStore((s) => s.markRead);
+  const markAllRead = useNotificationStore((s) => s.markAllRead);
   const navigate = useNavigate();
 
   return (

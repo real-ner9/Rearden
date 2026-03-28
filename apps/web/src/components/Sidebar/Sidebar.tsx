@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { useSidebar } from "@/contexts/SidebarContext";
+import { useSidebarStore } from "@/stores/sidebarStore";
 import { NotificationPanel } from "@/components/NotificationPanel/NotificationPanel";
 import { ChatPanel } from "@/components/ChatPanel/ChatPanel";
 import styles from "./Sidebar.module.scss";
@@ -25,7 +25,8 @@ function SidebarContent() {
 }
 
 export function Sidebar() {
-  const { open, close } = useSidebar();
+  const open = useSidebarStore((s) => s.open);
+  const close = useSidebarStore((s) => s.close);
 
   return (
     <>

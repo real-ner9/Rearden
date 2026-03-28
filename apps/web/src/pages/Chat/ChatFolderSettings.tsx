@@ -1,17 +1,15 @@
 import { useState } from "react";
-import { useChat } from "@/contexts/ChatContext";
+import { useChatStore } from "@/stores/chatStore";
 import styles from "./ChatFolderSettings.module.scss";
 
 export function ChatFolderSettings() {
-  const {
-    folders,
-    folderSettingsOpen,
-    setFolderSettingsOpen,
-    conversations,
-    createFolder,
-    updateFolder,
-    deleteFolder,
-  } = useChat();
+  const folders = useChatStore((s) => s.folders);
+  const folderSettingsOpen = useChatStore((s) => s.folderSettingsOpen);
+  const setFolderSettingsOpen = useChatStore((s) => s.setFolderSettingsOpen);
+  const conversations = useChatStore((s) => s.conversations);
+  const createFolder = useChatStore((s) => s.createFolder);
+  const updateFolder = useChatStore((s) => s.updateFolder);
+  const deleteFolder = useChatStore((s) => s.deleteFolder);
 
   const [newName, setNewName] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);

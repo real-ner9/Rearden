@@ -1,9 +1,9 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuthStore } from "@/stores/authStore";
 import styles from "./Navbar.module.scss";
 
 export function Navbar() {
-  const { user } = useAuth();
+  const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
 
   return (

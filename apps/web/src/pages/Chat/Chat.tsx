@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { useChat } from "@/contexts/ChatContext";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useChatStore } from "@/stores/chatStore";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { ChatSidebar } from "./ChatSidebar";
 import { ChatConversation } from "./ChatConversation";
 import styles from "./Chat.module.scss";
@@ -22,9 +23,36 @@ function getInitialWidth(): number {
 export function Chat() {
   const { conversationId } = useParams<{ conversationId?: string }>();
   const navigate = useNavigate();
-  const { activeConversationId, openConversation } = useChat();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeConversationId = useChatStore((s) => s.activeConversationId);
+  const activeTab = useChatStore((s) => s.activeTab);
+  const setActiveTab = useChatStore((s) => s.setActiveTab);
+  const openConversation = useChatStore((s) => s.openConversation);
   const [sidebarWidth, setSidebarWidth] = useState(getInitialWidth);
   const dragging = useRef(false);
+
+  // Initialize tab from URL on mount
+  useEffect(() => {
+    const urlTab = searchParams.get("tab");
+    if (urlTab) setActiveTab(urlTab);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Sync activeTab → URL search params
+  useEffect(() => {
+    const currentUrlTab = searchParams.get("tab") ?? "all";
+    if (currentUrlTab !== activeTab) {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        if (activeTab === "all") {
+          next.delete("tab");
+        } else {
+          next.set("tab", activeTab);
+        }
+        return next;
+      }, { replace: true });
+    }
+  }, [activeTab, searchParams, setSearchParams]);
 
   // Bidirectional sync: URL param ↔ activeConversationId
   const prevParamRef = useRef(conversationId);
@@ -37,17 +65,17 @@ export function Chat() {
     prevActiveRef.current = activeConversationId;
 
     if (paramChanged && conversationId && conversationId !== activeConversationId) {
-      // URL changed (e.g. user navigated) → open the conversation
       openConversation(conversationId);
     } else if (activeChanged && activeConversationId !== (conversationId ?? null)) {
-      // Active conversation changed programmatically → update URL
+      const search = searchParams.toString();
+      const qs = search ? `?${search}` : "";
       if (activeConversationId) {
-        navigate(`/chat/${activeConversationId}`, { replace: true });
+        navigate(`/chat/${activeConversationId}${qs}`, { replace: true });
       } else {
-        navigate("/chat", { replace: true });
+        navigate(`/chat${qs}`, { replace: true });
       }
     }
-  }, [conversationId, activeConversationId, openConversation, navigate]);
+  }, [conversationId, activeConversationId, openConversation, navigate, searchParams]);
 
   const onMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -78,29 +106,23 @@ export function Chat() {
     document.addEventListener("mouseup", onMouseUp);
   }, []);
 
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
   return (
     <div className={styles.chat}>
-      {/* Desktop: both panels */}
-      <div className={styles.sidebarDesktop} style={{ width: sidebarWidth }}>
-        <ChatSidebar />
-      </div>
-      <div className={styles.resizeHandle} onMouseDown={onMouseDown} />
-      <div className={styles.conversationDesktop}>
-        <ChatConversation />
-      </div>
-
-      {/* Mobile: single panel */}
-      <div className={styles.mobileContainer}>
-        {activeConversationId ? (
-          <div className={styles.mobilePanel}>
-            <ChatConversation />
-          </div>
-        ) : (
-          <div className={styles.mobilePanel}>
+      {isMobile ? (
+        activeConversationId ? <ChatConversation /> : <ChatSidebar />
+      ) : (
+        <>
+          <div className={styles.sidebar} style={{ width: sidebarWidth }}>
             <ChatSidebar />
           </div>
-        )}
-      </div>
+          <div className={styles.resizeHandle} onMouseDown={onMouseDown} />
+          <div className={styles.conversation}>
+            <ChatConversation />
+          </div>
+        </>
+      )}
     </div>
   );
 }

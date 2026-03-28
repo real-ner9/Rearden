@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { useAuth } from "@/contexts/AuthContext";
-import { useChat } from "@/contexts/ChatContext";
+import { useAuthStore } from "@/stores/authStore";
+import { useChatStore } from "@/stores/chatStore";
 import { ChatPanel } from "@/components/ChatPanel/ChatPanel";
 import styles from "./MessagesPopup.module.scss";
 
@@ -10,8 +10,8 @@ export function MessagesPopup() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const { conversations } = useChat();
+  const user = useAuthStore((s) => s.user);
+  const conversations = useChatStore((s) => s.conversations);
 
   const isChatPage = location.pathname.startsWith("/chat");
 

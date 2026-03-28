@@ -1,19 +1,24 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useSound } from "@/hooks/useSound";
-import { useAuth } from "@/contexts/AuthContext";
-import { useChat } from "@/contexts/ChatContext";
-import { useNotifications } from "@/contexts/NotificationContext";
+import { useSoundStore } from "@/stores/soundStore";
+import { useAuthStore } from "@/stores/authStore";
+import { useChatStore } from "@/stores/chatStore";
+import {
+  useNotificationStore,
+  selectUnreadCount,
+} from "@/stores/notificationStore";
 import { NotificationPanel } from "@/components/NotificationPanel/NotificationPanel";
 import { MoreMenu } from "@/components/MoreMenu/MoreMenu";
 import styles from "./SideNav.module.scss";
 
 export function SideNav() {
-  const { enabled, setEnabled } = useSound();
-  const { user, logout } = useAuth();
-  const { conversations } = useChat();
-  const { unreadCount: notifUnread } = useNotifications();
+  const enabled = useSoundStore((s) => s.enabled);
+  const setEnabled = useSoundStore((s) => s.setEnabled);
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
+  const conversations = useChatStore((s) => s.conversations);
+  const notifUnread = useNotificationStore(selectUnreadCount);
   const navigate = useNavigate();
 
   const [notifOpen, setNotifOpen] = useState(false);

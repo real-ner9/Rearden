@@ -1,6 +1,6 @@
 import { useState, type KeyboardEvent } from "react";
 import { motion } from "motion/react";
-import { useSound } from "@/hooks/useSound";
+import { useSoundStore } from "@/stores/soundStore";
 import styles from "./ChatInput.module.scss";
 
 interface ChatInputProps {
@@ -9,7 +9,7 @@ interface ChatInputProps {
 
 export function ChatInput({ onSend }: ChatInputProps) {
   const [value, setValue] = useState("");
-  const { playSound } = useSound();
+  const playSound = useSoundStore((s) => s.playSound);
 
   const handleSend = () => {
     const trimmed = value.trim();

@@ -4,14 +4,14 @@ import { motion } from "motion/react";
 
 import { Input } from "@/components/Input/Input";
 import { Button } from "@/components/Button/Button";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuthStore } from "@/stores/authStore";
 import { apiFetch } from "@/lib/api";
 import type { Vacancy } from "@rearden/types";
 import styles from "./CreateVacancy.module.scss";
 
 export function CreateVacancy() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const user = useAuthStore((s) => s.user);
 
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({ title: "", description: "" });
