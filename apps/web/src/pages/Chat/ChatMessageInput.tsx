@@ -4,7 +4,7 @@ import { useChat } from "@/contexts/ChatContext";
 import styles from "./ChatMessageInput.module.scss";
 
 export function ChatMessageInput() {
-  const { sendMessage, connectionStatus } = useChat();
+  const { sendMessage, scrollToBottom, connectionStatus } = useChat();
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -43,6 +43,7 @@ export function ChatMessageInput() {
         onChange={(e) => {
           setValue(e.target.value);
           adjustHeight();
+          scrollToBottom("smooth");
         }}
         onKeyDown={handleKeyDown}
         placeholder={isDisabled ? "Reconnecting..." : "Type a message..."}

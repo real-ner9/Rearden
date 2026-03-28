@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import type { ChatMessage } from "@rearden/types";
 import { useChat } from "@/contexts/ChatContext";
@@ -36,8 +36,9 @@ function groupByDate(messages: ChatMessage[]): { date: string; messages: ChatMes
 }
 
 export function ChatMessageList() {
-  const { activeMessages, activeConversationId, typingIndicators } = useChat();
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const { activeMessages, activeConversationId, typingIndicators, highlightedMessageId, highlightedMessageNonce, registerScrollToBottom } = useChat();
+  const listRef = useRef<HTMLDivElement>(null);
+  const didInitialScroll = useRef(false);
 
   const groups = useMemo(() => groupByDate(activeMessages), [activeMessages]);
 
@@ -45,24 +46,42 @@ export function ChatMessageList() {
     (t) => t.conversationId === activeConversationId,
   );
 
+  const doScroll = useCallback((behavior: ScrollBehavior = "instant") => {
+    const el = listRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior });
+  }, []);
+
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [activeMessages.length, typing]);
+    registerScrollToBottom(doScroll);
+  }, [registerScrollToBottom, doScroll]);
+
+  // Scroll to bottom whenever messages change
+  useLayoutEffect(() => {
+    if (activeMessages.length > 0) {
+      doScroll(didInitialScroll.current ? "smooth" : "instant");
+      didInitialScroll.current = true;
+    }
+  }, [activeMessages, doScroll]);
+
+  // Scroll to highlighted search result
+  useEffect(() => {
+    if (!highlightedMessageId || !listRef.current) return;
+    const el = listRef.current.querySelector(`[data-message-id="${highlightedMessageId}"]`);
+    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [highlightedMessageId, highlightedMessageNonce]);
 
   return (
-    <div className={styles.list}>
+    <div className={styles.list} ref={listRef}>
       {groups.map((group) => (
         <div key={group.date}>
           <ChatDateDivider date={group.date} />
           {group.messages.map((msg) => (
-            <motion.div
+            <ChatMessageBubble
               key={msg.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <ChatMessageBubble message={msg} />
-            </motion.div>
+              message={msg}
+              isHighlighted={msg.id === highlightedMessageId}
+            />
           ))}
         </div>
       ))}
@@ -80,7 +99,7 @@ export function ChatMessageList() {
         )}
       </AnimatePresence>
 
-      <div ref={bottomRef} />
+      <div />
     </div>
   );
 }

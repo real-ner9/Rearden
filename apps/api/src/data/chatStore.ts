@@ -1,4 +1,4 @@
-import type { ChatMessage, ChatConversation } from "@rearden/types";
+import type { ChatMessage, ChatConversation, ChatFolder } from "@rearden/types";
 import { db } from "../lib/db.js";
 
 function toConversation(row: any): ChatConversation {
@@ -113,9 +113,17 @@ export async function togglePin(conversationId: string, isPinned: boolean): Prom
 
 export async function markAsRead(conversationId: string): Promise<ChatConversation | null> {
   try {
+    // Read current updatedAt first so we can preserve it
+    // (Prisma's @updatedAt auto-updates on any update() call)
+    const existing = await db.conversation.findUnique({
+      where: { id: conversationId },
+      select: { updatedAt: true },
+    });
+    if (!existing) return null;
+
     const row = await db.conversation.update({
       where: { id: conversationId },
-      data: { unreadCount: 0 },
+      data: { unreadCount: 0, updatedAt: existing.updatedAt },
       include: conversationInclude,
     });
     return toConversation(row);
@@ -137,4 +145,50 @@ export async function createConversation(userId: string, _userName: string): Pro
     include: conversationInclude,
   });
   return toConversation(row);
+}
+
+export async function getFolders(userId: string): Promise<ChatFolder[]> {
+  const rows = await db.chatFolder.findMany({
+    where: { userId },
+    orderBy: { order: "asc" },
+  });
+  return rows.map((r) => ({
+    id: r.id,
+    name: r.name,
+    order: r.order,
+    conversationIds: r.conversationIds,
+  }));
+}
+
+export async function createFolder(userId: string, name: string): Promise<ChatFolder> {
+  const count = await db.chatFolder.count({ where: { userId } });
+  const row = await db.chatFolder.create({
+    data: { userId, name, order: count },
+  });
+  return { id: row.id, name: row.name, order: row.order, conversationIds: row.conversationIds };
+}
+
+export async function updateFolder(
+  id: string,
+  userId: string,
+  data: { name?: string; conversationIds?: string[]; order?: number },
+): Promise<ChatFolder | null> {
+  try {
+    const row = await db.chatFolder.update({
+      where: { id, userId },
+      data,
+    });
+    return { id: row.id, name: row.name, order: row.order, conversationIds: row.conversationIds };
+  } catch {
+    return null;
+  }
+}
+
+export async function deleteFolder(id: string, userId: string): Promise<boolean> {
+  try {
+    await db.chatFolder.delete({ where: { id, userId } });
+    return true;
+  } catch {
+    return false;
+  }
 }
