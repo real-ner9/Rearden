@@ -1,4 +1,5 @@
 @use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
 
 .overlay {
   position: fixed;
@@ -19,6 +20,11 @@
   border: $borderWidth solid $glassBorder;
   border-radius: $radiusLg;
   overflow: hidden;
+
+  @include tablet {
+    width: calc(100vw - 32px);
+    max-width: 400px;
+  }
 }
 
 .header {

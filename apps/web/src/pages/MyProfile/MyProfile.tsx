@@ -1,18 +1,23 @@
-import { useCallback } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { motion } from "motion/react";
-import type { User, Post, VideoPost, Vacancy } from "@rearden/types";
+import { motion, AnimatePresence } from "motion/react";
+import { List } from "@phosphor-icons/react";
+import type { User, VideoPost, Vacancy } from "@rearden/types";
 
 import { ProfileTabs, type ProfileTab } from "@/components/ProfileTabs/ProfileTabs";
-import { PostGrid } from "@/components/PostGrid/PostGrid";
+import { FeedPost } from "@/components/FeedPost/FeedPost";
+import { CommentSheet } from "@/components/CommentSheet/CommentSheet";
+import { PostDetailModal } from "@/components/PostDetailModal/PostDetailModal";
 import { VideoGrid } from "@/components/VideoGrid/VideoGrid";
 import { ReelModal } from "@/components/ReelModal/ReelModal";
 import { VacancyCard } from "@/components/VacancyCard/VacancyCard";
 import { SkillTag } from "@/components/SkillTag/SkillTag";
 import { Button } from "@/components/Button/Button";
 import { useApi } from "@/hooks/useApi";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useAuthStore } from "@/stores/authStore";
 import { useChatStore } from "@/stores/chatStore";
+import { useProfilePostsStore } from "@/stores/profilePostsStore";
 import styles from "./MyProfile.module.scss";
 
 function getInitials(name: string) {
@@ -30,6 +35,19 @@ export function MyProfile() {
   const navigate = useNavigate();
   const authUser = useAuthStore((s) => s.user);
   const startConversation = useChatStore((s) => s.startConversation);
+
+  const [modalState, setModalState] = useState<{ postId: string; focusComments: boolean } | null>(null);
+  const [mobileCommentPostId, setMobileCommentPostId] = useState<string | null>(null);
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
+  const {
+    posts: profilePosts,
+    loading: postsLoading,
+    toggleLike,
+    toggleBookmark,
+    fetchPosts,
+    reset: resetPosts,
+  } = useProfilePostsStore();
 
   const urlToTab: Record<string, ProfileTab> = { videos: "video", vacancies: "vacancies" };
   const tabToUrl: Record<string, string> = { video: "videos", vacancies: "vacancies" };
@@ -53,15 +71,39 @@ export function MyProfile() {
   const { data: profile, loading, error } = useApi<User>(apiUrl);
 
   const userId = profile?.id ?? paramId;
-  const { data: posts } = useApi<Post[]>(
-    userId ? `/posts?userId=${userId}` : "",
-  );
   const { data: videoPosts } = useApi<VideoPost[]>(
     userId ? `/posts?userId=${userId}&type=video` : "",
   );
   const { data: vacancies } = useApi<Vacancy[]>(
     userId ? `/vacancies?userId=${userId}` : "",
   );
+
+  // Fetch profile posts via feed store
+  useEffect(() => {
+    if (userId) {
+      fetchPosts(userId);
+    }
+    return () => {
+      resetPosts();
+    };
+  }, [userId, fetchPosts, resetPosts]);
+
+  const handleOpenComments = (postId: string) => {
+    if (isMobile) {
+      setMobileCommentPostId(postId);
+    } else {
+      setModalState({ postId, focusComments: true });
+    }
+  };
+
+  const handleOpenPost = (postId: string) => {
+    if (!isMobile) {
+      setModalState({ postId, focusComments: false });
+    }
+  };
+
+  const handleCloseModal = () => setModalState(null);
+  const handleCloseSheet = () => setMobileCommentPostId(null);
 
   if (loading) {
     return (
@@ -99,6 +141,25 @@ export function MyProfile() {
 
   return (
     <div className={styles.profile}>
+      {!isOwn && (
+        <button className={styles.backBtn} onClick={() => navigate(-1)}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          Back
+        </button>
+      )}
+
+      {isOwn && (
+        <button
+          className={styles.settingsBtn}
+          onClick={() => navigate("/profile/settings")}
+          title="Settings"
+        >
+          <List size={24} weight="bold" />
+        </button>
+      )}
+
       <motion.div
         className={styles.header}
         initial={{ opacity: 0, y: 20 }}
@@ -199,18 +260,19 @@ export function MyProfile() {
                 variant="primary"
                 size="md"
                 onClick={async () => {
-                  await startConversation(profile.id, profile.name ?? profile.username ?? "User");
-                  navigate("/chat");
+                  if (!authUser) {
+                    navigate("/auth", { state: { from: `/user/${profile.id}` } });
+                    return;
+                  }
+                  try {
+                    const convId = await startConversation(profile.id, profile.name ?? profile.username ?? "User");
+                    if (convId) navigate("/chat");
+                  } catch {
+                    // silently fail
+                  }
                 }}
               >
                 Contact
-              </Button>
-              <Button
-                variant="ghost"
-                size="md"
-                onClick={() => navigate(-1)}
-              >
-                Back
               </Button>
             </>
           )}
@@ -226,7 +288,30 @@ export function MyProfile() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
       >
-        {activeTab === "posts" && <PostGrid posts={posts ?? []} />}
+        {activeTab === "posts" && (
+          <div className={styles.postList}>
+            {postsLoading ? (
+              <div className={styles.loading}>
+                <div className={styles.spinner} />
+              </div>
+            ) : profilePosts.length === 0 ? (
+              <div className={styles.emptyTab}>
+                <p>No posts yet</p>
+              </div>
+            ) : (
+              profilePosts.map((post) => (
+                <FeedPost
+                  key={post.id}
+                  post={post}
+                  onOpenComments={handleOpenComments}
+                  onClickMedia={handleOpenPost}
+                  onLike={toggleLike}
+                  onBookmark={toggleBookmark}
+                />
+              ))
+            )}
+          </div>
+        )}
         {activeTab === "video" && (
           <VideoGrid
             posts={videoPosts ?? []}
@@ -239,7 +324,7 @@ export function MyProfile() {
               <Button
                 variant="primary"
                 size="md"
-                onClick={() => navigate("/vacancy/create")}
+                onClick={() => navigate("/create?tab=vacancy")}
               >
                 Post Vacancy
               </Button>
@@ -259,9 +344,33 @@ export function MyProfile() {
         <ReelModal
           initialPostId={postId}
           userId={profile.id}
-          onClose={() => navigate(`/user/${profile.id}`)}
+          onClose={() => navigate(`/user/${profile.id}/videos`)}
         />
       )}
+
+      {/* Post detail modal (desktop) + Comment sheet (mobile) */}
+      <AnimatePresence>
+        {!isMobile && modalState && (() => {
+          const modalPost = profilePosts.find((p) => p.id === modalState.postId);
+          return modalPost ? (
+            <PostDetailModal
+              key={modalPost.id}
+              post={modalPost}
+              focusComments={modalState.focusComments}
+              onClose={handleCloseModal}
+              onLike={toggleLike}
+              onBookmark={toggleBookmark}
+            />
+          ) : null;
+        })()}
+        {isMobile && mobileCommentPostId && (
+          <CommentSheet
+            key={mobileCommentPostId}
+            postId={mobileCommentPostId}
+            onClose={handleCloseSheet}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

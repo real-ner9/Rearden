@@ -76,14 +76,14 @@ chatRoutes.get("/:id/messages", async (c) => {
 
 // Create conversation
 chatRoutes.post("/", async (c) => {
-  const body = await c.req.json<{ userId: string; userName: string }>();
-  if (!body.userId || !body.userName) {
+  const body = await c.req.json<{ userId: string }>();
+  if (!body.userId) {
     return c.json<ApiResponse>(
-      { success: false, error: "userId and userName are required" },
+      { success: false, error: "userId is required" },
       400,
     );
   }
-  const conv = await createConversation(body.userId, body.userName);
+  const conv = await createConversation(body.userId);
   return c.json<ApiResponse>({ success: true, data: conv }, 201);
 });
 

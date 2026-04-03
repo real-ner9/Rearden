@@ -6,13 +6,21 @@ export type {
   CompleteAuthPayload,
 } from "./user";
 export type { ApiResponse } from "./api-response";
-export type { Post, VideoPost, CreatePostPayload } from "./post";
+export type { Post, VideoPost, CreatePostPayload, FeedPost, PostComment, CreateCommentPayload } from "./post";
 export type { Vacancy } from "./vacancy";
 export type {
   SearchQuery,
   SearchFilters,
   SearchResult,
   SearchResponse,
+  PostSearchQuery,
+  PostSearchAuthor,
+  PostSearchResult,
+  PostSearchResponse,
+  PeopleSearchResult,
+  PeopleSearchResponse,
+  TrendingHashtag,
+  TrendingResponse,
 } from "./search";
 export type {
   ChatMessage,

@@ -1,0 +1,63 @@
+@use "@/styles/variables" as *;
+
+.container {
+  width: 100%;
+  min-height: calc(100vh - $navbarHeight);
+  background: $bgBase;
+  padding: $space6 0;
+}
+
+.feed {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: $space6;
+}
+
+.loading,
+.error,
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: $textMuted;
+  font-size: $fontSize16;
+}
+
+.error {
+  color: $danger;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid $glassBorder;
+  border-top-color: $accentPurple;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.sentinel {
+  display: flex;
+  justify-content: center;
+  padding: $space6 0;
+}
+
+@media (max-width: $bpTablet) {
+  .container {
+    padding: 0;
+    min-height: calc(100vh - $navbarHeight - $mobileNavHeight);
+  }
+
+  .feed {
+    gap: 0;
+  }
+}

@@ -207,13 +207,6 @@ export function Auth() {
     }
   }, [phone, resendCooldown]);
 
-  const stepLabel =
-    step === "phone"
-      ? "Step 1 of 3"
-      : step === "otp"
-        ? "Step 2 of 3"
-        : "Step 3 of 3";
-
   return (
     <div className={styles.page}>
       <motion.div
@@ -223,13 +216,15 @@ export function Auth() {
         transition={{ duration: 0.3 }}
       >
         <div className={styles.header}>
-          <h1 className={styles.title}>Sign In</h1>
-          <p className={styles.subtitle}>
-            {step === "phone" && "Enter your phone number to get started"}
-            {step === "otp" && `We sent a code to ${phone}`}
-            {step === "password" &&
-              (isNewUser ? "Create your account" : "Welcome back")}
-          </p>
+          <button className={styles.logo} onClick={() => navigate("/")}>
+            REARDEN
+          </button>
+          {step === "otp" && (
+            <p className={styles.subtitle}>Code sent to {phone}</p>
+          )}
+          {step === "password" && isNewUser && (
+            <p className={styles.subtitle}>Create your account</p>
+          )}
         </div>
 
         <AnimatePresence mode="wait">
@@ -242,7 +237,6 @@ export function Auth() {
               transition={{ duration: 0.2 }}
             >
               <div className={styles.field}>
-                <label className={styles.label}>Phone number</label>
                 <PhoneInput
                   value={phone}
                   onChange={(v) => {
@@ -392,7 +386,6 @@ export function Auth() {
           </button>
         )}
 
-        <p className={styles.stepIndicator}>{stepLabel}</p>
       </motion.div>
     </div>
   );

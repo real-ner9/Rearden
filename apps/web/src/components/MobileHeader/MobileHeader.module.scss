@@ -1,0 +1,66 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.mobileHeader {
+  display: none;
+
+  @include tablet {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: $mobileNavHeight;
+    z-index: 101;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 $space4;
+    background: $bgBase;
+    border-bottom: $borderWidth solid $glassBorder;
+  }
+}
+
+.logo {
+  font-size: $fontSize16;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: $textPrimary;
+}
+
+.iconBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  border-radius: $radiusMd;
+  color: $textPrimary;
+  cursor: pointer;
+  transition: background $transitionFast;
+
+  &:hover {
+    background: $glassBgHover;
+  }
+}
+
+.badge {
+  position: absolute;
+  top: 2px;
+  right: 0;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background: $danger;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  line-height: 1;
+}
+

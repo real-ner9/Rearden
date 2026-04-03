@@ -1,8 +1,15 @@
 @use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
 
 .chat {
   display: flex;
   height: 100vh;
+
+  @include tablet {
+    height: calc(100dvh - $mobileNavHeight - $mobileNavHeight);
+    width: 100%;
+    overflow-x: hidden;
+  }
 }
 
 .sidebar {

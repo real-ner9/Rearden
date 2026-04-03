@@ -31,10 +31,16 @@ export function useWebSocket({ onMessage }: UseWebSocketOptions) {
 
     ws.onmessage = (e) => {
       try {
-        const event = JSON.parse(e.data);
-        if (event && typeof event.type === 'string') {
-          onMessageRef.current(event as WSServerEvent);
+        const parsed = JSON.parse(e.data);
+        if (!parsed || typeof parsed.type !== "string") return;
+
+        // Respond to server heartbeat pings at transport level
+        if (parsed.type === "ping") {
+          ws.send(JSON.stringify({ type: "pong" }));
+          return;
         }
+
+        onMessageRef.current(parsed as WSServerEvent);
       } catch {
         // ignore malformed messages
       }

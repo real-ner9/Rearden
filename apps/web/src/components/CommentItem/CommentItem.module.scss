@@ -1,0 +1,82 @@
+@use "@/styles/variables" as *;
+
+.comment {
+  display: flex;
+  gap: $space3;
+  padding: $space3 0;
+  position: relative;
+
+  &:hover .deleteButton {
+    opacity: 1;
+  }
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: $space2;
+  margin-bottom: $space1;
+}
+
+.username {
+  font-weight: 600;
+  font-size: $fontSize13;
+  color: $textPrimary;
+  text-decoration: none;
+  transition: color $transitionFast;
+
+  &:hover {
+    color: $accentPurple;
+  }
+}
+
+.dot {
+  color: $textMuted;
+  font-size: $fontSize12;
+}
+
+.time {
+  color: $textMuted;
+  font-size: $fontSize12;
+}
+
+.text {
+  font-size: $fontSize14;
+  line-height: 1.5;
+  color: $textPrimary;
+  margin: 0;
+  word-wrap: break-word;
+}
+
+.deleteButton {
+  position: absolute;
+  top: $space3;
+  right: 0;
+  background: none;
+  border: none;
+  color: $textMuted;
+  cursor: pointer;
+  padding: $space1;
+  opacity: 0;
+  transition: opacity $transitionFast, color $transitionFast, transform $transitionFast;
+
+  &:hover {
+    color: $danger;
+    transform: scale(1.1);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+@media (max-width: $bpTablet) {
+  .deleteButton {
+    opacity: 1;
+  }
+}

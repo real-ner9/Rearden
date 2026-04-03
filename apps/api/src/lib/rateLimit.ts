@@ -16,7 +16,7 @@ interface RateLimitEntry {
 const store = new Map<string, RateLimitEntry>();
 
 // Cleanup expired entries every 5 minutes
-setInterval(() => {
+const cleanupInterval = setInterval(() => {
   const now = Date.now();
   for (const [key, entry] of store.entries()) {
     if (entry.resetAt < now) {
@@ -24,6 +24,10 @@ setInterval(() => {
     }
   }
 }, 5 * 60 * 1000);
+
+export function stopRateLimitCleanup() {
+  clearInterval(cleanupInterval);
+}
 
 /**
  * Creates a simple in-memory rate limiting middleware.

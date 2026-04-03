@@ -104,8 +104,6 @@ export function ChatMessageList() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <div />
     </div>
   );
 }

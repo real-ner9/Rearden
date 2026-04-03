@@ -1,0 +1,179 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.peopleTab {
+  max-width: 900px;
+  margin: 0 auto;
+  min-width: 0;
+}
+
+.sectionTitle {
+  font-size: $fontSize16;
+  font-weight: 600;
+  color: $textSecondary;
+  margin: $space6 0 $space3;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: $space4;
+  margin-top: $space4;
+
+  @include tablet {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: $space2;
+  }
+}
+
+.card {
+  @include glass;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusLg;
+  padding: $space5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  transition: all $transitionBase;
+  min-width: 0;
+  overflow: hidden;
+
+  &:hover {
+    @include glassHover;
+    transform: translateY(-2px);
+    box-shadow: $shadowMd;
+  }
+
+  @include tablet {
+    padding: $space3;
+  }
+}
+
+.avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: $bgSurface;
+  margin-bottom: $space3;
+  flex-shrink: 0;
+
+  @include tablet {
+    width: 56px;
+    height: 56px;
+    margin-bottom: $space2;
+  }
+}
+
+.username {
+  font-size: $fontSize14;
+  font-weight: 600;
+  color: $textPrimary;
+  @include truncate(1);
+  max-width: 100%;
+}
+
+.meta {
+  font-size: $fontSize13;
+  color: $textSecondary;
+  @include truncate(1);
+  max-width: 100%;
+  margin-top: 2px;
+}
+
+.title {
+  font-size: $fontSize12;
+  color: $textMuted;
+  @include truncate(1);
+  max-width: 100%;
+  margin-top: 2px;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $space3;
+  padding: $space16 0;
+  color: $textMuted;
+
+  p {
+    font-size: $fontSize14;
+  }
+}
+
+.sentinel {
+  height: 1px;
+}
+
+.loadingMore {
+  display: flex;
+  justify-content: center;
+  padding: $space6 0;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  color: $textMuted;
+}
+
+// Skeleton loading
+.skeletonCard {
+  @include glass;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusLg;
+  padding: $space5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space2;
+}
+
+.skeletonAvatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(
+    90deg,
+    $bgSurface 25%,
+    $bgElevated 50%,
+    $bgSurface 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  margin-bottom: $space2;
+}
+
+.skeletonLine {
+  height: 12px;
+  border-radius: $radiusSm;
+  background: linear-gradient(
+    90deg,
+    $bgSurface 25%,
+    $bgElevated 50%,
+    $bgSurface 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

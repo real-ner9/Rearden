@@ -1,118 +1,70 @@
-import { useNavigate } from "react-router-dom";
-import { motion } from "motion/react";
-
-import { SearchBar } from "@/components/SearchBar/SearchBar";
-import { UserCard } from "@/components/UserCard/UserCard";
-import { useSearch } from "@/hooks/useSearch";
+import { useSearchParams } from "react-router-dom";
+import { AnimatePresence, motion } from "motion/react";
+import { TabBar } from "@/components/TabBar/TabBar";
+import { SearchContentTab } from "./SearchContentTab";
+import { SearchAIMatchTab } from "./SearchAIMatchTab";
+import { SearchPeopleTab } from "./SearchPeopleTab";
 import styles from "./Search.module.scss";
 
-const containerVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.06 } },
-};
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 20, scale: 0.95 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { type: "spring" as const, stiffness: 300, damping: 25 },
-  },
-};
+const TABS = [
+  { id: "content", label: "Content" },
+  { id: "people", label: "People" },
+  { id: "ai-match", label: "AI Match" },
+];
 
 export function Search() {
-  const navigate = useNavigate();
-  const { query, setQuery, results, loading, error } = useSearch();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "content";
+
+  const handleTabChange = (id: string) => {
+    setSearchParams({ tab: id }, { replace: true });
+  };
 
   return (
     <div className={styles.search}>
-        <div className={styles.header}>
-          <motion.h1
-            className={styles.title}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          >
-            {query ? "Search Results" : "Discover Talent"}
-          </motion.h1>
-          <motion.p
-            className={styles.subtitle}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30, delay: 0.1 }}
-          >
-            {query
-              ? `${results.length} user${results.length !== 1 ? "s" : ""} found`
-              : "Use AI-powered search to find your perfect match"}
-          </motion.p>
-        </div>
-
-        <div className={styles.searchWrapper}>
-          <SearchBar value={query} onChange={setQuery} loading={loading} />
-        </div>
-
-        {error && (
-          <div className={styles.error}>
-            <p>Something went wrong: {error}</p>
-          </div>
-        )}
-
-        {loading && results.length === 0 ? (
-          <div className={styles.grid}>
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className={styles.skeleton}>
-                <div className={styles.skeletonThumb} />
-                <div className={styles.skeletonContent}>
-                  <div className={styles.skeletonLine} style={{ width: "60%" }} />
-                  <div className={styles.skeletonLine} style={{ width: "40%" }} />
-                  <div className={styles.skeletonLine} style={{ width: "80%" }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : results.length > 0 ? (
-          <motion.div
-            className={styles.grid}
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            key={query}
-          >
-            {results.map((result) => (
-              <motion.div key={result.userId} variants={cardVariants}>
-                <UserCard
-                  user={result.user}
-                  score={result.score}
-                  matchReason={result.matchReason}
-                  onClick={() => navigate(`/user/${result.userId}`)}
-                />
-              </motion.div>
-            ))}
-          </motion.div>
-        ) : (
-          !loading && (
+      <TabBar
+        tabs={TABS}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        layoutId="searchTabs"
+      />
+      <div className={styles.content}>
+        <AnimatePresence mode="wait">
+          {activeTab === "content" && (
             <motion.div
-              className={styles.empty}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              key="content"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.2 }}
             >
-              <svg
-                width="64"
-                height="64"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              >
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.35-4.35" />
-              </svg>
-              <h3>No users found</h3>
-              <p>Try adjusting your search query</p>
+              <SearchContentTab />
             </motion.div>
-          )
-        )}
+          )}
+          {activeTab === "people" && (
+            <motion.div
+              key="people"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.2 }}
+            >
+              <SearchPeopleTab />
+            </motion.div>
+          )}
+          {activeTab === "ai-match" && (
+            <motion.div
+              key="ai-match"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.2 }}
+            >
+              <SearchAIMatchTab />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
+    </div>
   );
 }

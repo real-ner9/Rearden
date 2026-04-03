@@ -1,72 +1,112 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import {
+  House,
+  MonitorPlay,
+  PaperPlaneTilt,
+  MagnifyingGlass,
+} from "@phosphor-icons/react";
 import { useAuthStore } from "@/stores/authStore";
+import { useChatStore } from "@/stores/chatStore";
+import { Avatar } from "@/components/Avatar/Avatar";
 import styles from "./Navbar.module.scss";
 
 export function Navbar() {
   const user = useAuthStore((s) => s.user);
+  const conversations = useChatStore((s) => s.conversations);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  if (location.pathname === "/auth") return null;
+
+  const chatUnread = user
+    ? conversations.reduce((sum, c) => sum + c.unreadCount, 0)
+    : 0;
+
+  const authGate =
+    (target: string) => (e: React.MouseEvent) => {
+      if (!user) {
+        e.preventDefault();
+        navigate("/auth", { state: { from: target } });
+      }
+    };
 
   return (
     <nav className={styles.bottomNav}>
+      {/* Home */}
       <NavLink to="/" end className={styles.bottomTab}>
         {({ isActive }) => (
-          <div className={`${styles.bottomTabInner} ${isActive ? styles.bottomActive : ""}`}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-              <polyline points="9 22 9 12 15 12 15 22" />
-            </svg>
+          <div
+            className={`${styles.bottomTabInner} ${isActive ? styles.bottomActive : ""}`}
+          >
+            <House size={26} weight={isActive ? "fill" : "regular"} />
           </div>
         )}
       </NavLink>
 
-      <NavLink to="/search" className={styles.bottomTab}>
-        {({ isActive }) => (
-          <div className={`${styles.bottomTabInner} ${isActive ? styles.bottomActive : ""}`}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.35-4.35" />
-            </svg>
-          </div>
-        )}
-      </NavLink>
-
+      {/* Reels */}
       <NavLink to="/feed" className={styles.bottomTab}>
         {({ isActive }) => (
-          <div className={`${styles.bottomTabInner} ${isActive ? styles.bottomActive : ""}`}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill={isActive ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="2" width="20" height="20" rx="2" />
-              <path d="M10 8l6 4-6 4V8z" />
-            </svg>
+          <div
+            className={`${styles.bottomTabInner} ${isActive ? styles.bottomActive : ""}`}
+          >
+            <MonitorPlay size={26} weight={isActive ? "fill" : "regular"} />
           </div>
         )}
       </NavLink>
 
+      {/* Messages (auth-gated) */}
       <NavLink
         to={user ? "/chat" : "/auth"}
         className={styles.bottomTab}
-        onClick={(e) => {
-          if (!user) {
-            e.preventDefault();
-            navigate("/auth", { state: { from: "/chat" } });
-          }
-        }}
+        onClick={authGate("/chat")}
       >
         {({ isActive }) => (
-          <div className={`${styles.bottomTabInner} ${isActive ? styles.bottomActive : ""}`}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-            </svg>
+          <div
+            className={`${styles.bottomTabInner} ${isActive ? styles.bottomActive : ""}`}
+          >
+            <span className={styles.iconWrap}>
+              <PaperPlaneTilt
+                size={26}
+                weight={isActive ? "fill" : "regular"}
+              />
+              {chatUnread > 0 && (
+                <span className={styles.badge}>{chatUnread}</span>
+              )}
+            </span>
           </div>
         )}
       </NavLink>
 
-      <NavLink to={user ? "/register" : "/auth"} className={styles.bottomTab}>
+      {/* Search */}
+      <NavLink to="/search" className={styles.bottomTab}>
         {({ isActive }) => (
-          <div className={`${styles.bottomTabInner} ${isActive ? styles.bottomActive : ""}`}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
+          <div
+            className={`${styles.bottomTabInner} ${isActive ? styles.bottomActive : ""}`}
+          >
+            <MagnifyingGlass size={26} weight={isActive ? "bold" : "regular"} />
+          </div>
+        )}
+      </NavLink>
+
+      {/* Profile (avatar) */}
+      <NavLink
+        to={user ? "/profile" : "/auth"}
+        className={styles.bottomTab}
+        onClick={authGate("/profile")}
+      >
+        {({ isActive }) => (
+          <div
+            className={`${styles.bottomTabInner} ${isActive ? styles.bottomActive : ""}`}
+          >
+            <div
+              className={`${styles.avatarWrap} ${isActive ? styles.activeAvatar : ""}`}
+            >
+              <Avatar
+                src={user?.thumbnailUrl}
+                name={user?.name || user?.username}
+                size="sm"
+              />
+            </div>
           </div>
         )}
       </NavLink>

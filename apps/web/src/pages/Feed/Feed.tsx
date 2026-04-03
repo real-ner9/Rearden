@@ -204,9 +204,9 @@ export function Feed({ userId, initialPostId }: FeedProps) {
     (e: KeyboardEvent) => {
       if (posts.length === 0) return;
 
-      // Ignore keyboard nav when focus is in input/textarea/select
-      const tag = (document.activeElement as HTMLElement)?.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      // Ignore keyboard nav when focus is in input/textarea/select/contenteditable
+      const el = document.activeElement as HTMLElement;
+      if (el?.tagName === 'INPUT' || el?.tagName === 'TEXTAREA' || el?.tagName === 'SELECT' || el?.isContentEditable) return;
 
       let nextIndex: number | null = null;
       if (e.key === "ArrowDown" || e.key === "j") {

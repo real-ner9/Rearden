@@ -1,45 +1,64 @@
-import { useState, useRef } from "react";
+import { useEffect, useRef } from "react";
+import Plyr from "plyr";
+import "plyr/dist/plyr.css";
 import styles from "./VideoPlayer.module.scss";
 
 interface VideoPlayerProps {
   src: string;
   poster?: string;
+  compact?: boolean;
 }
 
-export function VideoPlayer({ src, poster }: VideoPlayerProps) {
-  const [playing, setPlaying] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
+export function VideoPlayer({ src, poster, compact }: VideoPlayerProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<Plyr | null>(null);
 
-  const togglePlay = () => {
-    if (!videoRef.current) return;
+  useEffect(() => {
+    if (!containerRef.current) return;
 
-    if (playing) {
-      videoRef.current.pause();
-    } else {
-      videoRef.current.play();
+    // Clean up previous instance
+    if (playerRef.current) {
+      playerRef.current.destroy();
+      playerRef.current = null;
     }
-    setPlaying(!playing);
-  };
+
+    // Create fresh video element
+    const video = document.createElement("video");
+    video.playsInline = true;
+    video.src = src;
+    if (poster) video.poster = poster;
+
+    containerRef.current.innerHTML = "";
+    containerRef.current.appendChild(video);
+
+    playerRef.current = new Plyr(video, {
+      controls: compact
+        ? ["play-large", "play", "progress", "current-time", "mute"]
+        : [
+            "play-large",
+            "play",
+            "progress",
+            "current-time",
+            "mute",
+            "volume",
+            "fullscreen",
+          ],
+      tooltips: { controls: false, seek: true },
+      keyboard: { focused: true, global: false },
+      hideControls: true,
+      resetOnEnd: true,
+    });
+
+    return () => {
+      playerRef.current?.destroy();
+      playerRef.current = null;
+    };
+  }, [src, poster, compact]);
 
   return (
-    <div className={styles.wrapper}>
-      <video
-        ref={videoRef}
-        className={styles.video}
-        src={src}
-        poster={poster}
-        controls={playing}
-        onPlay={() => setPlaying(true)}
-        onPause={() => setPlaying(false)}
-        onEnded={() => setPlaying(false)}
-      />
-      {!playing && (
-        <button className={styles.playButton} onClick={togglePlay}>
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M8 5v14l11-7z" />
-          </svg>
-        </button>
-      )}
-    </div>
+    <div
+      ref={containerRef}
+      className={`${styles.wrapper} ${compact ? styles.compact : ""}`}
+    />
   );
 }

@@ -2,6 +2,8 @@ import "dotenv/config";
 import "./lib/env.js"; // Validate environment variables at startup
 import { serve } from "@hono/node-server";
 import { app, injectWebSocket } from "./app.js";
+import { stopHeartbeat } from "./ws/chatWebSocket.js";
+import { stopRateLimitCleanup } from "./lib/rateLimit.js";
 
 const port = Number(process.env.PORT) || 3001;
 
@@ -13,6 +15,8 @@ injectWebSocket(server);
 
 // Освобождаем порт при завершении (tsx --watch на Windows не делает это сам)
 const shutdown = () => {
+  stopHeartbeat();
+  stopRateLimitCleanup();
   (server as any).closeAllConnections?.();
   server.close();
 };

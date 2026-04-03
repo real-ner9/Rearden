@@ -6,132 +6,15 @@
   padding-top: $space10;
   padding-bottom: $space10;
 
-  @include mobile {
-    padding-top: $space6;
+  @include tablet {
+    padding-top: $space4;
     padding-bottom: $space6;
+    overflow-x: hidden;
   }
 }
 
-.header {
-  text-align: center;
-  margin-bottom: $space8;
-
-  @include mobile {
-    margin-bottom: $space5;
-  }
-}
-
-.title {
-  font-size: $fontSize32;
-  font-weight: 700;
-  color: $accentTeal;
-  margin-bottom: $space2;
-
-  @include tablet {
-    font-size: $fontSize24;
-  }
-
-  @include mobile {
-    font-size: $fontSize20;
-  }
-}
-
-.subtitle {
-  font-size: $fontSize16;
-  color: $textSecondary;
-
-  @include mobile {
-    font-size: $fontSize14;
-  }
-}
-
-.searchWrapper {
-  max-width: 700px;
-  margin: 0 auto $space10;
-
-  @include mobile {
-    margin-bottom: $space6;
-  }
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: $space6;
-
-  @include tablet {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @include mobile {
-    grid-template-columns: 1fr;
-  }
-}
-
-.error {
-  text-align: center;
-  padding: $space8;
-  color: $danger;
-  font-size: $fontSize14;
-}
-
-.empty {
-  text-align: center;
-  padding: $space16 0;
-  color: $textMuted;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: $space4;
-
-  h3 {
-    font-size: $fontSize20;
-    font-weight: 600;
-    color: $textSecondary;
-  }
-
-  p {
-    font-size: $fontSize14;
-  }
-}
-
-// Skeleton loading
-.skeleton {
-  background: $glassBg;
-  border: $borderWidth solid $glassBorder;
-  border-radius: $radiusMd;
-  overflow: hidden;
-}
-
-.skeletonThumb {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  background: linear-gradient(
-    90deg,
-    $bgSurface 25%,
-    $bgElevated 50%,
-    $bgSurface 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-.skeletonContent {
-  padding: $space4;
-  display: flex;
-  flex-direction: column;
-  gap: $space3;
-}
-
-.skeletonLine {
-  height: 12px;
-  border-radius: $radiusSm;
-  background: linear-gradient(
-    90deg,
-    $bgSurface 25%,
-    $bgElevated 50%,
-    $bgSurface 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+.content {
+  min-height: 400px;
+  margin-top: $space6;
+  min-width: 0;
 }

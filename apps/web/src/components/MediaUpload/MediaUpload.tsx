@@ -3,25 +3,26 @@ import { VideoPlayer } from "@/components/VideoPlayer/VideoPlayer";
 import styles from "./MediaUpload.module.scss";
 
 interface MediaUploadProps {
-  type: "image" | "video";
-  onUpload: (file: File) => void;
+  onUpload: (files: File[]) => void;
   uploading?: boolean;
   progress?: number;
   previewUrl?: string;
+  previewType?: "image" | "video";
+  multiple?: boolean;
+  accept?: string;
 }
 
 export function MediaUpload({
-  type,
   onUpload,
   uploading,
   progress = 0,
   previewUrl,
+  previewType,
+  multiple,
+  accept = "video/*,image/*",
 }: MediaUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const accept = type === "video" ? "video/*" : "image/*";
-  const hint = type === "video" ? "Video files (MP4, WebM)" : "Image files (JPG, PNG, WebP)";
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -36,17 +37,17 @@ export function MediaUpload({
     e.preventDefault();
     setIsDragging(false);
 
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith(`${type}/`)) {
-      onUpload(file);
-    }
+    const acceptTypes = accept.split(",").map((a) => a.trim().replace("/*", "/"));
+    const valid = Array.from(e.dataTransfer.files).filter((f) =>
+      acceptTypes.some((t) => f.type.startsWith(t)),
+    );
+    if (valid.length > 0) onUpload(multiple ? valid : [valid[0]]);
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      onUpload(file);
-    }
+    const files = Array.from(e.target.files ?? []);
+    if (files.length > 0) onUpload(files);
+    e.target.value = "";
   };
 
   const handleClick = () => {
@@ -56,8 +57,10 @@ export function MediaUpload({
   if (previewUrl) {
     return (
       <div className={styles.preview}>
-        {type === "video" ? (
-          <VideoPlayer src={previewUrl} />
+        {previewType === "video" ? (
+          <div className={styles.videoContainer}>
+            <VideoPlayer src={previewUrl} compact />
+          </div>
         ) : (
           <img src={previewUrl} alt="Preview" className={styles.imagePreview} />
         )}
@@ -68,6 +71,7 @@ export function MediaUpload({
           ref={inputRef}
           type="file"
           accept={accept}
+          multiple={multiple}
           onChange={handleFileSelect}
           className={styles.hiddenInput}
         />
@@ -89,6 +93,7 @@ export function MediaUpload({
         ref={inputRef}
         type="file"
         accept={accept}
+        multiple={multiple}
         onChange={handleFileSelect}
         className={styles.hiddenInput}
       />
@@ -119,7 +124,13 @@ export function MediaUpload({
             <line x1="12" y1="3" x2="12" y2="15" />
           </svg>
           <p className={styles.text}>Drag & drop or click to upload</p>
-          <p className={styles.hint}>{hint}</p>
+          <p className={styles.hint}>
+            {accept === "video/*"
+              ? "Upload a video"
+              : accept === "image/*"
+                ? "Upload photos"
+                : "1 video or up to 10 photos"}
+          </p>
         </>
       )}
     </div>

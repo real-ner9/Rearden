@@ -1,3 +1,8 @@
+import {
+  GridFour,
+  MonitorPlay,
+  Briefcase,
+} from "@phosphor-icons/react";
 import { TabBar, type TabItem } from "@/components/TabBar/TabBar";
 import styles from "./ProfileTabs.module.scss";
 
@@ -9,9 +14,24 @@ interface ProfileTabsProps {
 }
 
 const tabs: TabItem[] = [
-  { id: "posts", label: "Posts" },
-  { id: "video", label: "Video" },
-  { id: "vacancies", label: "Vacancies" },
+  {
+    id: "posts",
+    label: "Posts",
+    icon: <GridFour size={22} />,
+    activeIcon: <GridFour size={22} weight="fill" />,
+  },
+  {
+    id: "video",
+    label: "Video",
+    icon: <MonitorPlay size={22} />,
+    activeIcon: <MonitorPlay size={22} weight="fill" />,
+  },
+  {
+    id: "vacancies",
+    label: "Vacancies",
+    icon: <Briefcase size={22} />,
+    activeIcon: <Briefcase size={22} weight="fill" />,
+  },
 ];
 
 export function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps) {

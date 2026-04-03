@@ -1,0 +1,109 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.videoCard {
+  @include glass;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusLg;
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow $transitionBase, transform $transitionBase;
+  min-width: 0;
+
+  &:hover {
+    box-shadow: $shadowMd;
+    transform: translateY(-2px);
+  }
+}
+
+.mediaContainer {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: $bgSurface;
+}
+
+.thumbnail,
+.video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbnailFallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $textMuted;
+  background: $bgSurface;
+}
+
+.playIcon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  border-radius: 50%;
+  color: white;
+  pointer-events: none;
+}
+
+.cardContent {
+  padding: $space3 $space4;
+}
+
+.postContent {
+  font-size: $fontSize14;
+  color: $textSecondary;
+  margin-bottom: $space2;
+  @include truncate(3);
+}
+
+.authorRow {
+  display: flex;
+  align-items: center;
+  gap: $space2;
+  margin-bottom: $space2;
+}
+
+.authorAvatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.authorName {
+  font-size: $fontSize13;
+  color: $textPrimary;
+  font-weight: 500;
+}
+
+.authorUsername {
+  font-size: $fontSize12;
+  color: $textMuted;
+}
+
+.hashtags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space1;
+  margin-top: $space2;
+}
+
+.hashtagChip {
+  font-size: $fontSize12;
+  color: $accentPurple;
+  font-weight: 500;
+}

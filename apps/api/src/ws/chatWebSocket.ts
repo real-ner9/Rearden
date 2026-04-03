@@ -1,7 +1,6 @@
 import type { WSContext } from "hono/ws";
 import type { WSClientEvent, WSServerEvent } from "@rearden/types";
 import { addMessage, markAsRead } from "../data/chatStore.js";
-import { scheduleAutoReply } from "../data/autoReply.js";
 
 interface ClientMeta {
   userId: string | null;
@@ -29,8 +28,7 @@ export function broadcast(event: WSServerEvent) {
 const PING_INTERVAL = 30000;
 const PONG_TIMEOUT = 10000;
 
-setInterval(() => {
-  const now = Date.now();
+const heartbeatInterval = setInterval(() => {
   const dead: WSContext[] = [];
 
   for (const [ws, meta] of clients) {
@@ -56,6 +54,10 @@ setInterval(() => {
     clients.delete(ws);
   }
 }, PING_INTERVAL);
+
+export function stopHeartbeat() {
+  clearInterval(heartbeatInterval);
+}
 
 export function createWSHandlers() {
   return {
@@ -100,12 +102,14 @@ export function createWSHandlers() {
   };
 }
 
-async function handleClientEvent(event: WSClientEvent, _ws: WSContext) {
+async function handleClientEvent(event: WSClientEvent, ws: WSContext) {
   switch (event.type) {
     case "message:send": {
+      const meta = clients.get(ws);
+      const userId = meta?.userId ?? "recruiter-1"; // fallback for unauthenticated
       const result = await addMessage(
         event.conversationId,
-        "recruiter-1",
+        userId,
         "recruiter",
         event.text,
       );
@@ -115,7 +119,6 @@ async function handleClientEvent(event: WSClientEvent, _ws: WSContext) {
           message: result.message,
           conversation: result.conversation,
         });
-        scheduleAutoReply(event.conversationId, broadcast);
       }
       break;
     }

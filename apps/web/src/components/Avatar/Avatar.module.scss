@@ -1,0 +1,45 @@
+@use "@/styles/variables" as *;
+
+.avatar {
+  border-radius: 50%;
+  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $accentPurple;
+  color: $textPrimary;
+  font-weight: 600;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.sm {
+  width: 24px;
+  height: 24px;
+  font-size: $fontSize12;
+}
+
+.md {
+  width: 32px;
+  height: 32px;
+  font-size: $fontSize14;
+}
+
+.lg {
+  width: 40px;
+  height: 40px;
+  font-size: $fontSize16;
+}
+
+.clickable {
+  cursor: pointer;
+  transition: transform $transitionFast;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}

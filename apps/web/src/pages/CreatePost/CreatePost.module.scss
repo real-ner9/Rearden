@@ -15,14 +15,13 @@
 
 .header {
   text-align: center;
-  margin-bottom: $space8;
+  margin-bottom: $space6;
 }
 
-.title {
+.pageTitle {
   font-size: $fontSize32;
   font-weight: 700;
   color: $accentTeal;
-  margin-bottom: $space2;
 
   @include tablet {
     font-size: $fontSize24;
@@ -33,37 +32,18 @@
   }
 }
 
-.subtitle {
-  font-size: $fontSize16;
-  color: $textSecondary;
-}
-
-.card {
-  background: $glassBg;
-  border: $borderWidth solid $glassBorder;
-  border-radius: $radiusMd;
-  padding: $space8;
-  display: flex;
-  flex-direction: column;
-  gap: $space6;
-  box-shadow: $shadowSm;
-
-  @include mobile {
-    padding: $space5;
-  }
-}
-
-// Step 1 — Type selector tabs
-.typeTabs {
+// Top-level tabs (Reels / Post / Vacancy)
+.tabs {
   display: flex;
   gap: $space2;
   background: $bgSurface;
   border: $borderWidth solid $glassBorder;
   border-radius: $radiusSm;
   padding: 3px;
+  margin-bottom: $space6;
 }
 
-.typeTab {
+.tab {
   flex: 1;
   padding: $space3 $space4;
   border: none;
@@ -74,44 +54,443 @@
   color: $textMuted;
   cursor: pointer;
   transition: all $transitionBase;
-  position: relative;
+  font-family: $fontFamily;
 
-  &.active {
-    background: $glassBg;
-    color: $accentPurple;
-    box-shadow: $shadowSm;
-  }
-
-  &:hover:not(.active) {
+  &:hover:not(.activeTab) {
     color: $textPrimary;
   }
 }
 
-// Step 2 — Details
-.miniPreview {
-  width: 120px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: $radiusSm;
-  border: $borderWidth solid $glassBorder;
-  flex-shrink: 0;
+.activeTab {
+  background: $glassBg;
+  color: $accentPurple;
+  box-shadow: $shadowSm;
 }
 
-.miniPreviewVideo {
-  width: 120px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: $radiusSm;
+// Card (shared by all tabs)
+.card {
+  background: $glassBg;
   border: $borderWidth solid $glassBorder;
-  flex-shrink: 0;
-}
-
-.detailsTop {
+  border-radius: $radiusMd;
+  padding: $space8;
   display: flex;
-  gap: $space4;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: $space6;
+  box-shadow: $shadowSm;
+  transition: border-color $transitionFast;
+
+  @include mobile {
+    padding: $space5;
+  }
 }
 
+.dropActive {
+  border-color: $accentPurple;
+  border-style: dashed;
+}
+
+// ─── Video preview (vertical-first for Reels) ───
+.videoPreviewWrap {
+  position: relative;
+  border-radius: $radiusMd;
+  overflow: hidden;
+  background: #000;
+  aspect-ratio: 9 / 16;
+  width: 100%;
+}
+
+// ─── Cover wrap with edit button (step 2) ───
+.coverWrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+// Overlay button on the cover preview (step 2)
+.editCoverBtnOverlay {
+  position: absolute;
+  top: $space3;
+  right: $space3;
+  display: inline-flex;
+  align-items: center;
+  gap: $space1;
+  padding: $space1 $space3;
+  border: none;
+  border-radius: $radiusFull;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  font-size: $fontSize12;
+  font-weight: 600;
+  font-family: $fontFamily;
+  color: #fff;
+  cursor: pointer;
+  transition: background $transitionFast;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.8);
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+// Upload custom cover button (step 3, top-right of preview)
+.customCoverBtn {
+  position: absolute;
+  top: $space3;
+  right: $space3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: $radiusFull;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  cursor: pointer;
+  transition: background $transitionFast;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.8);
+  }
+}
+
+// ─── Cover editor preview (step 3) ───
+.coverEditorPreview {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  img,
+  video {
+    width: 100%;
+    aspect-ratio: 9 / 16;
+    object-fit: cover;
+    border-radius: $radiusSm;
+    border: $borderWidth solid $glassBorder;
+    background: #000;
+  }
+}
+
+// ─── Cover scrubber (Instagram-style) ───
+.scrubberWrap {
+  display: flex;
+  flex-direction: column;
+  gap: $space2;
+}
+
+.scrubberTrack {
+  position: relative;
+  height: 48px;
+  border-radius: $radiusSm;
+  overflow: hidden;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+}
+
+.scrubberFilmstrip {
+  display: flex;
+  width: 100%;
+  height: 100%;
+
+  img {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.scrubberFrame {
+  display: block;
+}
+
+.scrubberHandle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: $accentPurple;
+  border-radius: 2px;
+  transform: translateX(-50%);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  z-index: 1;
+}
+
+
+// ─── Image strip (horizontal scroll) ───
+.imageGrid {
+  display: flex;
+  gap: $space3;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: $space2;
+  @include customScrollbar;
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+}
+
+.sortableItem {
+  flex-shrink: 0;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.dragOverlayThumb {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  cursor: grabbing;
+}
+
+.imageThumbnail {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: $radiusMd;
+  overflow: hidden;
+  background: #000;
+  touch-action: none;
+
+  @include mobile {
+    width: 100px;
+    height: 100px;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+  }
+}
+
+.removeBtn {
+  position: absolute;
+  top: $space2;
+  right: $space2;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: $radiusFull;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background $transitionFast;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.8);
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.hiddenInput {
+  display: none;
+}
+
+// Off-screen but real size — browser must decode frames for canvas capture
+.hiddenMedia {
+  position: fixed;
+  top: -9999px;
+  left: -9999px;
+  width: 320px;
+  height: 320px;
+  pointer-events: none;
+}
+
+// Progress overlay (shared for video + image thumbnails)
+.progressOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $space2;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.progressBar {
+  width: 60%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: $radiusFull;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: $accentPurple;
+  border-radius: $radiusFull;
+  transition: width 200ms ease;
+}
+
+.progressText {
+  font-size: $fontSize14;
+  color: white;
+  font-weight: 600;
+}
+
+// ─── Cover / Preview image ───
+.coverPreview {
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  object-fit: contain;
+  border-radius: $radiusSm;
+  border: $borderWidth solid $glassBorder;
+  background: #000;
+}
+
+// ─── Preview carousel (step 2 review) ───
+.previewCarouselWrap {
+  position: relative;
+  border-radius: $radiusSm;
+  border: $borderWidth solid $glassBorder;
+  background: #000;
+  overflow: hidden;
+}
+
+.previewCarousel {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.previewCarouselTrack {
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.previewCarouselImage {
+  min-width: 100%;
+  width: 100%;
+  //aspect-ratio: 9 / 16;
+  object-fit: contain;
+  display: block;
+  scroll-snap-align: start;
+  background: #000;
+}
+
+.previewCarouselCounter {
+  position: absolute;
+  top: $space3;
+  right: $space3;
+  padding: $space1 $space3;
+  border-radius: $radiusFull;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: $fontSize12;
+  font-weight: 600;
+  font-family: $fontFamily;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+}
+
+.previewCarouselDots {
+  position: absolute;
+  bottom: $space3;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: $space2;
+  pointer-events: none;
+}
+
+.previewCarouselDot {
+  width: 6px;
+  height: 6px;
+  border-radius: $radiusFull;
+  background: rgba(255, 255, 255, 0.5);
+  transition: background $transitionFast;
+}
+
+.previewCarouselDotActive {
+  background: $accentPurple;
+}
+
+.reelsCoverPreview {
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  object-fit: cover;
+  border-radius: $radiusSm;
+  border: $borderWidth solid $glassBorder;
+  background: #000;
+}
+
+.previewText {
+  font-size: $fontSize14;
+  line-height: 1.6;
+  color: $textPrimary;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
+
+// ─── Attach photos (PostForm) ───
+.attachRow {
+  display: flex;
+  align-items: center;
+}
+
+.attachBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: $space2;
+  padding: $space2 $space4;
+  border: $borderWidth dashed $glassBorder;
+  border-radius: $radiusSm;
+  background: transparent;
+  font-size: $fontSize14;
+  font-weight: 500;
+  font-family: $fontFamily;
+  color: $textSecondary;
+  cursor: pointer;
+  transition: all $transitionFast;
+
+  &:hover:not(:disabled) {
+    color: $textPrimary;
+    background: $glassBgHover;
+    border-color: $glassBorderHover;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+// Shared form elements
 .field {
   display: flex;
   flex-direction: column;
@@ -131,7 +510,9 @@
   border-radius: $radiusSm;
   padding: $space3 $space4;
   font-size: $fontSize14;
+  font-family: $fontFamily;
   line-height: 1.6;
+  color: $textPrimary;
   resize: vertical;
   min-height: 120px;
   transition: border-color $transitionBase;
@@ -146,6 +527,10 @@
   &::placeholder {
     color: $textMuted;
   }
+}
+
+.textareaLarge {
+  min-height: 200px;
 }
 
 .divider {
@@ -174,7 +559,7 @@
   padding-top: $space2;
 }
 
-.stepIndicator {
+.charCount {
   font-size: $fontSize13;
   color: $textMuted;
 }

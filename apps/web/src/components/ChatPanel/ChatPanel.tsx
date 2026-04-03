@@ -1,11 +1,35 @@
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useShallow } from "zustand/react/shallow";
+import type { ChatMessage as ChatMessageType } from "@rearden/types";
 import { useChatStore, selectFilteredConversations, selectActiveConversation, selectActiveMessages } from "@/stores/chatStore";
 import { ConversationList } from "@/components/ConversationList/ConversationList";
 import { ChatMessage } from "@/components/ChatMessage/ChatMessage";
 import { ChatInput } from "@/components/ChatInput/ChatInput";
 import styles from "./ChatPanel.module.scss";
+
+/** Extracted so useLayoutEffect fires on mount (after AnimatePresence exit completes) */
+function PanelMessages({ messages, onSend }: { messages: ChatMessageType[]; onSend: (text: string) => void }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const el = containerRef.current;
+    if (el && messages.length > 0) {
+      el.scrollTop = el.scrollHeight;
+    }
+  }, [messages]);
+
+  return (
+    <>
+      <div className={styles.messages} ref={containerRef}>
+        {messages.map((msg) => (
+          <ChatMessage key={msg.id} message={msg} />
+        ))}
+      </div>
+      <ChatInput onSend={onSend} />
+    </>
+  );
+}
 
 export function ChatPanel() {
   const filteredConversations = useChatStore(useShallow(selectFilteredConversations));
@@ -14,11 +38,6 @@ export function ChatPanel() {
   const openConversation = useChatStore((s) => s.openConversation);
   const closeConversation = useChatStore((s) => s.closeConversation);
   const sendMessage = useChatStore((s) => s.sendMessage);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [activeMessages.length]);
 
   return (
     <div className={styles.panel}>
@@ -52,14 +71,7 @@ export function ChatPanel() {
               </span>
             </div>
 
-            <div className={styles.messages}>
-              {activeMessages.map((msg) => (
-                <ChatMessage key={msg.id} message={msg} />
-              ))}
-              <div ref={messagesEndRef} />
-            </div>
-
-            <ChatInput onSend={sendMessage} />
+            <PanelMessages messages={activeMessages} onSend={sendMessage} />
           </motion.div>
         ) : (
           <motion.div

@@ -43,6 +43,13 @@
   font-weight: 600;
   color: $textPrimary;
   @include truncate(1);
+
+  @include tablet {
+    display: block;
+    overflow: visible;
+    text-overflow: unset;
+    white-space: normal;
+  }
 }
 
 .detail {
@@ -72,6 +79,10 @@
   transition: all $transitionFast;
 
   .item:hover & {
+    opacity: 1;
+  }
+
+  @include tablet {
     opacity: 1;
   }
 

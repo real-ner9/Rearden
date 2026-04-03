@@ -1,0 +1,95 @@
+@use "@/styles/variables" as *;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: $space2;
+}
+
+.label {
+  font-size: $fontSize13;
+  font-weight: 600;
+  color: $textSecondary;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.track {
+  position: relative;
+  height: 48px;
+  border-radius: $radiusSm;
+  overflow: hidden;
+  background: $bgSurface;
+  border: $borderWidth solid $glassBorder;
+  user-select: none;
+  touch-action: none;
+}
+
+.filmstrip {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.filmFrame {
+  flex: 1;
+  height: 100%;
+  object-fit: cover;
+  min-width: 0;
+}
+
+.dimLeft,
+.dimRight {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+.dimLeft {
+  left: 0;
+}
+
+.dimRight {
+  right: 0;
+}
+
+.range {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-top: 2px solid $accentPurple;
+  border-bottom: 2px solid $accentPurple;
+  pointer-events: none;
+}
+
+.handle {
+  position: absolute;
+  top: 0;
+  width: 14px;
+  height: 100%;
+  background: $accentPurple;
+  cursor: ew-resize;
+  transform: translateX(-50%);
+  border-radius: 2px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &::after {
+    content: "";
+    width: 2px;
+    height: 20px;
+    background: white;
+    border-radius: 1px;
+  }
+}
+
+.times {
+  display: flex;
+  justify-content: space-between;
+  font-size: $fontSize12;
+  color: $textMuted;
+}

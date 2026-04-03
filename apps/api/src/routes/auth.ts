@@ -9,14 +9,6 @@ import { rateLimit } from "../lib/rateLimit.js";
 
 export const authRoutes = new Hono();
 
-// TODO: remove — artificial delay for testing loading animations
-const DEV_DELAY = () => {
-  if (process.env.NODE_ENV !== "production") {
-    return new Promise((r) => setTimeout(r, 5000));
-  }
-  return Promise.resolve();
-};
-
 const PHONE_RE = /^\+?\d{10,15}$/;
 
 // POST /api/auth/send-otp
@@ -33,7 +25,6 @@ authRoutes.post(
     },
   }),
   async (c) => {
-  await DEV_DELAY();
   const { phone } = await c.req.json<{ phone: string }>();
 
   if (!phone || !PHONE_RE.test(phone.replace(/[\s()-]/g, ""))) {
@@ -66,30 +57,20 @@ authRoutes.post(
     maxRequests: 10,
   }),
   async (c) => {
-  await DEV_DELAY();
   const { phone, code } = await c.req.json<{ phone: string; code: string }>();
 
-  const otp = await db.otpCode.findFirst({
-    where: {
-      phone,
-      code,
-      verified: false,
-      expiresAt: { gt: new Date() },
-    },
-    orderBy: { createdAt: "desc" },
+  // Atomically mark the code as verified (prevents race condition)
+  const result = await db.otpCode.updateMany({
+    where: { phone, code, verified: false, expiresAt: { gt: new Date() } },
+    data: { verified: true },
   });
 
-  if (!otp) {
+  if (result.count === 0) {
     return c.json<ApiResponse>(
       { success: false, error: "Invalid or expired code" },
       400
     );
   }
-
-  await db.otpCode.update({
-    where: { id: otp.id },
-    data: { verified: true },
-  });
 
   const existingUser = await db.user.findUnique({ where: { phone } });
 

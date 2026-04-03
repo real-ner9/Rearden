@@ -1,0 +1,53 @@
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: $space2;
+}
+
+.label {
+  font-size: $fontSize13;
+  font-weight: 600;
+  color: $textSecondary;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.strip {
+  display: flex;
+  gap: $space2;
+  overflow-x: auto;
+  padding-bottom: $space1;
+  @include customScrollbar;
+}
+
+.thumb {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  border: 2px solid transparent;
+  border-radius: $radiusSm;
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  background: none;
+  transition: border-color $transitionFast;
+
+  &:hover {
+    border-color: $glassBorderHover;
+  }
+
+  &.selected {
+    border-color: $accentPurple;
+    box-shadow: 0 0 0 1px $accentPurple;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}

@@ -1,11 +1,5 @@
 import { create } from "zustand";
-import { useEffect } from "react";
-import {
-  initialNotifications,
-  incomingNotifications,
-  type Notification,
-} from "@/data/mockNotifications";
-import { useSoundStore } from "./soundStore";
+import type { Notification } from "@/data/mockNotifications";
 
 interface NotificationState {
   notifications: Notification[];
@@ -16,7 +10,7 @@ interface NotificationState {
 }
 
 export const useNotificationStore = create<NotificationState>((set) => ({
-  notifications: initialNotifications,
+  notifications: [],
   dismiss: (id) =>
     set((s) => ({ notifications: s.notifications.filter((n) => n.id !== id) })),
   markRead: (id) =>
@@ -37,18 +31,3 @@ export const useNotificationStore = create<NotificationState>((set) => ({
 
 export const selectUnreadCount = (s: NotificationState) =>
   s.notifications.filter((n) => !n.read).length;
-
-export function useNotificationInit() {
-  useEffect(() => {
-    const timers = incomingNotifications.map(({ notification, delayMs }) =>
-      setTimeout(() => {
-        useNotificationStore.getState().addNotification({
-          ...notification,
-          timestamp: new Date(),
-        });
-        useSoundStore.getState().playSound("notify");
-      }, delayMs)
-    );
-    return () => timers.forEach(clearTimeout);
-  }, []);
-}

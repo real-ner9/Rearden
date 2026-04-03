@@ -1,0 +1,81 @@
+@use "@/styles/variables" as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.card {
+  position: relative;
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusMd;
+  padding: $space8;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: $shadowLg;
+  z-index: 1;
+}
+
+.title {
+  font-size: $fontSize18;
+  font-weight: 700;
+  color: $textPrimary;
+  margin-bottom: $space2;
+}
+
+.message {
+  font-size: $fontSize14;
+  color: $textSecondary;
+  line-height: 1.5;
+  margin-bottom: $space6;
+}
+
+.actions {
+  display: flex;
+  gap: $space3;
+  justify-content: flex-end;
+}
+
+.cancelBtn {
+  padding: $space2 $space4;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusSm;
+  background: none;
+  font-size: $fontSize14;
+  font-weight: 500;
+  color: $textSecondary;
+  cursor: pointer;
+  transition: all $transitionFast;
+
+  &:hover {
+    background: $glassBgHover;
+    color: $textPrimary;
+  }
+}
+
+.confirmBtn {
+  padding: $space2 $space4;
+  border: $borderWidth solid $danger;
+  border-radius: $radiusSm;
+  background: $danger;
+  font-size: $fontSize14;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all $transitionFast;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}

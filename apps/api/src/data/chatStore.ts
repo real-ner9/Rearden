@@ -138,7 +138,7 @@ export async function markAsRead(conversationId: string): Promise<ChatConversati
   }
 }
 
-export async function createConversation(userId: string, _userName: string): Promise<ChatConversation> {
+export async function createConversation(userId: string): Promise<ChatConversation> {
   // Check if conversation already exists for this user
   const existing = await db.conversation.findUnique({
     where: { userId },
@@ -159,17 +159,7 @@ export async function createConversation(userId: string, _userName: string): Pro
       include: conversationInclude,
     });
     if (!row) {
-      // Fallback: return empty conversation if still not found
-      return toConversation({
-        id: "",
-        userId,
-        isPinned: false,
-        unreadCount: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        messages: [],
-        user: null,
-      });
+      throw new Error(`Failed to create conversation for user ${userId}`);
     }
     return toConversation(row);
   }

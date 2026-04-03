@@ -9,6 +9,7 @@ import type {
   WSServerEvent,
 } from "@rearden/types";
 import { useAuthStore } from "./authStore";
+import { apiFetch } from "@/lib/api";
 
 interface TypingIndicator {
   userName: string;
@@ -99,8 +100,7 @@ export const useChatStore = create<ChatState>()((set, get) => ({
     // Fetch messages if not cached
     const { messagesCache } = get();
     if (!messagesCache.has(id)) {
-      fetch(`/api/chat/${id}/messages`)
-        .then((r) => r.json())
+      apiFetch<{ success: boolean; data: ChatMessage[] }>(`/chat/${id}/messages`)
         .then((res) => {
           if (res.success) {
             set((state) => {
@@ -191,12 +191,10 @@ export const useChatStore = create<ChatState>()((set, get) => ({
     }
 
     try {
-      const r = await fetch("/api/chat", {
+      const res = await apiFetch<{ success: boolean; data: ChatConversation }>("/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, userName }),
       });
-      const res = await r.json();
       if (res.success) {
         set((state) => {
           const newCache = new Map(state.messagesCache);
@@ -226,9 +224,8 @@ export const useChatStore = create<ChatState>()((set, get) => ({
       ),
     }));
 
-    fetch(`/api/chat/${id}/pin`, {
+    apiFetch(`/chat/${id}/pin`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ isPinned: newPinned }),
     }).catch(() => {
       // Revert on failure
@@ -337,8 +334,7 @@ export const useChatStore = create<ChatState>()((set, get) => ({
   },
 
   fetchConversations: () => {
-    fetch("/api/chat")
-      .then((r) => r.json())
+    apiFetch<{ success: boolean; data: ChatConversation[] }>("/chat")
       .then((res) => {
         if (res.success) {
           set({ conversations: res.data });
@@ -348,8 +344,7 @@ export const useChatStore = create<ChatState>()((set, get) => ({
   },
 
   fetchFolders: () => {
-    fetch("/api/chat/folders")
-      .then((r) => r.json())
+    apiFetch<{ success: boolean; data: ChatFolder[] }>("/chat/folders")
       .then((res) => {
         if (res.success) {
           set({ folders: res.data });
@@ -360,12 +355,10 @@ export const useChatStore = create<ChatState>()((set, get) => ({
 
   createFolder: async (name) => {
     try {
-      const r = await fetch("/api/chat/folders", {
+      const res = await apiFetch<{ success: boolean; data: ChatFolder }>("/chat/folders", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name }),
       });
-      const res = await r.json();
       if (res.success) {
         set((state) => ({ folders: [...state.folders, res.data] }));
       }
@@ -374,12 +367,10 @@ export const useChatStore = create<ChatState>()((set, get) => ({
 
   updateFolder: async (id, data) => {
     try {
-      const r = await fetch(`/api/chat/folders/${id}`, {
+      const res = await apiFetch<{ success: boolean; data: ChatFolder }>(`/chat/folders/${id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      const res = await r.json();
       if (res.success) {
         set((state) => ({
           folders: state.folders.map((f) => (f.id === id ? res.data : f)),
@@ -390,8 +381,7 @@ export const useChatStore = create<ChatState>()((set, get) => ({
 
   deleteFolder: async (id) => {
     try {
-      const r = await fetch(`/api/chat/folders/${id}`, { method: "DELETE" });
-      const res = await r.json();
+      const res = await apiFetch<{ success: boolean }>(`/chat/folders/${id}`, { method: "DELETE" });
       if (res.success) {
         set((state) => ({
           folders: state.folders.filter((f) => f.id !== id),

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useAuthStore } from "@/stores/authStore";
 
 export function useVideoUpload() {
   const [uploading, setUploading] = useState(false);
@@ -49,6 +50,12 @@ export function useVideoUpload() {
       formData.append("file", file);
 
       xhr.open("POST", "/api/upload");
+
+      const token = useAuthStore.getState().token;
+      if (token) {
+        xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+      }
+
       xhr.send(formData);
     });
   };

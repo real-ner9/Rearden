@@ -3,7 +3,6 @@ import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 import { useAuthInit } from "./stores/authStore";
 import { useChatInit } from "./stores/chatStore";
-import { useNotificationInit } from "./stores/notificationStore";
 import { ChatWebSocketBridge } from "./components/ChatWebSocketBridge";
 import { router } from "./router";
 import "./styles/global.scss";
@@ -11,7 +10,6 @@ import "./styles/global.scss";
 function AppInitializer() {
   useAuthInit();
   useChatInit();
-  useNotificationInit();
   return null;
 }
 

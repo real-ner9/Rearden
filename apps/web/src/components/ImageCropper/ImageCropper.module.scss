@@ -1,0 +1,10 @@
+@use "@/styles/variables" as *;
+
+.container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #000;
+  border-radius: $radiusMd;
+  overflow: hidden;
+}

@@ -1,0 +1,350 @@
+@use "@/styles/variables" as *;
+
+.modal {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  width: 95vw;
+  max-width: 1100px;
+  height: 85vh;
+  background: $bgElevated;
+  border-radius: $radiusLg;
+  overflow: hidden;
+  cursor: default;
+
+  @media (max-width: $bpDesktop) {
+    grid-template-columns: 1fr 360px;
+    max-width: 900px;
+  }
+
+  @media (max-width: $bpTablet) {
+    display: none;
+  }
+}
+
+.mediaPanel {
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.mediaWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img,
+  video {
+    max-width: 100%;
+    max-height: 85vh;
+    object-fit: contain;
+    cursor: pointer;
+  }
+}
+
+.carousel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  display: flex;
+  align-items: center;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.carouselTrack {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  width: 100%;
+  height: 100%;
+}
+
+.carouselImage {
+  min-width: 100%;
+  max-width: 100%;
+  max-height: 85vh;
+  object-fit: contain;
+  scroll-snap-align: start;
+  cursor: pointer;
+}
+
+.carouselDots {
+  position: absolute;
+  bottom: $space4;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: $space2;
+  padding: $space2;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.carouselDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transition: background $transitionFast;
+}
+
+.carouselDotActive {
+  background: $accentPurple;
+}
+
+.textContent {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space8;
+  color: white;
+
+  p {
+    font-size: $fontSize20;
+    line-height: 1.5;
+    text-align: center;
+    max-width: 500px;
+  }
+}
+
+.heartOverlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  color: #ff4d4d;
+  z-index: 10;
+}
+
+.rightPanel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.authorHeader {
+  display: flex;
+  align-items: center;
+  gap: $space3;
+  padding: $space4;
+  border-bottom: 1px solid $glassBorder;
+  flex-shrink: 0;
+}
+
+.authorInfo {
+  display: flex;
+  flex-direction: column;
+  gap: $space1;
+}
+
+.username {
+  font-weight: 600;
+  font-size: $fontSize14;
+  color: $textPrimary;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.time {
+  font-size: $fontSize12;
+  color: $textMuted;
+}
+
+.caption {
+  padding: $space4;
+  font-size: $fontSize14;
+  line-height: 1.5;
+  border-bottom: 1px solid $glassBorder;
+  flex-shrink: 0;
+}
+
+.captionUsername {
+  font-weight: 600;
+  color: $textPrimary;
+  text-decoration: none;
+  margin-right: $space2;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.hashtag {
+  color: $accentPurple;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.commentsList {
+  flex: 1;
+  overflow-y: auto;
+  padding: $space4;
+  display: flex;
+  flex-direction: column;
+  gap: $space4;
+}
+
+.loading,
+.error,
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: $textMuted;
+  font-size: $fontSize14;
+}
+
+.error {
+  color: $danger;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid $glassBorder;
+  border-top-color: $accentPurple;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingMore {
+  display: flex;
+  justify-content: center;
+  padding: $space3 0;
+}
+
+.actionBar {
+  display: flex;
+  align-items: center;
+  gap: $space4;
+  padding: $space3 $space4;
+  border-top: 1px solid $glassBorder;
+  flex-shrink: 0;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  color: $textPrimary;
+  cursor: pointer;
+  transition: color $transitionFast;
+
+  &:hover {
+    color: $accentPurple;
+  }
+
+  &.liked {
+    color: #ff4d4d;
+  }
+
+  &.bookmarked {
+    color: $accentPurple;
+  }
+}
+
+.bookmarkButton {
+  margin-left: auto;
+}
+
+.likeCount {
+  padding: 0 $space4 $space3;
+  font-size: $fontSize14;
+  font-weight: 600;
+  color: $textPrimary;
+  flex-shrink: 0;
+}
+
+.commentInput {
+  display: flex;
+  align-items: center;
+  gap: $space3;
+  padding: $space3 $space4;
+  border-top: 1px solid $glassBorder;
+  flex-shrink: 0;
+
+  textarea {
+    flex: 1;
+    min-height: 36px;
+    max-height: 100px;
+    padding: $space2 $space3;
+    background: $bgSurface;
+    border: 1px solid $glassBorder;
+    border-radius: $radiusMd;
+    color: $textPrimary;
+    font-family: $fontFamily;
+    font-size: $fontSize14;
+    resize: none;
+    outline: none;
+
+    &:focus {
+      border-color: $accentPurple;
+    }
+
+    &::placeholder {
+      color: $textMuted;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.postButton {
+  padding: $space2 $space4;
+  background: $accentPurple;
+  border: none;
+  border-radius: $radiusMd;
+  color: white;
+  font-size: $fontSize14;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background $transitionFast;
+  flex-shrink: 0;
+
+  &:hover:not(:disabled) {
+    background: $accentPurpleLight;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

@@ -1,0 +1,40 @@
+@use "@/styles/variables" as *;
+
+.wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.closeBtn {
+  position: fixed;
+  top: $space4;
+  right: $space4;
+  z-index: 102;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  color: white;
+  opacity: 0.7;
+  cursor: pointer;
+  transition: opacity $transitionFast;
+  padding: 0;
+
+  &:hover {
+    opacity: 1;
+  }
+}

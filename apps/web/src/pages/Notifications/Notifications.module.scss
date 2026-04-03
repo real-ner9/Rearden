@@ -1,0 +1,76 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: $space3;
+  height: $mobileNavHeight;
+  padding: 0 $space4;
+  border-bottom: $borderWidth solid $glassBorder;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  background: $bgBase;
+  z-index: 10;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: $radiusMd;
+  color: $textPrimary;
+  cursor: pointer;
+  transition: background $transitionFast;
+
+  &:hover {
+    background: $glassBgHover;
+  }
+}
+
+.title {
+  flex: 1;
+  font-size: $fontSize16;
+  font-weight: 700;
+  color: $textPrimary;
+}
+
+.markAllBtn {
+  font-size: $fontSize12;
+  font-weight: 600;
+  color: $accentPurple;
+  cursor: pointer;
+  padding: $space1 $space2;
+  border-radius: $radiusSm;
+  transition: background $transitionFast;
+
+  &:hover {
+    background: $glassBgHover;
+  }
+}
+
+.list {
+  flex: 1;
+  overflow-y: auto;
+  padding: $space2 $space4;
+  @include customScrollbar;
+}
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: $textMuted;
+  font-size: $fontSize14;
+}

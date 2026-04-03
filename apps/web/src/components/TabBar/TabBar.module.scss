@@ -17,6 +17,9 @@
   cursor: pointer;
   text-align: center;
   transition: color $transitionBase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &:hover {
     color: $textPrimary;

@@ -5,6 +5,7 @@ export interface Post {
   content: string;
   hashtags: string[];
   imageUrl: string | null;
+  imageUrls: string[];
   videoUrl: string | null;
   thumbnailUrl: string | null;
   crossPostInstagram: boolean;
@@ -27,11 +28,53 @@ export interface VideoPost extends Post {
   };
 }
 
+export interface FeedPost {
+  id: string;
+  type: "text" | "image" | "video";
+  content: string;
+  hashtags: string[];
+  imageUrl: string | null;
+  imageUrls: string[];
+  videoUrl: string | null;
+  thumbnailUrl: string | null;
+  likeCount: number;
+  commentCount: number;
+  isLiked: boolean;
+  isBookmarked: boolean;
+  createdAt: string;
+  author: {
+    id: string;
+    name: string | null;
+    username: string | null;
+    thumbnailUrl: string | null;
+    title: string;
+  };
+}
+
+export interface PostComment {
+  id: string;
+  postId: string;
+  userId: string;
+  text: string;
+  createdAt: string;
+  author: {
+    id: string;
+    name: string | null;
+    username: string | null;
+    thumbnailUrl: string | null;
+  };
+}
+
+export interface CreateCommentPayload {
+  text: string;
+}
+
 export interface CreatePostPayload {
   userId: string;
   type: "text" | "image" | "video";
   content: string;
   imageUrl?: string;
+  imageUrls?: string[];
   videoUrl?: string;
   thumbnailUrl?: string;
   crossPostInstagram?: boolean;

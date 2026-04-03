@@ -37,6 +37,9 @@ model User {
   vacancies     Vacancy[]
   conversations Conversation[]
   chatFolders   ChatFolder[]
+  likes         Like[]
+  comments      Comment[]
+  bookmarks     Bookmark[]
 }
 
 model Post {
@@ -47,14 +50,22 @@ model Post {
   content            String   @db.Text
   hashtags           String[]
   imageUrl           String?
+  imageUrls          String[]
   videoUrl           String?
   thumbnailUrl       String?
   crossPostInstagram Boolean  @default(false)
   crossPostShorts    Boolean  @default(false)
   crossPostTiktok    Boolean  @default(false)
+  likeCount          Int      @default(0)
+  commentCount       Int      @default(0)
   createdAt          DateTime @default(now())
 
+  likes     Like[]
+  comments  Comment[]
+  bookmarks Bookmark[]
+
   @@index([userId])
+  @@index([createdAt])
 }
 
 model Vacancy {
@@ -108,6 +119,44 @@ model ChatFolder {
   updatedAt       DateTime @updatedAt
 
   @@index([userId, order])
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+  @@index([postId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  text      String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([postId, createdAt])
+  @@index([userId])
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+  @@index([userId, createdAt])
+  @@index([postId])
 }
 
 model OtpCode {

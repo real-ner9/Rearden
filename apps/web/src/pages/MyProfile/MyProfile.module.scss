@@ -3,13 +3,61 @@
 
 .profile {
   @include container;
-  max-width: 720px;
+  position: relative;
+  max-width: 860px;
   padding-top: $space10;
   padding-bottom: $space10;
 
   @include mobile {
     padding-top: $space6;
     padding-bottom: $space6;
+  }
+}
+
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: $space1;
+  padding: $space2 $space3;
+  margin-bottom: $space4;
+  font-size: $fontSize14;
+  font-weight: 500;
+  color: $textSecondary;
+  background: none;
+  border: none;
+  border-radius: $radiusMd;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity $transitionFast, color $transitionFast;
+
+  &:hover {
+    opacity: 1;
+    color: $textPrimary;
+  }
+}
+
+.settingsBtn {
+  position: absolute;
+  top: $space10;
+  right: $space6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  border-radius: $radiusMd;
+  color: $textPrimary;
+  cursor: pointer;
+  transition: background $transitionFast;
+
+  &:hover {
+    background: $glassBgHover;
+  }
+
+  @include tablet {
+    display: none;
   }
 }
 
@@ -73,6 +121,9 @@
   font-size: $fontSize32;
   font-weight: 700;
   color: $accentTeal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
   @include tablet {
     font-size: $fontSize24;
@@ -136,6 +187,14 @@
 
 .tabContent {
   padding: $space6 0;
+}
+
+.postList {
+  display: flex;
+  flex-direction: column;
+  gap: $space4;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .vacancyList {

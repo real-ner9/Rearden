@@ -1,0 +1,163 @@
+@use "@/styles/variables" as *;
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 200;
+}
+
+.sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 70vh;
+  background: $bgElevated;
+  border-top-left-radius: $radiusXl;
+  border-top-right-radius: $radiusXl;
+  display: flex;
+  flex-direction: column;
+  z-index: 201;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
+}
+
+.handle {
+  width: 40px;
+  height: 4px;
+  background: $glassBorder;
+  border-radius: 2px;
+  margin: $space3 auto $space2;
+  flex-shrink: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 $space4 $space3;
+  border-bottom: 1px solid $glassBorder;
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: $fontSize18;
+  font-weight: 600;
+  color: $textPrimary;
+  margin: 0;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: $space4;
+  display: flex;
+  flex-direction: column;
+}
+
+.loading,
+.error,
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: $textMuted;
+  font-size: $fontSize14;
+}
+
+.error {
+  color: $danger;
+}
+
+.loadingMore {
+  display: flex;
+  justify-content: center;
+  padding: $space4 0;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid $glassBorder;
+  border-top-color: $accentPurple;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.commentList {
+  display: flex;
+  flex-direction: column;
+}
+
+.inputWrapper {
+  display: flex;
+  gap: $space3;
+  padding: $space4;
+  border-top: 1px solid $glassBorder;
+  background: $bgElevated;
+  flex-shrink: 0;
+}
+
+.input {
+  flex: 1;
+  background: $bgBase;
+  border: 1px solid $glassBorder;
+  border-radius: $radiusLg;
+  color: $textPrimary;
+  font-size: $fontSize14;
+  font-family: $fontFamily;
+  padding: $space3;
+  resize: none;
+  min-height: 40px;
+  max-height: 120px;
+  transition: border-color $transitionFast;
+
+  &:focus {
+    outline: none;
+    border-color: $accentPurple;
+  }
+
+  &::placeholder {
+    color: $textMuted;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.postButton {
+  background: $accentPurple;
+  border: none;
+  color: $textPrimary;
+  font-size: $fontSize14;
+  font-weight: 600;
+  font-family: $fontFamily;
+  padding: $space3 $space5;
+  border-radius: $radiusLg;
+  cursor: pointer;
+  transition: background $transitionFast, transform $transitionFast;
+  align-self: flex-end;
+
+  &:hover:not(:disabled) {
+    background: $accentPurpleLight;
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

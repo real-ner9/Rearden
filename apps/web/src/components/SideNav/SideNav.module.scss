@@ -139,18 +139,6 @@
   line-height: 1;
 }
 
-// More popup
-.moreWrapper {
-  position: relative;
-}
-
-.morePopup {
-  position: absolute;
-  left: calc($sideNavExpandedWidth + $space2);
-  bottom: 0;
-  z-index: 200;
-}
-
 // Notification popup — positioned to the right of sidebar
 .notifWrapper {
   position: relative;

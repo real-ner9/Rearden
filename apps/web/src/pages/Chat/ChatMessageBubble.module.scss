@@ -1,4 +1,5 @@
 @use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
 
 .message {
   display: flex;
@@ -39,6 +40,10 @@
   max-width: 70%;
   padding: $space2 $space3;
   word-wrap: break-word;
+
+  @include tablet {
+    max-width: 85%;
+  }
 }
 
 .text {

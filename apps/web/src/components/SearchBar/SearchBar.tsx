@@ -6,6 +6,7 @@ interface SearchBarProps {
   onChange: (value: string) => void;
   onSubmit?: () => void;
   loading?: boolean;
+  placeholders?: string[];
 }
 
 const PLACEHOLDERS = [
@@ -15,16 +16,17 @@ const PLACEHOLDERS = [
   "Discover full-stack talent...",
 ];
 
-export function SearchBar({ value, onChange, onSubmit, loading }: SearchBarProps) {
+export function SearchBar({ value, onChange, onSubmit, loading, placeholders }: SearchBarProps) {
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const items = placeholders ?? PLACEHOLDERS;
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setPlaceholderIndex((prev) => (prev + 1) % PLACEHOLDERS.length);
+      setPlaceholderIndex((prev) => (prev + 1) % items.length);
     }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [items.length]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && onSubmit) {
@@ -62,7 +64,7 @@ export function SearchBar({ value, onChange, onSubmit, loading }: SearchBarProps
         />
         {!value && (
           <div className={styles.placeholder} key={placeholderIndex}>
-            {PLACEHOLDERS[placeholderIndex]}
+            {items[placeholderIndex]}
           </div>
         )}
       </div>

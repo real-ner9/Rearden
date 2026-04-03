@@ -1,0 +1,51 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: $space3;
+  height: $mobileNavHeight;
+  padding: 0 $space4;
+  border-bottom: $borderWidth solid $glassBorder;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  background: $bgBase;
+  z-index: 10;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: $radiusMd;
+  color: $textPrimary;
+  cursor: pointer;
+  transition: background $transitionFast;
+
+  &:hover {
+    background: $glassBgHover;
+  }
+}
+
+.title {
+  flex: 1;
+  font-size: $fontSize16;
+  font-weight: 700;
+  color: $textPrimary;
+}
+
+.content {
+  flex: 1;
+  padding: $space4;
+}
