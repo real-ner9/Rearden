@@ -115,7 +115,7 @@ export const useFeedStore = create<FeedState>((set, get) => ({
       });
 
       set({
-        posts: posts.map((p) =>
+        posts: get().posts.map((p) =>
           p.id === postId
             ? {
                 ...p,
@@ -127,7 +127,7 @@ export const useFeedStore = create<FeedState>((set, get) => ({
       });
     } catch (error) {
       set({
-        posts: posts.map((p) =>
+        posts: get().posts.map((p) =>
           p.id === postId
             ? {
                 ...p,
@@ -159,7 +159,7 @@ export const useFeedStore = create<FeedState>((set, get) => ({
       });
 
       set({
-        posts: posts.map((p) =>
+        posts: get().posts.map((p) =>
           p.id === postId
             ? { ...p, isBookmarked: response.data.bookmarked }
             : p
@@ -167,7 +167,7 @@ export const useFeedStore = create<FeedState>((set, get) => ({
       });
     } catch (error) {
       set({
-        posts: posts.map((p) =>
+        posts: get().posts.map((p) =>
           p.id === postId ? { ...p, isBookmarked: previousIsBookmarked } : p
         ),
       });

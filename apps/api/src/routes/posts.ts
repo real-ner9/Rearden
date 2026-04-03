@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import type { ApiResponse, Post, VideoPost } from "@rearden/types";
 import { db } from "../lib/db.js";
 import { authMiddleware } from "../middleware/auth.js";
+import { rateLimit } from "../lib/rateLimit.js";
 
 type AuthEnv = { Variables: { userId: string } };
 
@@ -54,6 +55,14 @@ postRoutes.get("/", async (c) => {
 
   // ── Shuffled feed (seed-based deterministic random order) ──
   if (seed) {
+    // Validate seed parameter (alphanumeric only)
+    if (!/^[a-zA-Z0-9_-]+$/.test(seed)) {
+      return c.json<ApiResponse>(
+        { success: false, error: "Invalid seed parameter" },
+        400,
+      );
+    }
+
     const offset = Number(c.req.query("offset")) || 0;
     const startFrom = c.req.query("startFrom");
     const take = limit + 1;
@@ -201,39 +210,69 @@ postRoutes.get("/:id", async (c) => {
 });
 
 // POST /api/posts
-postRoutes.post("/", authMiddleware, async (c) => {
-  try {
-    const body = await c.req.json();
+postRoutes.post(
+  "/",
+  authMiddleware,
+  rateLimit({ windowMs: 60_000, maxRequests: 10 }),
+  async (c) => {
+    try {
+      const userId = c.get("userId");
+      const body = await c.req.json();
 
-    const hashtags =
-      (body.content as string)
-        .match(/#(\w+)/g)
-        ?.map((tag: string) => tag.slice(1).toLowerCase()) ?? [];
+      // Validate content
+      if (!body.content || typeof body.content !== "string") {
+        return c.json<ApiResponse>(
+          { success: false, error: "content is required and must be a string" },
+          400,
+        );
+      }
 
-    const row = await db.post.create({
-      data: {
-        userId: body.userId,
-        type: body.type ?? "text",
-        content: body.content,
-        hashtags,
-        imageUrl: body.imageUrls?.[0] ?? body.imageUrl ?? null,
-        imageUrls: body.imageUrls ?? (body.imageUrl ? [body.imageUrl] : []),
-        videoUrl: body.videoUrl ?? null,
-        thumbnailUrl: body.thumbnailUrl ?? null,
-        crossPostInstagram: body.crossPostInstagram ?? false,
-        crossPostShorts: body.crossPostShorts ?? false,
-        crossPostTiktok: body.crossPostTiktok ?? false,
-      },
-    });
+      if (body.content.length > 5000) {
+        return c.json<ApiResponse>(
+          { success: false, error: "content must not exceed 5000 characters" },
+          400,
+        );
+      }
 
-    return c.json<ApiResponse<Post>>(
-      { success: true, data: toPost(row) },
-      201,
-    );
-  } catch {
-    return c.json<ApiResponse>(
-      { success: false, error: "Invalid request body" },
-      400,
-    );
+      // Validate type
+      const validTypes = ["text", "image", "video"];
+      if (body.type && !validTypes.includes(body.type)) {
+        return c.json<ApiResponse>(
+          { success: false, error: "type must be one of: text, image, video" },
+          400,
+        );
+      }
+
+      const hashtags =
+        (body.content as string)
+          .match(/#(\w+)/g)
+          ?.map((tag: string) => tag.slice(1).toLowerCase()) ?? [];
+
+      const row = await db.post.create({
+        data: {
+          userId,
+          type: body.type ?? "text",
+          content: body.content,
+          hashtags,
+          imageUrl: body.imageUrls?.[0] ?? body.imageUrl ?? null,
+          imageUrls: body.imageUrls ?? (body.imageUrl ? [body.imageUrl] : []),
+          videoUrl: body.videoUrl ?? null,
+          thumbnailUrl: body.thumbnailUrl ?? null,
+          crossPostInstagram: body.crossPostInstagram ?? false,
+          crossPostShorts: body.crossPostShorts ?? false,
+          crossPostTiktok: body.crossPostTiktok ?? false,
+        },
+      });
+
+      return c.json<ApiResponse<Post>>(
+        { success: true, data: toPost(row) },
+        201,
+      );
+    } catch {
+      return c.json<ApiResponse>(
+        { success: false, error: "Invalid request body" },
+        400,
+      );
+    }
   }
-});
+);

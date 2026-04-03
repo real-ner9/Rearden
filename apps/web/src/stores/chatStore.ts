@@ -55,6 +55,7 @@ interface ChatState {
   setMessageSearchQuery: (query: string) => void;
   setHighlightedMessageId: (id: string | null) => void;
   setSend: (fn: (event: WSClientEvent) => void) => void;
+  cleanup: () => void;
 }
 
 // Module-level variables (not in store state - these are refs)
@@ -64,6 +65,7 @@ const typingTimers = new Map<string, ReturnType<typeof setTimeout>>();
 let highlightTimer: ReturnType<typeof setTimeout> | null = null;
 let highlightNonceCounter = 0;
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+let activeConversationFetchId: string | null = null;
 
 export const useChatStore = create<ChatState>()((set, get) => ({
   conversations: [],
@@ -100,9 +102,10 @@ export const useChatStore = create<ChatState>()((set, get) => ({
     // Fetch messages if not cached
     const { messagesCache } = get();
     if (!messagesCache.has(id)) {
+      activeConversationFetchId = id;
       apiFetch<{ success: boolean; data: ChatMessage[] }>(`/chat/${id}/messages`)
         .then((res) => {
-          if (res.success) {
+          if (res.success && activeConversationFetchId === id) {
             set((state) => {
               const newCache = new Map(state.messagesCache);
               newCache.set(id, res.data);
@@ -239,17 +242,25 @@ export const useChatStore = create<ChatState>()((set, get) => ({
 
   setConnectionStatus: (status) => {
     set({ connectionStatus: status });
+    if (status === "disconnected") {
+      get().cleanup();
+    }
   },
 
   handleWSMessage: (event) => {
     switch (event.type) {
       case "message:new": {
         const { message, conversation } = event;
-        set((state) => ({
-          conversations: state.conversations.map((c) =>
+        set((state) => {
+          const updatedConversations = state.conversations.map((c) =>
             c.id === conversation.id ? conversation : c
-          ),
-        }));
+          );
+          // Sort by updatedAt descending
+          updatedConversations.sort(
+            (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+          );
+          return { conversations: updatedConversations };
+        });
 
         set((state) => {
           const newCache = new Map(state.messagesCache);
@@ -431,6 +442,21 @@ export const useChatStore = create<ChatState>()((set, get) => ({
   setSend: (fn) => {
     _sendWs = fn;
   },
+
+  cleanup: () => {
+    for (const timer of typingTimers.values()) {
+      clearTimeout(timer);
+    }
+    typingTimers.clear();
+    if (highlightTimer) {
+      clearTimeout(highlightTimer);
+      highlightTimer = null;
+    }
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+      debounceTimer = null;
+    }
+  },
 }));
 
 // Stable empty arrays to avoid creating new references
@@ -493,6 +519,7 @@ export function useChatInit() {
   const user = useAuthStore((s) => s.user);
   const fetchConversations = useChatStore((s) => s.fetchConversations);
   const fetchFolders = useChatStore((s) => s.fetchFolders);
+  const cleanup = useChatStore((s) => s.cleanup);
 
   useEffect(() => {
     if (user) {
@@ -504,10 +531,7 @@ export function useChatInit() {
   // Cleanup timers on unmount
   useEffect(() => {
     return () => {
-      for (const timer of typingTimers.values()) clearTimeout(timer);
-      typingTimers.clear();
-      if (highlightTimer) clearTimeout(highlightTimer);
-      if (debounceTimer) clearTimeout(debounceTimer);
+      cleanup();
     };
-  }, []);
+  }, [cleanup]);
 }

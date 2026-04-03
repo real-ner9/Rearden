@@ -86,7 +86,7 @@ export function MyProfile() {
     return () => {
       resetPosts();
     };
-  }, [userId, fetchPosts, resetPosts]);
+  }, [userId]);
 
   const handleOpenComments = (postId: string) => {
     if (isMobile) {

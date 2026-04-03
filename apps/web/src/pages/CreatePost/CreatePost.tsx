@@ -324,12 +324,15 @@ function ReelsForm({ onDirtyChange }: { onDirtyChange: (dirty: boolean) => void 
   }, [coverTime, duration]);
 
   // Cleanup
+  const framesRef = useRef(frames);
+  framesRef.current = frames;
+
   useEffect(() => {
     return () => {
-      frames.forEach((f) => URL.revokeObjectURL(f.url));
+      framesRef.current.forEach((f) => URL.revokeObjectURL(f.url));
       if (coverPreviewUrlRef.current) URL.revokeObjectURL(coverPreviewUrlRef.current);
     };
-  }, [frames]);
+  }, []);
 
   // Scrubber drag handler
   const handleScrubPointerDown = useCallback(

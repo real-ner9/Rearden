@@ -41,6 +41,9 @@ app.use("*", async (c, next) => {
   c.header("X-Content-Type-Options", "nosniff");
   c.header("X-Frame-Options", "DENY");
   c.header("X-XSS-Protection", "1; mode=block");
+  c.header("Content-Security-Policy", "default-src 'self'; img-src 'self' data: https:; media-src 'self' https:; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:;");
+  c.header("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  c.header("Referrer-Policy", "strict-origin-when-cross-origin");
 });
 
 app.get("/", (c) => {

@@ -12,6 +12,8 @@ import {
   deleteFolder,
 } from "../data/chatStore.js";
 import { authMiddleware } from "../middleware/auth.js";
+import { db } from "../lib/db.js";
+import { rateLimit } from "../lib/rateLimit.js";
 
 type AuthEnv = { Variables: { userId: string } };
 
@@ -69,8 +71,22 @@ chatRoutes.delete("/folders/:id", async (c) => {
 
 // Get messages for a conversation
 chatRoutes.get("/:id/messages", async (c) => {
+  const userId = c.get("userId");
   const id = c.req.param("id");
-  const msgs = await getMessages(id);
+
+  // Verify user owns the conversation
+  const conversation = await db.conversation.findFirst({
+    where: { id, userId },
+  });
+
+  if (!conversation) {
+    return c.json<ApiResponse>({ success: false, error: "Conversation not found" }, 404);
+  }
+
+  const cursor = c.req.query("cursor");
+  const limit = Math.min(Number(c.req.query("limit")) || 50, 100);
+
+  const msgs = await getMessages(id, cursor, limit);
   return c.json<ApiResponse>({ success: true, data: msgs });
 });
 
@@ -88,23 +104,38 @@ chatRoutes.post("/", async (c) => {
 });
 
 // Send message
-chatRoutes.post("/:id/messages", async (c) => {
-  const userId = c.get("userId");
-  const id = c.req.param("id");
-  const body = await c.req.json<{ text: string }>();
-  if (!body.text?.trim()) {
-    return c.json<ApiResponse>({ success: false, error: "text is required" }, 400);
+chatRoutes.post(
+  "/:id/messages",
+  rateLimit({ windowMs: 60_000, maxRequests: 30 }),
+  async (c) => {
+    const userId = c.get("userId");
+    const id = c.req.param("id");
+    const body = await c.req.json<{ text: string }>();
+    if (!body.text?.trim()) {
+      return c.json<ApiResponse>({ success: false, error: "text is required" }, 400);
+    }
+    const result = await addMessage(id, userId, "recruiter", body.text.trim());
+    if (!result) {
+      return c.json<ApiResponse>({ success: false, error: "Conversation not found" }, 404);
+    }
+    return c.json<ApiResponse>({ success: true, data: result.message }, 201);
   }
-  const result = await addMessage(id, userId, "recruiter", body.text.trim());
-  if (!result) {
-    return c.json<ApiResponse>({ success: false, error: "Conversation not found" }, 404);
-  }
-  return c.json<ApiResponse>({ success: true, data: result.message }, 201);
-});
+);
 
 // Toggle pin
 chatRoutes.patch("/:id/pin", async (c) => {
+  const userId = c.get("userId");
   const id = c.req.param("id");
+
+  // Verify user owns the conversation
+  const conversation = await db.conversation.findFirst({
+    where: { id, userId },
+  });
+
+  if (!conversation) {
+    return c.json<ApiResponse>({ success: false, error: "Conversation not found" }, 404);
+  }
+
   const body = await c.req.json<{ isPinned: boolean }>();
   const conv = await togglePin(id, body.isPinned);
   if (!conv) {

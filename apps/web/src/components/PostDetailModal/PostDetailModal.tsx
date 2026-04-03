@@ -188,9 +188,15 @@ export function PostDetailModal({ post, focusComments = false, onClose, onLike, 
   };
 
   const renderHashtags = (text: string, hashtags: string[]) => {
-    let result = text;
+    let result = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+
     hashtags.forEach((tag) => {
-      const regex = new RegExp(`(#${tag})`, "gi");
+      const escapedTag = tag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(#${escapedTag})`, "gi");
       result = result.replace(regex, `<span class="${styles.hashtag}">$1</span>`);
     });
     return { __html: result };

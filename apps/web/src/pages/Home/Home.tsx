@@ -19,12 +19,17 @@ export function Home() {
     fetchFeed();
   }, [fetchFeed]);
 
+  const loadingMoreRef = useRef(loadingMore);
+  loadingMoreRef.current = loadingMore;
+  const hasMoreRef = useRef(hasMore);
+  hasMoreRef.current = hasMore;
+
   useEffect(() => {
     if (!sentinelRef.current) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !loadingMore && hasMore) {
+        if (entries[0].isIntersecting && !loadingMoreRef.current && hasMoreRef.current) {
           loadMore();
         }
       },
@@ -33,7 +38,7 @@ export function Home() {
 
     observer.observe(sentinelRef.current);
     return () => observer.disconnect();
-  }, [loadMore, loadingMore, hasMore]);
+  }, [loadMore]);
 
   const handleOpenComments = (postId: string) => {
     if (isMobile) {

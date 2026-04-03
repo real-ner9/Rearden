@@ -3,6 +3,7 @@ import { Navbar } from "@/components/Navbar/Navbar";
 import { SideNav } from "@/components/SideNav/SideNav";
 import { MobileHeader } from "@/components/MobileHeader/MobileHeader";
 import { MessagesPopup } from "@/components/MessagesPopup/MessagesPopup";
+import { ErrorBoundary } from "@/components/ErrorBoundary/ErrorBoundary";
 import styles from "./Layout.module.scss";
 
 export function Layout() {
@@ -19,7 +20,9 @@ export function Layout() {
       <Navbar />
       <div className={`${styles.body} ${isFeedPage ? styles.feedBody : ""} ${isAuthPage ? styles.authBody : ""} ${isNotificationsPage ? styles.notificationsBody : ""} ${isSettingsPage ? styles.settingsBody : ""}`}>
         <main className={styles.main}>
-          <Outlet />
+          <ErrorBoundary>
+            <Outlet />
+          </ErrorBoundary>
         </main>
       </div>
       <MessagesPopup />

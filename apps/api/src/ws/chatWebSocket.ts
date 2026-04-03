@@ -1,6 +1,7 @@
 import type { WSContext } from "hono/ws";
 import type { WSClientEvent, WSServerEvent } from "@rearden/types";
 import { addMessage, markAsRead } from "../data/chatStore.js";
+import { verifyToken } from "../lib/auth.js";
 
 interface ClientMeta {
   userId: string | null;
@@ -50,8 +51,9 @@ const heartbeatInterval = setInterval(() => {
       ws.close();
     } catch {
       // ignore
+    } finally {
+      clients.delete(ws);
     }
-    clients.delete(ws);
   }
 }, PING_INTERVAL);
 
@@ -62,12 +64,26 @@ export function stopHeartbeat() {
 export function createWSHandlers() {
   return {
     onOpen(_event: Event, ws: WSContext) {
-      clients.set(ws, { userId: null, alive: true });
-      const connected: WSServerEvent = {
-        type: "connected",
-        userId: "system",
-      };
-      ws.send(JSON.stringify(connected));
+      // Extract token from upgrade request
+      const url = new URL(ws.url || "", "ws://localhost");
+      const token = url.searchParams.get("token");
+
+      if (!token) {
+        ws.close(1008, "Authentication required");
+        return;
+      }
+
+      try {
+        const { userId } = verifyToken(token);
+        clients.set(ws, { userId, alive: true });
+        const connected: WSServerEvent = {
+          type: "connected",
+          userId,
+        };
+        ws.send(JSON.stringify(connected));
+      } catch {
+        ws.close(1008, "Invalid authentication token");
+      }
     },
 
     onMessage(event: MessageEvent, ws: WSContext) {
@@ -106,7 +122,11 @@ async function handleClientEvent(event: WSClientEvent, ws: WSContext) {
   switch (event.type) {
     case "message:send": {
       const meta = clients.get(ws);
-      const userId = meta?.userId ?? "recruiter-1"; // fallback for unauthenticated
+      if (!meta?.userId) {
+        ws.close(1008, "Unauthenticated");
+        return;
+      }
+      const userId = meta.userId;
       const result = await addMessage(
         event.conversationId,
         userId,

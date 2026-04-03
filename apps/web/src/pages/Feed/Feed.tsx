@@ -148,6 +148,17 @@ export function Feed({ userId, initialPostId }: FeedProps) {
     const container = containerRef.current;
     if (!container) return;
 
+    videoRefs.current = videoRefs.current.slice(0, posts.length);
+
+    const updatePreload = (activeIdx: number) => {
+      const start = Math.max(0, activeIdx - 4);
+      const end = Math.min(videoRefs.current.length - 1, activeIdx + 4);
+      for (let i = start; i <= end; i++) {
+        const v = videoRefs.current[i];
+        if (v) v.preload = Math.abs(i - activeIdx) <= 2 ? "auto" : "none";
+      }
+    };
+
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -172,13 +183,10 @@ export function Feed({ userId, initialPostId }: FeedProps) {
           }
         }
 
-        // Preload only ±2 from active (optimize by checking if active changed)
+        // Preload only ±4 from active (optimize by checking if active changed)
         const active = activeIndexRef.current;
         if (active !== prevActiveRef.current) {
-          videoRefs.current.forEach((v, i) => {
-            if (!v) return;
-            v.preload = Math.abs(i - active) <= 2 ? "auto" : "none";
-          });
+          updatePreload(active);
           prevActiveRef.current = active;
         }
 
@@ -200,32 +208,30 @@ export function Feed({ userId, initialPostId }: FeedProps) {
   }, [posts, initialPostId, userId]);
 
   // Keyboard navigation
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (posts.length === 0) return;
+  const handleKeyDownRef = useRef<((e: KeyboardEvent) => void) | null>(null);
+  handleKeyDownRef.current = (e: KeyboardEvent) => {
+    if (posts.length === 0) return;
 
-      // Ignore keyboard nav when focus is in input/textarea/select/contenteditable
-      const el = document.activeElement as HTMLElement;
-      if (el?.tagName === 'INPUT' || el?.tagName === 'TEXTAREA' || el?.tagName === 'SELECT' || el?.isContentEditable) return;
+    const el = document.activeElement as HTMLElement;
+    if (el?.tagName === 'INPUT' || el?.tagName === 'TEXTAREA' || el?.tagName === 'SELECT' || el?.isContentEditable) return;
 
-      let nextIndex: number | null = null;
-      if (e.key === "ArrowDown" || e.key === "j") {
-        nextIndex = Math.min(activeIndexRef.current + 1, posts.length - 1);
-      } else if (e.key === "ArrowUp" || e.key === "k") {
-        nextIndex = Math.max(activeIndexRef.current - 1, 0);
-      }
+    let nextIndex: number | null = null;
+    if (e.key === "ArrowDown" || e.key === "j") {
+      nextIndex = Math.min(activeIndexRef.current + 1, posts.length - 1);
+    } else if (e.key === "ArrowUp" || e.key === "k") {
+      nextIndex = Math.max(activeIndexRef.current - 1, 0);
+    }
 
-      if (nextIndex !== null && nextIndex !== activeIndexRef.current) {
-        reelRefs.current[nextIndex]?.scrollIntoView({ behavior: "smooth" });
-      }
-    },
-    [posts.length]
-  );
+    if (nextIndex !== null && nextIndex !== activeIndexRef.current) {
+      reelRefs.current[nextIndex]?.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleKeyDown]);
+    const handler = (e: KeyboardEvent) => handleKeyDownRef.current?.(e);
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
 
   const scrollUp = useCallback(() => {
     const nextIndex = Math.max(activeIndexRef.current - 1, 0);

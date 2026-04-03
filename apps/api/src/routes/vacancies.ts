@@ -19,13 +19,17 @@ function toVacancy(row: any): Vacancy {
   };
 }
 
-// GET /api/vacancies?userId=:id
+// GET /api/vacancies?userId=:id&limit=&offset=
 vacancyRoutes.get("/", async (c) => {
   const userId = c.req.query("userId");
+  const limit = Math.min(Number(c.req.query("limit")) || 50, 100);
+  const offset = Number(c.req.query("offset")) || 0;
 
   const rows = await db.vacancy.findMany({
     where: userId ? { userId } : undefined,
     orderBy: { createdAt: "desc" },
+    take: limit,
+    skip: offset,
   });
 
   return c.json<ApiResponse<Vacancy[]>>({
@@ -37,11 +41,12 @@ vacancyRoutes.get("/", async (c) => {
 // POST /api/vacancies
 vacancyRoutes.post("/", authMiddleware, async (c) => {
   try {
+    const userId = c.get("userId");
     const body = await c.req.json();
 
     const row = await db.vacancy.create({
       data: {
-        userId: body.userId,
+        userId,
         title: body.title,
         description: body.description,
         type: body.type ?? "fulltime",

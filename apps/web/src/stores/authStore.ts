@@ -13,6 +13,8 @@ interface AuthState {
   validateToken: () => void;
 }
 
+let validateAbortController: AbortController | null = null;
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -25,7 +27,11 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
-        set({ token: null, user: null });
+        if (validateAbortController) {
+          validateAbortController.abort();
+          validateAbortController = null;
+        }
+        set({ token: null, user: null, loading: false });
       },
 
       updateUser: (user: User) => {
@@ -33,15 +39,21 @@ export const useAuthStore = create<AuthState>()(
       },
 
       validateToken: () => {
-        const { token, logout } = get();
+        const { token } = get();
 
         if (!token) {
           set({ loading: false });
           return;
         }
 
+        if (validateAbortController) {
+          validateAbortController.abort();
+        }
+        validateAbortController = new AbortController();
+
         fetch("/api/auth/me", {
           headers: { Authorization: `Bearer ${token}` },
+          signal: validateAbortController.signal,
         })
           .then((res) => {
             if (!res.ok) throw new Error("Invalid token");
@@ -49,13 +61,15 @@ export const useAuthStore = create<AuthState>()(
           })
           .then((data) => {
             if (data.success) {
-              set({ user: data.data });
+              set({ user: data.data, loading: false });
             } else {
-              logout();
+              get().logout();
             }
           })
-          .catch(() => {
-            logout();
+          .catch((err) => {
+            if (err.name !== "AbortError") {
+              get().logout();
+            }
           })
           .finally(() => {
             set({ loading: false });

@@ -22,13 +22,15 @@ export function VideoPlayer({ src, poster, compact }: VideoPlayerProps) {
       playerRef.current = null;
     }
 
+    // Clear DOM before creating new video
+    containerRef.current.innerHTML = "";
+
     // Create fresh video element
     const video = document.createElement("video");
     video.playsInline = true;
     video.src = src;
     if (poster) video.poster = poster;
 
-    containerRef.current.innerHTML = "";
     containerRef.current.appendChild(video);
 
     playerRef.current = new Plyr(video, {
@@ -50,8 +52,13 @@ export function VideoPlayer({ src, poster, compact }: VideoPlayerProps) {
     });
 
     return () => {
-      playerRef.current?.destroy();
-      playerRef.current = null;
+      if (playerRef.current) {
+        playerRef.current.destroy();
+        playerRef.current = null;
+      }
+      if (containerRef.current) {
+        containerRef.current.innerHTML = "";
+      }
     };
   }, [src, poster, compact]);
 

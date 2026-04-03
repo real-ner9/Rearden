@@ -45,7 +45,9 @@ authRoutes.post(
 
   sendOtp(phone, code);
 
-  return c.json<ApiResponse>({ success: true, data: { code } });
+  // Only return code in development
+  const responseData = process.env.NODE_ENV === "development" ? { code } : {};
+  return c.json<ApiResponse>({ success: true, data: responseData });
   }
 );
 
@@ -58,6 +60,14 @@ authRoutes.post(
   }),
   async (c) => {
   const { phone, code } = await c.req.json<{ phone: string; code: string }>();
+
+  // Validate code format (exactly 6 digits)
+  if (!/^\d{6}$/.test(code)) {
+    return c.json<ApiResponse>(
+      { success: false, error: "Code must be exactly 6 digits" },
+      400
+    );
+  }
 
   // Atomically mark the code as verified (prevents race condition)
   const result = await db.otpCode.updateMany({
@@ -90,6 +100,14 @@ authRoutes.post("/complete", async (c) => {
     username?: string;
   }>();
 
+  // Validate password strength (minimum 8 characters)
+  if (!password || password.length < 8) {
+    return c.json<ApiResponse>(
+      { success: false, error: "Password must be at least 8 characters long" },
+      400
+    );
+  }
+
   // Verify OTP was verified
   const otp = await db.otpCode.findFirst({
     where: {
@@ -106,6 +124,9 @@ authRoutes.post("/complete", async (c) => {
       400
     );
   }
+
+  // Delete OTP immediately to prevent replay
+  await db.otpCode.delete({ where: { id: otp.id } });
 
   let user = await db.user.findUnique({ where: { phone } });
 
@@ -136,9 +157,6 @@ authRoutes.post("/complete", async (c) => {
       },
     });
   }
-
-  // Clean up used OTP codes for this phone
-  await db.otpCode.deleteMany({ where: { phone } });
 
   const token = signToken(user.id);
 

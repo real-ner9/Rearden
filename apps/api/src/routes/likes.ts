@@ -27,11 +27,11 @@ likeRoutes.post("/:postId/like", authMiddleware, async (c) => {
   });
 
   let liked: boolean;
-  let newLikeCount: number;
+  let updatedPost;
 
   if (existingLike) {
     // Unlike: delete like and decrement counter
-    await db.$transaction([
+    const result = await db.$transaction([
       db.like.delete({
         where: { userId_postId: { userId, postId } },
       }),
@@ -41,10 +41,10 @@ likeRoutes.post("/:postId/like", authMiddleware, async (c) => {
       }),
     ]);
     liked = false;
-    newLikeCount = post.likeCount - 1;
+    updatedPost = result[1];
   } else {
     // Like: create like and increment counter
-    await db.$transaction([
+    const result = await db.$transaction([
       db.like.create({
         data: { userId, postId },
       }),
@@ -54,11 +54,11 @@ likeRoutes.post("/:postId/like", authMiddleware, async (c) => {
       }),
     ]);
     liked = true;
-    newLikeCount = post.likeCount + 1;
+    updatedPost = result[1];
   }
 
   return c.json<ApiResponse<{ liked: boolean; likeCount: number }>>({
     success: true,
-    data: { liked, likeCount: newLikeCount },
+    data: { liked, likeCount: updatedPost.likeCount },
   });
 });
