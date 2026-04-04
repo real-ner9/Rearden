@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { WSClientEvent, WSServerEvent } from "@rearden/types";
+import { useAuthStore } from "@/stores/authStore";
 
 type ConnectionStatus = "connecting" | "connected" | "disconnected";
 
@@ -19,8 +20,14 @@ export function useWebSocket({ onMessage }: UseWebSocketOptions) {
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
+    const token = useAuthStore.getState().token;
+    if (!token) {
+      setStatus("disconnected");
+      return;
+    }
+
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
+    const ws = new WebSocket(`${protocol}//${window.location.host}/ws?token=${encodeURIComponent(token)}`);
     wsRef.current = ws;
     setStatus("connecting");
 

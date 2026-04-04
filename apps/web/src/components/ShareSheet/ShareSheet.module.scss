@@ -1,0 +1,312 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 100;
+}
+
+.sheet {
+  position: fixed;
+  inset: 0;
+  background: #1c1c1e;
+  z-index: 101;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space4 $space5;
+  position: relative;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: $fontSize16;
+  font-weight: 700;
+  color: #fff;
+}
+
+.closeBtnLeft {
+  position: absolute;
+  left: $space4;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #fff;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: $space1;
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    opacity: 0.7;
+  }
+}
+
+.searchWrapper {
+  padding: $space3 $space4;
+  flex-shrink: 0;
+}
+
+.searchInput {
+  width: 100%;
+  padding: $space2 $space3;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: $radiusLg;
+  color: #fff;
+  font-size: $fontSize14;
+  outline: none;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+  }
+}
+
+// ── Grid layout (default, no search) ──
+
+.scrollArea {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.userGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $space3 $space4;
+  padding: $space4;
+}
+
+.userCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space2;
+  cursor: pointer;
+  padding: $space2;
+  border-radius: $radiusLg;
+  transition: background $transitionFast;
+  background: none;
+  border: none;
+  min-width: 0;
+  color: #fff;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.avatarWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.gridAvatar {
+  width: 60px !important;
+  height: 60px !important;
+  font-size: $fontSize20 !important;
+}
+
+.avatarCheck {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  color: #3478f6;
+  background: #1c1c1e;
+  border-radius: 50%;
+  display: flex;
+  line-height: 0;
+}
+
+.userName {
+  font-size: $fontSize12;
+  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  width: 100%;
+  line-height: 1.3;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// ── List layout (search active) ──
+
+.userList {
+  display: flex;
+  flex-direction: column;
+}
+
+.userListItem {
+  display: flex;
+  align-items: center;
+  gap: $space3;
+  padding: $space3 $space4;
+  cursor: pointer;
+  background: none;
+  border: none;
+  text-align: left;
+  transition: background $transitionFast;
+  color: #fff;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  &.selected {
+    background: rgba(52, 120, 246, 0.08);
+  }
+}
+
+.listAvatar {
+  width: 44px !important;
+  height: 44px !important;
+  font-size: $fontSize16 !important;
+  flex-shrink: 0;
+}
+
+.listUserName {
+  font-size: $fontSize14;
+  font-weight: 500;
+  color: #fff;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selectCircle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.selectCircleActive {
+  border: none;
+  color: #3478f6;
+}
+
+// ── Bottom section ──
+
+.bottomSection {
+  flex-shrink: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.messageWrapper {
+  padding: $space3 $space4;
+}
+
+.messageInput {
+  width: 100%;
+  padding: $space2 0;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: $fontSize14;
+  outline: none;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+  }
+}
+
+.sendBtn {
+  display: block;
+  width: calc(100% - $space4 * 2);
+  margin: 0 $space4 $space3;
+  padding: $space3;
+  border: none;
+  border-radius: 10px;
+  background: #3478f6;
+  color: #fff;
+  font-size: $fontSize14;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity $transitionFast;
+  text-align: center;
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+
+  &:active:not(:disabled) {
+    opacity: 0.8;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.sentLabel {
+  font-size: $fontSize12;
+  color: #30d158;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.bottomActions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space3 $space4;
+  gap: $space6;
+}
+
+.actionItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space2;
+  cursor: pointer;
+  color: #fff;
+  background: none;
+  border: none;
+  padding: $space2;
+}
+
+.actionCircle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.actionText {
+  font-size: $fontSize12;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.emptyState {
+  text-align: center;
+  padding: $space8;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: $fontSize14;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

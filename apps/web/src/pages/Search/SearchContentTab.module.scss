@@ -5,83 +5,20 @@
   max-width: 900px;
   margin: 0 auto;
   min-width: 0;
-}
-
-.filters {
   display: flex;
-  gap: $space2;
-  margin: $space4 0 $space6;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: $space4;
 }
 
-.filterChip {
-  @include glass;
-  border: $borderWidth solid $glassBorder;
-  border-radius: 16px;
-  padding: $space1 $space3;
-  font-size: $fontSize13;
-  color: $textPrimary;
-  background: $glassBg;
-  cursor: pointer;
-  transition: all $transitionBase;
-
-  &:hover {
-    @include glassHover;
-  }
-
-  &.active {
-    background: $accentPurple;
-    border-color: $accentPurple;
-    color: white;
-  }
+// Skeleton grid matching ExploreGrid layout
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
 }
 
-.trendingSection {
-  margin-bottom: $space6;
-}
-
-.trendingTitle {
-  font-size: $fontSize16;
-  font-weight: 600;
-  color: $textPrimary;
-  margin-bottom: $space3;
-}
-
-.trendingChips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $space2;
-}
-
-.trendingChip {
-  @include glass;
-  border: $borderWidth solid $glassBorder;
-  border-radius: 16px;
-  padding: $space2 $space3;
-  font-size: $fontSize13;
-  color: $textPrimary;
-  background: $glassBg;
-  cursor: pointer;
-  transition: all $transitionBase;
-  display: flex;
-  align-items: center;
-  gap: $space1;
-
-  &:hover {
-    @include glassHover;
-    transform: translateY(-2px);
-  }
-}
-
-.trendingCount {
-  font-size: $fontSize12;
-  color: $textMuted;
-}
-
-.skeletonChip {
-  width: 100px;
-  height: 30px;
-  border-radius: 16px;
+.skeletonTile {
+  aspect-ratio: 1;
   background: linear-gradient(
     90deg,
     $bgSurface 25%,
@@ -90,86 +27,6 @@
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
-}
-
-.sectionTitle {
-  font-size: $fontSize16;
-  font-weight: 600;
-  color: $textSecondary;
-  margin-bottom: $space3;
-}
-
-.postsGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: $space4;
-
-  @include tablet {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: $space2;
-  }
-}
-
-.textPostCard {
-  @include glass;
-  border: $borderWidth solid $glassBorder;
-  border-radius: $radiusLg;
-  padding: $space4;
-  cursor: pointer;
-  transition: all $transitionBase;
-  min-width: 0;
-  overflow: hidden;
-
-  &:hover {
-    @include glassHover;
-    transform: translateY(-2px);
-    box-shadow: $shadowMd;
-  }
-}
-
-.postContent {
-  font-size: $fontSize14;
-  color: $textSecondary;
-  margin-bottom: $space3;
-  @include truncate(3);
-}
-
-.authorRow {
-  display: flex;
-  align-items: center;
-  gap: $space2;
-  margin-bottom: $space2;
-}
-
-.authorAvatar {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.authorName {
-  font-size: $fontSize13;
-  color: $textPrimary;
-  font-weight: 500;
-}
-
-.authorUsername {
-  font-size: $fontSize12;
-  color: $textMuted;
-}
-
-.hashtags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $space1;
-  margin-top: $space2;
-}
-
-.hashtagChip {
-  font-size: $fontSize12;
-  color: $accentPurple;
-  font-weight: 500;
 }
 
 .empty {
@@ -184,47 +41,6 @@
   p {
     font-size: $fontSize14;
   }
-}
-
-// Skeleton loading
-.skeleton {
-  background: $glassBg;
-  border: $borderWidth solid $glassBorder;
-  border-radius: $radiusLg;
-  overflow: hidden;
-}
-
-.skeletonThumb {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  background: linear-gradient(
-    90deg,
-    $bgSurface 25%,
-    $bgElevated 50%,
-    $bgSurface 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-.skeletonContent {
-  padding: $space4;
-  display: flex;
-  flex-direction: column;
-  gap: $space3;
-}
-
-.skeletonLine {
-  height: 12px;
-  border-radius: $radiusSm;
-  background: linear-gradient(
-    90deg,
-    $bgSurface 25%,
-    $bgElevated 50%,
-    $bgSurface 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
 }
 
 @keyframes shimmer {

@@ -1,6 +1,5 @@
 import { useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "motion/react";
 import { SearchBar } from "@/components/SearchBar/SearchBar";
 import { usePeopleSearch } from "@/hooks/usePeopleSearch";
 import styles from "./SearchPeopleTab.module.scss";
@@ -10,7 +9,6 @@ export function SearchPeopleTab() {
   const { query, setQuery, results, loading, hasMore, loadMore } = usePeopleSearch();
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  // Infinite scroll via IntersectionObserver
   const observerCallback = useCallback(
     (entries: IntersectionObserverEntry[]) => {
       if (entries[0].isIntersecting && hasMore && !loading) {
@@ -37,58 +35,37 @@ export function SearchPeopleTab() {
         placeholders={["Search by username or name..."]}
       />
 
-      {/* Suggested heading when no query */}
-      {!query && results.length > 0 && (
-        <h3 className={styles.sectionTitle}>Suggested</h3>
-      )}
-
       {loading && results.length === 0 ? (
         <div className={styles.grid}>
           {Array.from({ length: 9 }).map((_, i) => (
-            <div key={i} className={styles.skeletonCard}>
-              <div className={styles.skeletonAvatar} />
-              <div className={styles.skeletonLine} style={{ width: "70%" }} />
-              <div className={styles.skeletonLine} style={{ width: "50%" }} />
-            </div>
+            <div key={i} className={styles.skeletonTile} />
           ))}
         </div>
       ) : results.length > 0 ? (
-        <motion.div
-          className={styles.grid}
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: {},
-            visible: { transition: { staggerChildren: 0.03 } },
-          }}
-        >
+        <div className={styles.grid}>
           {results.map((user) => (
-            <motion.div
+            <div
               key={user.id}
-              className={styles.card}
+              className={styles.tile}
               onClick={() => navigate(`/user/${user.id}`)}
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { opacity: 1, y: 0 },
-              }}
             >
               <img
                 src={user.thumbnailUrl || "/placeholder-avatar.jpg"}
                 alt={user.name || user.username || "User"}
-                className={styles.avatar}
+                className={styles.tileImg}
+                loading="lazy"
               />
-              <div className={styles.username}>
-                {user.username || user.name || "Anonymous"}
+              <div className={styles.tileOverlay}>
+                <span className={styles.tileName}>
+                  {user.username || user.name || "Anonymous"}
+                </span>
+                {user.title && (
+                  <span className={styles.tileTitle}>{user.title}</span>
+                )}
               </div>
-              <div className={styles.meta}>
-                {user.name && user.username ? user.name : user.title}
-              </div>
-              {user.title && user.name && user.username && (
-                <div className={styles.title}>{user.title}</div>
-              )}
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
       ) : (
         !loading && query && (
           <div className={styles.empty}>
@@ -101,7 +78,6 @@ export function SearchPeopleTab() {
         )
       )}
 
-      {/* Infinite scroll sentinel */}
       <div ref={sentinelRef} className={styles.sentinel} />
 
       {loading && results.length > 0 && (

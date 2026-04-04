@@ -3,10 +3,23 @@ import type { ApiResponse, Post, VideoPost } from "@rearden/types";
 import { db } from "../lib/db.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { rateLimit } from "../lib/rateLimit.js";
+import { verifyToken } from "../lib/auth.js";
 
 type AuthEnv = { Variables: { userId: string } };
 
 export const postRoutes = new Hono<AuthEnv>();
+
+// Helper to extract userId from Bearer token without requiring auth
+function extractOptionalUserId(authHeader: string | undefined): string | null {
+  if (!authHeader?.startsWith("Bearer ")) return null;
+  try {
+    const token = authHeader.slice(7);
+    const payload = verifyToken(token);
+    return payload.userId;
+  } catch {
+    return null;
+  }
+}
 
 function toPost(row: any): Post {
   return {
@@ -26,14 +39,20 @@ function toPost(row: any): Post {
   };
 }
 
-function toVideoPost(row: any): VideoPost {
+function toVideoPost(row: any, userLikes: Set<string>, userBookmarks: Set<string>): VideoPost {
   return {
     ...toPost(row),
     type: "video",
     videoUrl: row.videoUrl,
+    likeCount: row.likeCount,
+    commentCount: row.commentCount,
+    isLiked: userLikes.has(row.id),
+    isBookmarked: userBookmarks.has(row.id),
     author: {
       id: row.user.id,
       name: row.user.name,
+      username: row.user.username ?? null,
+      thumbnailUrl: row.user.thumbnailUrl ?? null,
       title: row.user.title,
       location: row.user.location,
       experience: row.user.experience,
@@ -124,9 +143,30 @@ postRoutes.get("/", async (c) => {
     const nextOffset = offset + (hasMore ? limit : idRows.length);
 
     if (includeUser) {
+      // Fetch user's likes and bookmarks if authenticated
+      const authUserId = extractOptionalUserId(c.req.header("Authorization"));
+      let userLikes: Set<string> = new Set();
+      let userBookmarks: Set<string> = new Set();
+
+      if (authUserId) {
+        const postIds = sorted.map((r: any) => r.id);
+        const [likes, bookmarks] = await Promise.all([
+          db.like.findMany({
+            where: { userId: authUserId, postId: { in: postIds } },
+            select: { postId: true },
+          }),
+          db.bookmark.findMany({
+            where: { userId: authUserId, postId: { in: postIds } },
+            select: { postId: true },
+          }),
+        ]);
+        userLikes = new Set(likes.map((l: any) => l.postId));
+        userBookmarks = new Set(bookmarks.map((b: any) => b.postId));
+      }
+
       return c.json<ApiResponse<VideoPost[]>>({
         success: true,
-        data: sorted.map(toVideoPost),
+        data: sorted.map((r) => toVideoPost(r, userLikes, userBookmarks)),
         meta: { nextOffset, hasMore },
       });
     }
@@ -169,9 +209,30 @@ postRoutes.get("/", async (c) => {
   const nextCursor = hasMore ? items[items.length - 1]!.id : null;
 
   if (includeUser) {
+    // Fetch user's likes and bookmarks if authenticated
+    const authUserId = extractOptionalUserId(c.req.header("Authorization"));
+    let userLikes: Set<string> = new Set();
+    let userBookmarks: Set<string> = new Set();
+
+    if (authUserId) {
+      const postIds = items.map((r: any) => r.id);
+      const [likes, bookmarks] = await Promise.all([
+        db.like.findMany({
+          where: { userId: authUserId, postId: { in: postIds } },
+          select: { postId: true },
+        }),
+        db.bookmark.findMany({
+          where: { userId: authUserId, postId: { in: postIds } },
+          select: { postId: true },
+        }),
+      ]);
+      userLikes = new Set(likes.map((l: any) => l.postId));
+      userBookmarks = new Set(bookmarks.map((b: any) => b.postId));
+    }
+
     return c.json<ApiResponse<VideoPost[]>>({
       success: true,
-      data: items.map(toVideoPost),
+      data: items.map((r) => toVideoPost(r, userLikes, userBookmarks)),
       meta: { nextCursor },
     });
   }
@@ -197,9 +258,29 @@ postRoutes.get("/:id", async (c) => {
   }
 
   if (row.type === "video") {
+    // Fetch user's like and bookmark status if authenticated
+    const authUserId = extractOptionalUserId(c.req.header("Authorization"));
+    let userLikes: Set<string> = new Set();
+    let userBookmarks: Set<string> = new Set();
+
+    if (authUserId) {
+      const [likes, bookmarks] = await Promise.all([
+        db.like.findMany({
+          where: { userId: authUserId, postId: id },
+          select: { postId: true },
+        }),
+        db.bookmark.findMany({
+          where: { userId: authUserId, postId: id },
+          select: { postId: true },
+        }),
+      ]);
+      userLikes = new Set(likes.map((l: any) => l.postId));
+      userBookmarks = new Set(bookmarks.map((b: any) => b.postId));
+    }
+
     return c.json<ApiResponse<VideoPost>>({
       success: true,
-      data: toVideoPost(row),
+      data: toVideoPost(row, userLikes, userBookmarks),
     });
   }
 

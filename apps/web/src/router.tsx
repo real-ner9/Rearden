@@ -13,12 +13,14 @@ import { MyProfile } from "@/pages/MyProfile/MyProfile";
 import { EditProfile } from "@/pages/EditProfile/EditProfile";
 import { Notifications } from "@/pages/Notifications/Notifications";
 import { Settings } from "@/pages/Settings/Settings";
+import { PostDetail } from "@/pages/PostDetail/PostDetail";
 
 export const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
       { path: "/", element: <Home /> },
+      { path: "/post/:postId", element: <PostDetail /> },
       { path: "/welcome", element: <Landing /> },
       { path: "/feed", element: <Feed /> },
       { path: "/feed/:postId", element: <Feed /> },

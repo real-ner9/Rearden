@@ -1,0 +1,83 @@
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+
+.tile {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  cursor: pointer;
+  background: $bgSurface;
+}
+
+.tileLarge {
+  grid-row: span 2;
+}
+
+.tileImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.textTile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space3;
+  background: $bgDeep;
+  width: 100%;
+  height: 100%;
+}
+
+.textTileContent {
+  color: white;
+  font-size: $fontSize13;
+  text-align: center;
+  line-height: 1.4;
+  @include truncate(3);
+}
+
+.typeIcon {
+  position: absolute;
+  top: $space2;
+  right: $space2;
+  color: white;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+  pointer-events: none;
+}
+
+.hoverOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space4;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transition: opacity $transitionFast;
+  pointer-events: none;
+
+  .tile:hover & {
+    opacity: 1;
+  }
+
+  @include tablet {
+    display: none;
+  }
+}
+
+.overlayStat {
+  display: flex;
+  align-items: center;
+  gap: $space1;
+  color: white;
+  font-size: $fontSize14;
+  font-weight: 600;
+}

@@ -12,13 +12,14 @@ export function Layout() {
   const isAuthPage = location.pathname === "/auth";
   const isNotificationsPage = location.pathname === "/notifications";
   const isSettingsPage = location.pathname === "/profile/settings";
+  const isPostDetailPage = location.pathname.startsWith("/post/");
 
   return (
     <div className={styles.layout}>
       <SideNav />
       <MobileHeader />
       <Navbar />
-      <div className={`${styles.body} ${isFeedPage ? styles.feedBody : ""} ${isAuthPage ? styles.authBody : ""} ${isNotificationsPage ? styles.notificationsBody : ""} ${isSettingsPage ? styles.settingsBody : ""}`}>
+      <div className={`${styles.body} ${isFeedPage ? styles.feedBody : ""} ${isAuthPage ? styles.authBody : ""} ${isNotificationsPage ? styles.notificationsBody : ""} ${isSettingsPage ? styles.settingsBody : ""} ${isPostDetailPage ? styles.postDetailBody : ""}`}>
         <main className={styles.main}>
           <ErrorBoundary>
             <Outlet />

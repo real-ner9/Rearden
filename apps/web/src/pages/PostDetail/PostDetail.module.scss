@@ -1,0 +1,108 @@
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+.page {
+  width: 100%;
+  min-height: calc(100vh - $navbarHeight);
+  background: $bgBase;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: $space3;
+  height: $mobileNavHeight;
+  padding: 0 $space4;
+  background: $bgBase;
+  border-bottom: $borderWidth solid $glassBorder;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: $textPrimary;
+  padding: $space1;
+}
+
+.headerTitle {
+  font-size: $fontSize16;
+  font-weight: 600;
+  color: $textPrimary;
+}
+
+.postWrapper {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.divider {
+  height: $borderWidth;
+  background: $glassBorder;
+  margin: $space6 0;
+}
+
+.moreSection {
+  padding: 0 0 $space8;
+}
+
+.moreTitle {
+  font-size: $fontSize14;
+  font-weight: 600;
+  color: $textMuted;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: $space4 $space4 $space3;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: $textMuted;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid $glassBorder;
+  border-top-color: $accentPurple;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.notFound {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: $textMuted;
+  font-size: $fontSize16;
+}
+
+@include tablet {
+  .page {
+    min-height: calc(100vh - $mobileNavHeight);
+  }
+
+  .postWrapper {
+    max-width: 100%;
+  }
+
+  .divider {
+    margin: $space4 0;
+  }
+}

@@ -71,12 +71,10 @@ chatRoutes.delete("/folders/:id", async (c) => {
 
 // Get messages for a conversation
 chatRoutes.get("/:id/messages", async (c) => {
-  const userId = c.get("userId");
   const id = c.req.param("id");
 
-  // Verify user owns the conversation
-  const conversation = await db.conversation.findFirst({
-    where: { id, userId },
+  const conversation = await db.conversation.findUnique({
+    where: { id },
   });
 
   if (!conversation) {
@@ -124,12 +122,10 @@ chatRoutes.post(
 
 // Toggle pin
 chatRoutes.patch("/:id/pin", async (c) => {
-  const userId = c.get("userId");
   const id = c.req.param("id");
 
-  // Verify user owns the conversation
-  const conversation = await db.conversation.findFirst({
-    where: { id, userId },
+  const conversation = await db.conversation.findUnique({
+    where: { id },
   });
 
   if (!conversation) {

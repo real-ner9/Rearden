@@ -5,90 +5,54 @@
   max-width: 900px;
   margin: 0 auto;
   min-width: 0;
-}
-
-.sectionTitle {
-  font-size: $fontSize16;
-  font-weight: 600;
-  color: $textSecondary;
-  margin: $space6 0 $space3;
+  display: flex;
+  flex-direction: column;
+  gap: $space4;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: $space4;
-  margin-top: $space4;
-
-  @include tablet {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: $space2;
-  }
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
 }
 
-.card {
-  @include glass;
-  border: $borderWidth solid $glassBorder;
-  border-radius: $radiusLg;
-  padding: $space5;
+.tile {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  cursor: pointer;
+  background: $bgSurface;
+}
+
+.tileImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tileOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: $space2 $space2;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  cursor: pointer;
-  transition: all $transitionBase;
-  min-width: 0;
-  overflow: hidden;
-
-  &:hover {
-    @include glassHover;
-    transform: translateY(-2px);
-    box-shadow: $shadowMd;
-  }
-
-  @include tablet {
-    padding: $space3;
-  }
+  gap: 1px;
 }
 
-.avatar {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  object-fit: cover;
-  background: $bgSurface;
-  margin-bottom: $space3;
-  flex-shrink: 0;
-
-  @include tablet {
-    width: 56px;
-    height: 56px;
-    margin-bottom: $space2;
-  }
-}
-
-.username {
-  font-size: $fontSize14;
-  font-weight: 600;
-  color: $textPrimary;
-  @include truncate(1);
-  max-width: 100%;
-}
-
-.meta {
+.tileName {
   font-size: $fontSize13;
-  color: $textSecondary;
+  font-weight: 600;
+  color: white;
   @include truncate(1);
-  max-width: 100%;
-  margin-top: 2px;
 }
 
-.title {
+.tileTitle {
   font-size: $fontSize12;
-  color: $textMuted;
+  color: rgba(255, 255, 255, 0.7);
   @include truncate(1);
-  max-width: 100%;
-  margin-top: 2px;
 }
 
 .empty {
@@ -120,36 +84,9 @@
   color: $textMuted;
 }
 
-// Skeleton loading
-.skeletonCard {
-  @include glass;
-  border: $borderWidth solid $glassBorder;
-  border-radius: $radiusLg;
-  padding: $space5;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: $space2;
-}
-
-.skeletonAvatar {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background: linear-gradient(
-    90deg,
-    $bgSurface 25%,
-    $bgElevated 50%,
-    $bgSurface 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-  margin-bottom: $space2;
-}
-
-.skeletonLine {
-  height: 12px;
-  border-radius: $radiusSm;
+// Skeleton
+.skeletonTile {
+  aspect-ratio: 1;
   background: linear-gradient(
     90deg,
     $bgSurface 25%,
@@ -170,9 +107,6 @@
 }
 
 @keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
   to {
     transform: rotate(360deg);
   }

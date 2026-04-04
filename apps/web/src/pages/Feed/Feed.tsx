@@ -1,7 +1,12 @@
 import { useRef, useEffect, useLayoutEffect, useCallback, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import type { VideoPost } from "@rearden/types";
+import { Heart, ChatCircle, PaperPlaneTilt } from "@phosphor-icons/react";
+import { AnimatePresence } from "motion/react";
 
+import { Avatar } from "@/components/Avatar/Avatar";
+import { CommentSheet } from "@/components/CommentSheet/CommentSheet";
+import { ShareSheet } from "@/components/ShareSheet/ShareSheet";
 import { useChatStore } from "@/stores/chatStore";
 import { apiFetch } from "@/lib/api";
 import styles from "./Feed.module.scss";
@@ -13,6 +18,12 @@ interface FeedProps {
   userId?: string;
   /** Post ID to start from (deep link / reel modal) */
   initialPostId?: string;
+}
+
+function formatCount(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  return String(n);
 }
 
 export function Feed({ userId, initialPostId }: FeedProps) {
@@ -29,6 +40,18 @@ export function Feed({ userId, initialPostId }: FeedProps) {
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+
+  // Local engagement state
+  const [engagement, setEngagement] = useState<
+    Record<string, { likeCount: number; commentCount: number; isLiked: boolean }>
+  >({});
+
+  // Comment and share sheets
+  const [commentPostId, setCommentPostId] = useState<string | null>(null);
+  const [sharePostId, setSharePostId] = useState<string | null>(null);
+
+  // Expandable description
+  const [expandedPostId, setExpandedPostId] = useState<string | null>(null);
 
   // Pagination refs (not state — no re-render needed)
   const offsetRef = useRef(0);
@@ -94,6 +117,18 @@ export function Feed({ userId, initialPostId }: FeedProps) {
         if (cancelled) return;
         setPosts(res.data);
         updatePagination(res.meta);
+
+        // Initialize engagement state
+        const initialEngagement: Record<string, { likeCount: number; commentCount: number; isLiked: boolean }> = {};
+        res.data.forEach((post) => {
+          initialEngagement[post.id] = {
+            likeCount: post.likeCount,
+            commentCount: post.commentCount,
+            isLiked: post.isLiked,
+          };
+        });
+        setEngagement(initialEngagement);
+
         setLoading(false);
       })
       .catch(() => {
@@ -119,6 +154,21 @@ export function Feed({ userId, initialPostId }: FeedProps) {
 
       setPosts((prev) => [...prev, ...res.data]);
       updatePagination(res.meta);
+
+      // Update engagement for new posts
+      setEngagement((prev) => {
+        const updated = { ...prev };
+        res.data.forEach((post) => {
+          if (!updated[post.id]) {
+            updated[post.id] = {
+              likeCount: post.likeCount,
+              commentCount: post.commentCount,
+              isLiked: post.isLiked,
+            };
+          }
+        });
+        return updated;
+      });
     } finally {
       setLoadingMore(false);
     }
@@ -247,6 +297,70 @@ export function Feed({ userId, initialPostId }: FeedProps) {
     }
   }, [posts.length]);
 
+  // Like toggle handler
+  const handleLikeToggle = useCallback(async (postId: string) => {
+    const currentEngagement = engagement[postId];
+    if (!currentEngagement) return;
+
+    const newIsLiked = !currentEngagement.isLiked;
+    const delta = newIsLiked ? 1 : -1;
+
+    // Optimistic update
+    setEngagement((prev) => ({
+      ...prev,
+      [postId]: {
+        ...prev[postId],
+        isLiked: newIsLiked,
+        likeCount: prev[postId].likeCount + delta,
+      },
+    }));
+
+    try {
+      await apiFetch(`/posts/${postId}/like`, { method: "POST" });
+    } catch {
+      // Revert on error
+      setEngagement((prev) => ({
+        ...prev,
+        [postId]: {
+          ...prev[postId],
+          isLiked: !newIsLiked,
+          likeCount: prev[postId].likeCount - delta,
+        },
+      }));
+    }
+  }, [engagement]);
+
+  // Comment callbacks
+  const handleCommentAdd = useCallback(() => {
+    if (!commentPostId) return;
+    setEngagement((prev) => ({
+      ...prev,
+      [commentPostId]: {
+        ...prev[commentPostId],
+        commentCount: prev[commentPostId].commentCount + 1,
+      },
+    }));
+  }, [commentPostId]);
+
+  const handleCommentDelete = useCallback(() => {
+    if (!commentPostId) return;
+    setEngagement((prev) => ({
+      ...prev,
+      [commentPostId]: {
+        ...prev[commentPostId],
+        commentCount: Math.max(0, prev[commentPostId].commentCount - 1),
+      },
+    }));
+  }, [commentPostId]);
+
+  // Start conversation handler
+  const handleStartConversation = useCallback(async (userId: string, userName: string) => {
+    const convId = await startConversation(userId, userName);
+    if (convId) {
+      navigate("/chat");
+    }
+  }, [startConversation, navigate]);
+
   if (loading) {
     return (
       <div className={styles.loading}>
@@ -265,119 +379,177 @@ export function Feed({ userId, initialPostId }: FeedProps) {
 
   return (
     <>
-    <div className={styles.feed} ref={containerRef}>
-      {posts.map((post, i) => (
-        <div
-          key={post.id}
-          className={styles.reel}
-          data-index={i}
-          ref={(el) => {
-            reelRefs.current[i] = el;
-          }}
-        >
-          <div className={styles.reelCard}>
-            <div className={styles.videoWrapper}>
-              <video
-                ref={(el) => {
-                  videoRefs.current[i] = el;
-                }}
-                className={styles.video}
-                src={post.videoUrl}
-                poster={post.thumbnailUrl ?? undefined}
-                preload={i < 3 ? "auto" : "none"}
-                loop
-                muted
-                playsInline
-                onClick={(e) => {
-                  const v = e.currentTarget;
-                  v.paused ? v.play() : v.pause();
-                }}
-              />
+      <div className={styles.feed} ref={containerRef}>
+        {posts.map((post, i) => {
+          const postEngagement = engagement[post.id] ?? {
+            likeCount: post.likeCount,
+            commentCount: post.commentCount,
+            isLiked: post.isLiked,
+          };
+          const isExpanded = expandedPostId === post.id;
 
-              <div className={styles.gradient} />
+          return (
+            <div
+              key={post.id}
+              className={styles.reel}
+              data-index={i}
+              ref={(el) => {
+                reelRefs.current[i] = el;
+              }}
+            >
+              <div className={styles.reelCard}>
+                <div className={styles.videoWrapper}>
+                  <video
+                    ref={(el) => {
+                      videoRefs.current[i] = el;
+                    }}
+                    className={styles.video}
+                    src={post.videoUrl}
+                    poster={post.thumbnailUrl ?? undefined}
+                    preload={i < 3 ? "auto" : "none"}
+                    loop
+                    muted
+                    playsInline
+                    onClick={(e) => {
+                      const v = e.currentTarget;
+                      v.paused ? v.play() : v.pause();
+                    }}
+                  />
 
-              <div className={styles.overlay}>
-                <button
-                  className={styles.authorName}
-                  onClick={() => navigate(`/user/${post.author.id}`)}
-                >
-                  {post.author.name}
-                </button>
-                <p className={styles.authorTitle}>{post.author.title}</p>
-                <p className={styles.authorLocation}>
-                  {post.author.location} &middot; {post.author.experience}yr exp
-                </p>
-                <div className={styles.authorSkills}>
-                  {post.author.skills.slice(0, 4).map((s) => (
-                    <span key={s} className={styles.skillChip}>
-                      #{s.toLowerCase().replace(/\s+/g, "")}
-                    </span>
-                  ))}
+                  <div className={styles.gradient} />
+
+                  {/* Dark overlay when description expanded */}
+                  {isExpanded && (
+                    <div
+                      className={styles.dimOverlay}
+                      onClick={() => setExpandedPostId(null)}
+                    />
+                  )}
+
+                  {/* Bottom-left info */}
+                  <div className={styles.bottomInfo}>
+                    <div className={styles.authorRow}>
+                      <Avatar
+                        src={post.author.thumbnailUrl}
+                        name={post.author.name}
+                        size="sm"
+                      />
+                      <button
+                        className={styles.authorNameLink}
+                        onClick={() => navigate(`/user/${post.author.id}`)}
+                      >
+                        {post.author.name}
+                      </button>
+                      <button
+                        className={styles.chatPill}
+                        onClick={() => handleStartConversation(post.author.id, post.author.name)}
+                      >
+                        Chat
+                      </button>
+                    </div>
+
+                    {/* Description */}
+                    {post.content && (
+                      <div>
+                        <p className={isExpanded ? styles.descriptionExpanded : styles.descriptionCollapsed}>
+                          {post.content}
+                        </p>
+                        {!isExpanded && post.content.length > 80 && (
+                          <button
+                            className={styles.moreBtn}
+                            onClick={() => setExpandedPostId(post.id)}
+                          >
+                            ...more
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Right sidebar actions */}
+                  <div className={styles.reelActions}>
+                    {/* Like */}
+                    <button
+                      className={styles.reelActionBtn}
+                      onClick={() => handleLikeToggle(post.id)}
+                      aria-label={postEngagement.isLiked ? "Unlike" : "Like"}
+                    >
+                      <Heart
+                        size={32}
+                        weight={postEngagement.isLiked ? "fill" : "bold"}
+                        className={postEngagement.isLiked ? styles.liked : undefined}
+                      />
+                      <span className={styles.reelActionCount}>
+                        {formatCount(postEngagement.likeCount)}
+                      </span>
+                    </button>
+
+                    {/* Comment */}
+                    <button
+                      className={styles.reelActionBtn}
+                      onClick={() => setCommentPostId(post.id)}
+                      aria-label="Comment"
+                    >
+                      <ChatCircle size={32} weight="bold" />
+                      <span className={styles.reelActionCount}>
+                        {formatCount(postEngagement.commentCount)}
+                      </span>
+                    </button>
+
+                    {/* Share */}
+                    <button
+                      className={styles.reelActionBtn}
+                      onClick={() => setSharePostId(post.id)}
+                      aria-label="Share"
+                    >
+                      <PaperPlaneTilt size={32} weight="bold" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
+          );
+        })}
 
-            <div className={styles.actions}>
-              <button
-                className={styles.actionBtn}
-                onClick={() => navigate(`/user/${post.author.id}`)}
-                title="View profile"
-              >
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-                <span className={styles.actionLabel}>Profile</span>
-              </button>
-
-              <button
-                className={styles.actionBtn}
-                onClick={() => startConversation(post.author.id, post.author.name)}
-                title="Message"
-              >
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-                </svg>
-                <span className={styles.actionLabel}>Chat</span>
-              </button>
-
-              {post.author.resumeText && (
-                <button
-                  className={styles.actionBtn}
-                  onClick={() => navigate(`/user/${post.author.id}/resume`)}
-                  title="Resume"
-                >
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-                    <polyline points="14 2 14 8 20 8" />
-                  </svg>
-                  <span className={styles.actionLabel}>CV</span>
-                </button>
-              )}
-            </div>
+        {loadingMore && (
+          <div className={styles.sentinel}>
+            <div className={styles.spinner} />
           </div>
-        </div>
-      ))}
+        )}
+      </div>
 
-      {loadingMore && (
-        <div className={styles.sentinel}>
-          <div className={styles.spinner} />
-        </div>
-      )}
-    </div>
+      <div className={styles.scrollButtons}>
+        <button className={styles.scrollBtn} onClick={scrollUp} aria-label="Previous reel">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="18 15 12 9 6 15" />
+          </svg>
+        </button>
+        <button className={styles.scrollBtn} onClick={scrollDown} aria-label="Next reel">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+      </div>
 
-    <div className={styles.scrollButtons}>
-      <button className={styles.scrollBtn} onClick={scrollUp} aria-label="Previous reel">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="18 15 12 9 6 15" />
-        </svg>
-      </button>
-      <button className={styles.scrollBtn} onClick={scrollDown} aria-label="Next reel">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
-      </button>
-    </div>
+      {/* Comment Sheet */}
+      <AnimatePresence>
+        {commentPostId && (
+          <CommentSheet
+            postId={commentPostId}
+            onClose={() => setCommentPostId(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Share Sheet */}
+      <AnimatePresence>
+        {sharePostId && (
+          <ShareSheet
+            postId={sharePostId}
+            onClose={() => setSharePostId(null)}
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 }

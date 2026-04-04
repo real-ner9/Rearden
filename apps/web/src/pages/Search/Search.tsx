@@ -1,5 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
+import { GridFour, Users, Sparkle } from "@phosphor-icons/react";
 import { TabBar } from "@/components/TabBar/TabBar";
 import { SearchContentTab } from "./SearchContentTab";
 import { SearchAIMatchTab } from "./SearchAIMatchTab";
@@ -7,9 +8,9 @@ import { SearchPeopleTab } from "./SearchPeopleTab";
 import styles from "./Search.module.scss";
 
 const TABS = [
-  { id: "content", label: "Content" },
-  { id: "people", label: "People" },
-  { id: "ai-match", label: "AI Match" },
+  { id: "content", label: "Content", icon: <GridFour size={22} />, activeIcon: <GridFour size={22} weight="fill" /> },
+  { id: "people", label: "People", icon: <Users size={22} />, activeIcon: <Users size={22} weight="fill" /> },
+  { id: "ai-match", label: "AI Match", icon: <Sparkle size={22} />, activeIcon: <Sparkle size={22} weight="fill" /> },
 ];
 
 export function Search() {

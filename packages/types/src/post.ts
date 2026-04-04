@@ -17,9 +17,15 @@ export interface Post {
 export interface VideoPost extends Post {
   type: "video";
   videoUrl: string;
+  likeCount: number;
+  commentCount: number;
+  isLiked: boolean;
+  isBookmarked: boolean;
   author: {
     id: string;
     name: string;
+    username: string | null;
+    thumbnailUrl: string | null;
     title: string;
     location: string;
     experience: number;

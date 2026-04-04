@@ -47,6 +47,12 @@
   }
 }
 
+.postDetailBody {
+  @include tablet {
+    padding-top: 0;
+  }
+}
+
 .main {
   flex: 1;
   min-width: 0;

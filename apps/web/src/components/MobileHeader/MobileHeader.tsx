@@ -18,10 +18,11 @@ export function MobileHeader() {
   const isAuthPage = location.pathname === "/auth";
   const isNotificationsPage = location.pathname === "/notifications";
   const isSettingsPage = location.pathname === "/profile/settings";
+  const isPostDetailPage = location.pathname.startsWith("/post/");
   const isProfilePage =
     location.pathname === "/profile" || location.pathname.startsWith("/profile/");
 
-  if (isFeedPage || isAuthPage || isNotificationsPage || isSettingsPage) return null;
+  if (isFeedPage || isAuthPage || isNotificationsPage || isSettingsPage || isPostDetailPage) return null;
 
   const handleCreate = () => {
     if (!user) {
