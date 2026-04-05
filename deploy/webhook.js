@@ -10,8 +10,10 @@ const SECRET = process.env.WEBHOOK_SECRET;
 
 function verifySignature(payload, signature) {
   if (!SECRET) return true;
+  if (!signature) return false;
   const hmac = crypto.createHmac("sha256", SECRET);
   const digest = "sha256=" + hmac.update(payload).digest("hex");
+  if (digest.length !== signature.length) return false;
   return crypto.timingSafeEqual(Buffer.from(digest), Buffer.from(signature));
 }
 
