@@ -60,6 +60,10 @@ yarn-error.log*
 # Uploads
 uploads/
 
+# Deploy
+deploy/node_modules/
+deploy/.env
+
 # Misc
 .DS_Store
 *.pem
