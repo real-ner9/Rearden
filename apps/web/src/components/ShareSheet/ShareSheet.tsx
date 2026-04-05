@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
 import { motion } from "motion/react";
-import { X, Link as LinkIcon, CheckCircle } from "@phosphor-icons/react";
+import { Link as LinkIcon, CheckCircle } from "@phosphor-icons/react";
 import { Avatar } from "@/components/Avatar/Avatar";
 import { useChatStore } from "@/stores/chatStore";
 import { apiFetch } from "@/lib/api";
+import { useBottomSheet } from "@/hooks/useBottomSheet";
 import styles from "./ShareSheet.module.scss";
 
 interface ShareSheetProps {
@@ -19,6 +20,8 @@ export function ShareSheet({ postId, onClose }: ShareSheetProps) {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+
+  const { sheetDragProps, backdropOpacity, startDrag } = useBottomSheet({ onClose });
 
   const shareUrl = `${window.location.origin}/feed/${postId}`;
 
@@ -83,6 +86,7 @@ export function ShareSheet({ postId, onClose }: ShareSheetProps) {
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
         onClick={onClose}
+        style={{ opacity: backdropOpacity }}
       />
       <motion.div
         className={styles.sheet}
@@ -90,11 +94,13 @@ export function ShareSheet({ postId, onClose }: ShareSheetProps) {
         animate={{ y: 0 }}
         exit={{ y: "100%" }}
         transition={{ type: "tween", duration: 0.3 }}
+        {...sheetDragProps}
       >
+        <div className={styles.handleArea} onPointerDown={startDrag}>
+          <div className={styles.handle} />
+        </div>
+
         <header className={styles.header}>
-          <button className={styles.closeBtnLeft} onClick={onClose} aria-label="Close">
-            <X size={22} weight="bold" />
-          </button>
           <h2 className={styles.title}>Share</h2>
         </header>
 

@@ -36,8 +36,8 @@ export async function getCroppedBlob(
         }
         resolve(blob);
       },
-      "image/jpeg",
-      0.92
+      "image/webp",
+      0.98
     );
   });
 }

@@ -14,7 +14,7 @@ interface FeedState {
   toggleLike: (postId: string) => Promise<void>;
   toggleBookmark: (postId: string) => Promise<void>;
   incrementCommentCount: (postId: string) => void;
-  decrementCommentCount: (postId: string) => void;
+  decrementCommentCount: (postId: string, count?: number) => void;
 }
 
 interface FeedResponse {
@@ -182,11 +182,11 @@ export const useFeedStore = create<FeedState>((set, get) => ({
     }));
   },
 
-  decrementCommentCount: (postId: string) => {
+  decrementCommentCount: (postId: string, count = 1) => {
     set((state) => ({
       posts: state.posts.map((p) =>
         p.id === postId
-          ? { ...p, commentCount: Math.max(0, p.commentCount - 1) }
+          ? { ...p, commentCount: Math.max(0, p.commentCount - count) }
           : p
       ),
     }));

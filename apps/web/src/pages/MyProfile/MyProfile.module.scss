@@ -74,11 +74,12 @@
   gap: $space5;
 }
 
-.profileTopInfo {
+.profileTopRight {
   display: flex;
   flex-direction: column;
-  gap: $space1;
+  gap: $space3;
   min-width: 0;
+  flex: 1;
 }
 
 .avatar {
@@ -118,19 +119,23 @@
 }
 
 .name {
-  font-size: $fontSize32;
+  font-size: $fontSize24;
   font-weight: 700;
-  color: $accentTeal;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  color: $textPrimary;
+  @include truncate(1);
 
   @include tablet {
-    font-size: $fontSize24;
+    display: none;
   }
+}
 
-  @include mobile {
-    font-size: $fontSize20;
+.fullName {
+  font-size: $fontSize14;
+  font-weight: 600;
+  color: $textPrimary;
+
+  @include tablet {
+    // on mobile, name is in the header area — show full name below avatar row
   }
 }
 
@@ -139,7 +144,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: $space2;
-  font-size: $fontSize14;
+  font-size: $fontSize13;
   color: $textSecondary;
 }
 
@@ -149,6 +154,29 @@
   border-radius: 50%;
   background: $textMuted;
   flex-shrink: 0;
+}
+
+.stats {
+  display: flex;
+  gap: $space5;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.statCount {
+  font-size: $fontSize16;
+  font-weight: 700;
+  color: $textPrimary;
+}
+
+.statLabel {
+  font-size: $fontSize13;
+  color: $textSecondary;
 }
 
 .bio {
@@ -186,7 +214,7 @@
 }
 
 .tabContent {
-  padding: $space6 0;
+  padding: $space4 0 $space6;
 }
 
 .postList {
@@ -195,6 +223,25 @@
   gap: $space4;
   max-width: 600px;
   margin: 0 auto;
+}
+
+.feedBackBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: $space1;
+  padding: $space2 0;
+  margin-bottom: $space2;
+  font-size: $fontSize14;
+  font-weight: 500;
+  color: $textSecondary;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color $transitionFast;
+
+  &:hover {
+    color: $textPrimary;
+  }
 }
 
 .vacancyList {
@@ -209,7 +256,61 @@
   align-items: center;
 }
 
+.postGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+
+.gridTile {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  cursor: pointer;
+  background: $bgSurface;
+  border: none;
+  padding: 0;
+}
+
+.tileImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.textTile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space3;
+  background: $bgDeep;
+  width: 100%;
+  height: 100%;
+}
+
+.textTileContent {
+  color: $textPrimary;
+  font-size: $fontSize13;
+  text-align: center;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tileIcon {
+  position: absolute;
+  top: $space2;
+  right: $space2;
+  color: white;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+  pointer-events: none;
+  line-height: 0;
+}
+
 .emptyTab {
+  grid-column: 1 / -1;
   padding: $space10 0;
   text-align: center;
   color: $textMuted;
@@ -239,6 +340,69 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.mobileFeedOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: $bgBase;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobileFeedHeader {
+  display: flex;
+  align-items: center;
+  height: $mobileNavHeight;
+  min-height: $mobileNavHeight;
+  padding: 0 $space3;
+  border-bottom: 1px solid $glassBorder;
+  background: $bgBase;
+}
+
+.mobileFeedBackBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  color: $textPrimary;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.mobileFeedHeaderCenter {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.2;
+}
+
+.mobileFeedTitle {
+  font-size: $fontSize16;
+  font-weight: 700;
+  color: $textPrimary;
+}
+
+.mobileFeedUsername {
+  font-size: $fontSize13;
+  color: $textMuted;
+}
+
+.mobileFeedHeaderRight {
+  width: 40px;
+  flex-shrink: 0;
+}
+
+.mobileFeedScroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .error {

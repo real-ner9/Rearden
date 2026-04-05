@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import type { FeedPost } from "@rearden/types";
 import { Avatar } from "@/components/Avatar/Avatar";
@@ -88,9 +88,11 @@ interface PostDetailModalProps {
   onClose: () => void;
   onLike?: (postId: string) => void;
   onBookmark?: (postId: string) => void;
+  onShare?: (postId: string) => void;
 }
 
-export function PostDetailModal({ post, focusComments = false, onClose, onLike, onBookmark }: PostDetailModalProps) {
+export function PostDetailModal({ post, focusComments = false, onClose, onLike, onBookmark, onShare }: PostDetailModalProps) {
+  const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
   const commentInputRef = useRef<HTMLTextAreaElement>(null);
   const commentsListRef = useRef<HTMLDivElement>(null);
@@ -187,19 +189,35 @@ export function PostDetailModal({ post, focusComments = false, onClose, onLike, 
     }
   };
 
-  const renderHashtags = (text: string, hashtags: string[]) => {
+  const renderCaption = (text: string) => {
     let result = text
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
 
-    hashtags.forEach((tag) => {
-      const escapedTag = tag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const regex = new RegExp(`(#${escapedTag})`, "gi");
-      result = result.replace(regex, `<span class="${styles.hashtag}">$1</span>`);
-    });
+    result = result.replace(
+      /@(\w+)/g,
+      `<a class="${styles.mention}" data-mention="$1">@$1</a>`
+    );
+    result = result.replace(
+      /#(\w+)/g,
+      `<a class="${styles.hashtag}" data-hashtag="$1">#$1</a>`
+    );
     return { __html: result };
+  };
+
+  const handleCaptionClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const hashtag = target.dataset?.hashtag;
+    const mention = target.dataset?.mention;
+    if (hashtag) {
+      e.preventDefault();
+      navigate(`/search?tab=content&q=${encodeURIComponent("#" + hashtag)}`);
+    } else if (mention) {
+      e.preventDefault();
+      navigate(`/search?tab=people&q=${encodeURIComponent(mention)}`);
+    }
   };
 
   return (
@@ -288,14 +306,12 @@ export function PostDetailModal({ post, focusComments = false, onClose, onLike, 
             </div>
           </div>
 
-          {(currentPost.content || currentPost.hashtags.length > 0) && currentPost.type !== "text" && (
-            <div className={styles.caption}>
+          {currentPost.content && currentPost.type !== "text" && (
+            <div className={styles.caption} onClick={handleCaptionClick}>
               <Link to={`/user/${currentPost.author.id}`} className={styles.captionUsername}>
                 {currentPost.author.username || currentPost.author.name || "Anonymous"}
               </Link>
-              <span
-                dangerouslySetInnerHTML={renderHashtags(currentPost.content, currentPost.hashtags)}
-              />
+              <span dangerouslySetInnerHTML={renderCaption(currentPost.content)} />
             </div>
           )}
 
@@ -349,7 +365,11 @@ export function PostDetailModal({ post, focusComments = false, onClose, onLike, 
               </svg>
             </button>
 
-            <button className={styles.actionButton} aria-label="Share">
+            <button
+              className={styles.actionButton}
+              onClick={() => onShare?.(currentPost.id)}
+              aria-label="Share"
+            >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
                 <polyline points="16 6 12 2 8 6" />

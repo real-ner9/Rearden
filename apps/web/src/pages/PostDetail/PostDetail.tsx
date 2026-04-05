@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { AnimatePresence } from "motion/react";
 import { ArrowLeft } from "@phosphor-icons/react";
 import type { FeedPost as FeedPostType } from "@rearden/types";
 import { FeedPost } from "@/components/FeedPost/FeedPost";
 import { CommentSheet } from "@/components/CommentSheet/CommentSheet";
-import { ExploreGrid } from "@/components/ExploreGrid/ExploreGrid";
+import { ShareSheet } from "@/components/ShareSheet/ShareSheet";
 import { useFeedStore } from "@/stores/feedStore";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { apiFetch } from "@/lib/api";
@@ -25,6 +26,7 @@ export function PostDetail() {
   const [post, setPost] = useState<FeedPostType | null>(null);
   const [loading, setLoading] = useState(true);
   const [commentPostId, setCommentPostId] = useState<string | null>(null);
+  const [sharePostId, setSharePostId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!postId) return;
@@ -98,6 +100,7 @@ export function PostDetail() {
         <FeedPost
           post={post}
           onOpenComments={handleOpenComments}
+          onShare={(id) => setSharePostId(id)}
         />
       </div>
 
@@ -106,7 +109,16 @@ export function PostDetail() {
           <div className={styles.divider} />
           <div className={styles.moreSection}>
             <p className={styles.moreTitle}>More posts</p>
-            <ExploreGrid posts={morePosts} />
+            <div className={styles.moreFeed}>
+              {morePosts.map((p) => (
+                <FeedPost
+                  key={p.id}
+                  post={p}
+                  onOpenComments={handleOpenComments}
+                  onShare={(id) => setSharePostId(id)}
+                />
+              ))}
+            </div>
           </div>
         </>
       )}
@@ -117,6 +129,15 @@ export function PostDetail() {
           onClose={() => setCommentPostId(null)}
         />
       )}
+
+      <AnimatePresence>
+        {sharePostId && (
+          <ShareSheet
+            postId={sharePostId}
+            onClose={() => setSharePostId(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

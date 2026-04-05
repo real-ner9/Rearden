@@ -5,52 +5,62 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
-  z-index: 100;
+  z-index: 200;
 }
 
 .sheet {
   position: fixed;
-  inset: 0;
-  background: #1c1c1e;
-  z-index: 101;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 70vh;
+  background: $bgElevated;
+  border-top-left-radius: $radiusXl;
+  border-top-right-radius: $radiusXl;
   display: flex;
   flex-direction: column;
+  z-index: 201;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
   overflow: hidden;
+}
+
+.handleArea {
+  display: flex;
+  justify-content: center;
+  padding: $space2 0;
+  cursor: grab;
+  touch-action: none;
+  flex-shrink: 0;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.handle {
+  width: 40px;
+  height: 4px;
+  background: $glassBorder;
+  border-radius: 2px;
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: $space4 $space5;
-  position: relative;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0 $space4 $space3;
+  border-bottom: 1px solid $glassBorder;
   flex-shrink: 0;
 }
 
 .title {
-  font-size: $fontSize16;
-  font-weight: 700;
-  color: #fff;
+  font-size: $fontSize18;
+  font-weight: 600;
+  color: $textPrimary;
+  margin: 0;
 }
 
-.closeBtnLeft {
-  position: absolute;
-  left: $space4;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #fff;
-  cursor: pointer;
-  background: none;
-  border: none;
-  padding: $space1;
-  display: flex;
-  align-items: center;
-
-  &:hover {
-    opacity: 0.7;
-  }
-}
+// ── Search ──
 
 .searchWrapper {
   padding: $space3 $space4;
@@ -60,15 +70,20 @@
 .searchInput {
   width: 100%;
   padding: $space2 $space3;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
+  background: $bgBase;
+  border: 1px solid $glassBorder;
   border-radius: $radiusLg;
-  color: #fff;
+  color: $textPrimary;
   font-size: $fontSize14;
   outline: none;
+  transition: border-color $transitionFast;
+
+  &:focus {
+    border-color: $accentPurple;
+  }
 
   &::placeholder {
-    color: rgba(255, 255, 255, 0.4);
+    color: $textMuted;
   }
 }
 
@@ -82,9 +97,13 @@
 
 .userGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: $space3 $space4;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $space3 $space2;
   padding: $space4;
+
+  @include mobile {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .userCard {
@@ -99,10 +118,10 @@
   background: none;
   border: none;
   min-width: 0;
-  color: #fff;
+  color: $textPrimary;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: $glassBgHover;
   }
 }
 
@@ -112,17 +131,17 @@
 }
 
 .gridAvatar {
-  width: 60px !important;
-  height: 60px !important;
-  font-size: $fontSize20 !important;
+  width: 56px !important;
+  height: 56px !important;
+  font-size: $fontSize18 !important;
 }
 
 .avatarCheck {
   position: absolute;
   bottom: -2px;
   right: -2px;
-  color: #3478f6;
-  background: #1c1c1e;
+  color: $accentPurple;
+  background: $bgElevated;
   border-radius: 50%;
   display: flex;
   line-height: 0;
@@ -130,7 +149,7 @@
 
 .userName {
   font-size: $fontSize12;
-  color: rgba(255, 255, 255, 0.8);
+  color: $textSecondary;
   text-align: center;
   width: 100%;
   line-height: 1.3;
@@ -158,14 +177,14 @@
   border: none;
   text-align: left;
   transition: background $transitionFast;
-  color: #fff;
+  color: $textPrimary;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: $glassBgHover;
   }
 
   &.selected {
-    background: rgba(52, 120, 246, 0.08);
+    background: rgba($accentPurple, 0.08);
   }
 }
 
@@ -179,7 +198,7 @@
 .listUserName {
   font-size: $fontSize14;
   font-weight: 500;
-  color: #fff;
+  color: $textPrimary;
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -191,7 +210,7 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid $glassBorder;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -200,14 +219,14 @@
 
 .selectCircleActive {
   border: none;
-  color: #3478f6;
+  color: $accentPurple;
 }
 
 // ── Bottom section ──
 
 .bottomSection {
   flex-shrink: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid $glassBorder;
 }
 
 .messageWrapper {
@@ -219,13 +238,13 @@
   padding: $space2 0;
   background: none;
   border: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  color: #fff;
+  border-bottom: 1px solid $glassBorder;
+  color: $textPrimary;
   font-size: $fontSize14;
   outline: none;
 
   &::placeholder {
-    color: rgba(255, 255, 255, 0.35);
+    color: $textMuted;
   }
 }
 
@@ -235,34 +254,27 @@
   margin: 0 $space4 $space3;
   padding: $space3;
   border: none;
-  border-radius: 10px;
-  background: #3478f6;
-  color: #fff;
+  border-radius: $radiusLg;
+  background: $accentPurple;
+  color: $textPrimary;
   font-size: $fontSize14;
   font-weight: 700;
   cursor: pointer;
-  transition: opacity $transitionFast;
+  transition: background $transitionFast, opacity $transitionFast;
   text-align: center;
 
   &:hover:not(:disabled) {
-    opacity: 0.9;
+    background: $accentPurpleLight;
   }
 
   &:active:not(:disabled) {
-    opacity: 0.8;
+    opacity: 0.9;
   }
 
   &:disabled {
     opacity: 0.5;
     cursor: default;
   }
-}
-
-.sentLabel {
-  font-size: $fontSize12;
-  color: #30d158;
-  font-weight: 600;
-  flex-shrink: 0;
 }
 
 .bottomActions {
@@ -279,7 +291,7 @@
   align-items: center;
   gap: $space2;
   cursor: pointer;
-  color: #fff;
+  color: $textPrimary;
   background: none;
   border: none;
   padding: $space2;
@@ -289,21 +301,27 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
+  background: $bgBase;
+  border: 1px solid $glassBorder;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background $transitionFast;
+
+  &:hover {
+    background: $glassBgHover;
+  }
 }
 
 .actionText {
   font-size: $fontSize12;
-  color: rgba(255, 255, 255, 0.8);
+  color: $textSecondary;
 }
 
 .emptyState {
   text-align: center;
   padding: $space8;
-  color: rgba(255, 255, 255, 0.4);
+  color: $textMuted;
   font-size: $fontSize14;
   flex: 1;
   display: flex;

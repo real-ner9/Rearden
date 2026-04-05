@@ -7,12 +7,36 @@
   scroll-snap-type: y mandatory;
   scroll-behavior: smooth;
   background: #000;
-  scrollbar-width: none;
   position: relative;
 
+  // Thin translucent scrollbar
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+
   &::-webkit-scrollbar {
-    display: none;
+    width: 4px;
   }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+  }
+}
+
+// Standalone feed: adjust height on tablet to account for bottom nav
+.feedStandalone {
+  @include tablet {
+    height: calc(100vh - $mobileNavHeight);
+  }
+}
+
+// Modal feed: always full height (no bottom nav)
+.feedModal {
+  height: 100vh;
 }
 
 .reel {
@@ -22,6 +46,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+// Standalone reel on tablet: adjust for bottom nav
+.feedStandalone .reel {
+  @include tablet {
+    height: calc(100vh - $mobileNavHeight);
+  }
+}
+
+// Modal reel: always full height
+.reelModal {
+  height: 100vh !important;
 }
 
 .reelCard {
@@ -35,10 +71,23 @@
 
   @include tablet {
     width: 100%;
-    height: 100vh;
     max-height: none;
     aspect-ratio: unset;
     border-radius: 0;
+  }
+}
+
+// Standalone: tablet reel card adjusts for bottom nav
+.feedStandalone .reelCard {
+  @include tablet {
+    height: calc(100vh - $mobileNavHeight);
+  }
+}
+
+// Modal: always full height
+.feedModal .reelCard {
+  @include tablet {
+    height: 100vh;
   }
 }
 
@@ -60,7 +109,7 @@
 .video {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   background: #000;
   cursor: pointer;
 }
@@ -90,9 +139,19 @@
   align-items: center;
   gap: $space5;
   z-index: 3;
+}
 
+// Standalone: tablet actions account for bottom nav
+.feedStandalone .reelActions {
   @include tablet {
     bottom: calc($mobileNavHeight + 80px);
+  }
+}
+
+// Modal: no bottom nav padding
+.feedModal .reelActions {
+  @include tablet {
+    bottom: 80px;
   }
 }
 
@@ -133,9 +192,19 @@
   right: 80px; // leave room for action buttons
   padding: $space5;
   z-index: 3;
+}
 
+// Standalone: tablet bottom info accounts for bottom nav
+.feedStandalone .bottomInfo {
   @include tablet {
     padding-bottom: calc($mobileNavHeight + $space4);
+  }
+}
+
+// Modal: no extra bottom padding
+.feedModal .bottomInfo {
+  @include tablet {
+    padding: $space5;
   }
 }
 

@@ -199,6 +199,15 @@
   }
 }
 
+.mention {
+  color: $accentPurple;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 .commentsList {
   flex: 1;
   overflow-y: auto;

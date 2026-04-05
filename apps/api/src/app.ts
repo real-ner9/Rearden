@@ -7,6 +7,7 @@ import { userRoutes } from "./routes/users.js";
 import { searchRoutes } from "./routes/search.js";
 import { searchPostsRoutes } from "./routes/searchPosts.js";
 import { searchPeopleRoutes } from "./routes/searchPeople.js";
+import { searchVacanciesRoutes } from "./routes/searchVacancies.js";
 import { uploadRoutes } from "./routes/upload.js";
 import { chatRoutes } from "./routes/chat.js";
 import { postRoutes } from "./routes/posts.js";
@@ -17,6 +18,7 @@ import { feedRoutes } from "./routes/feed.js";
 import { likeRoutes } from "./routes/likes.js";
 import { commentRoutes } from "./routes/comments.js";
 import { bookmarkRoutes, bookmarkListRoutes } from "./routes/bookmarks.js";
+import { followRoutes } from "./routes/follows.js";
 import { createWSHandlers } from "./ws/chatWebSocket.js";
 
 export const app = new Hono();
@@ -64,9 +66,11 @@ app.get("/health", (c) => {
 app.get("/ws", upgradeWebSocket(() => createWSHandlers()));
 
 // API routes
+app.route("/api/users", followRoutes);
 app.route("/api/users", userRoutes);
 app.route("/api/search/posts", searchPostsRoutes);
 app.route("/api/search/people", searchPeopleRoutes);
+app.route("/api/search/vacancies", searchVacanciesRoutes);
 app.route("/api/search", searchRoutes);
 app.route("/api/upload", uploadRoutes);
 app.route("/api/chat", chatRoutes);

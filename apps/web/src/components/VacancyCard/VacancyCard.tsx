@@ -1,8 +1,10 @@
-import type { Vacancy } from "@rearden/types";
+import type { Vacancy, VacancyAuthor } from "@rearden/types";
 import styles from "./VacancyCard.module.scss";
 
 interface VacancyCardProps {
   vacancy: Vacancy;
+  author?: VacancyAuthor;
+  onClick?: () => void;
 }
 
 const typeLabels: Record<Vacancy["type"], string> = {
@@ -12,16 +14,54 @@ const typeLabels: Record<Vacancy["type"], string> = {
   freelance: "Freelance",
 };
 
-export function VacancyCard({ vacancy }: VacancyCardProps) {
+export function VacancyCard({ vacancy, author, onClick }: VacancyCardProps) {
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (onClick && (e.key === "Enter" || e.key === " ")) {
+      e.preventDefault();
+      onClick();
+    }
+  };
+
   return (
-    <div className={styles.card}>
+    <div
+      className={`${styles.card} ${onClick ? styles.clickable : ""}`}
+      onClick={handleClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={handleKeyDown}
+    >
+      {author && (
+        <div className={styles.authorRow}>
+          <img
+            src={author.thumbnailUrl || "/placeholder-avatar.jpg"}
+            alt={author.name || "Author"}
+            className={styles.authorAvatar}
+          />
+          <div className={styles.authorInfo}>
+            <span className={styles.authorName}>
+              {author.name || author.username || "Anonymous"}
+            </span>
+            {author.title && (
+              <span className={styles.authorTitle}>{author.title}</span>
+            )}
+          </div>
+        </div>
+      )}
       <div className={styles.header}>
         <h3 className={styles.title}>{vacancy.title}</h3>
         <span className={`${styles.badge} ${styles[vacancy.type]}`}>
           {typeLabels[vacancy.type]}
         </span>
       </div>
-      <p className={styles.description}>{vacancy.description}</p>
+      <p className={onClick ? styles.descriptionClamped : styles.description}>
+        {vacancy.description}
+      </p>
       <div className={styles.meta}>
         <span className={styles.location}>
           <svg

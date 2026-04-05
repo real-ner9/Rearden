@@ -24,9 +24,6 @@ export function ChatSidebar() {
 
   return (
     <div className={styles.sidebar}>
-      <div className={styles.header}>
-        <h2 className={styles.title}>Messages</h2>
-      </div>
       <ChatSearch />
       <ChatTabBar />
       <div className={styles.list}>

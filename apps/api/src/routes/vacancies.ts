@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import type { ApiResponse, Vacancy } from "@rearden/types";
+import type { ApiResponse, Vacancy, VacancyDetail } from "@rearden/types";
 import { db } from "../lib/db.js";
 import { authMiddleware } from "../middleware/auth.js";
 
@@ -36,6 +36,19 @@ vacancyRoutes.get("/", async (c) => {
     success: true,
     data: rows.map(toVacancy),
   });
+});
+
+// GET /api/vacancies/:id — single vacancy with author
+vacancyRoutes.get("/:id", async (c) => {
+  const id = c.req.param("id");
+  const row = await db.vacancy.findUnique({
+    where: { id },
+    include: {
+      user: { select: { id: true, name: true, username: true, thumbnailUrl: true, title: true } },
+    },
+  });
+  if (!row) return c.json<ApiResponse>({ success: false, error: "Vacancy not found" }, 404);
+  return c.json<ApiResponse<VacancyDetail>>({ success: true, data: { ...toVacancy(row), author: row.user } });
 });
 
 // POST /api/vacancies

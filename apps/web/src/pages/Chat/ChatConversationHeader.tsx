@@ -4,7 +4,7 @@ import styles from "./ChatConversationHeader.module.scss";
 
 export function ChatConversationHeader() {
   const activeConversation = useChatStore(selectActiveConversation);
-  const closeConversation = useChatStore((s) => s.closeConversation);
+  const requestClosePanel = useChatStore((s) => s.requestClosePanel);
   const togglePin = useChatStore((s) => s.togglePin);
   const setMessageSearchOpen = useChatStore((s) => s.setMessageSearchOpen);
 
@@ -12,7 +12,7 @@ export function ChatConversationHeader() {
 
   return (
     <div className={styles.header}>
-      <button className={styles.backButton} onClick={closeConversation}>
+      <button className={styles.backButton} onClick={requestClosePanel}>
         <svg
           width="18"
           height="18"

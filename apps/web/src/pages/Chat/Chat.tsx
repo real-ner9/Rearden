@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { motion, useDragControls, useMotionValue, animate } from "motion/react";
 import { useChatStore } from "@/stores/chatStore";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { ChatSidebar } from "./ChatSidebar";
@@ -18,6 +19,54 @@ function getInitialWidth(): number {
     if (n >= SIDEBAR_MIN && n <= SIDEBAR_MAX) return n;
   }
   return SIDEBAR_DEFAULT;
+}
+
+function MobileConversationPanel() {
+  const closeConversation = useChatStore((s) => s.closeConversation);
+  const registerClosePanel = useChatStore((s) => s.registerClosePanel);
+  const dragControls = useDragControls();
+  const panelX = useMotionValue(0);
+  const [closing, setClosing] = useState(false);
+
+  const dismiss = useCallback(() => {
+    setClosing(true);
+  }, []);
+
+  useEffect(() => {
+    registerClosePanel(dismiss);
+    return () => registerClosePanel(null);
+  }, [dismiss, registerClosePanel]);
+
+  return (
+    <motion.div
+      className={styles.mobileConversation}
+      style={{ x: panelX }}
+      initial={{ x: "100%" }}
+      animate={{ x: closing ? "100%" : 0 }}
+      transition={{ type: "tween", duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+      onAnimationComplete={() => {
+        if (closing) closeConversation();
+      }}
+      drag={closing ? false : "x"}
+      dragControls={dragControls}
+      dragListener={false}
+      dragConstraints={{ left: 0 }}
+      dragElastic={{ left: 0 }}
+      onDragEnd={(_, info) => {
+        if (info.offset.x > 100 || info.velocity.x > 400) {
+          setClosing(true);
+        } else {
+          animate(panelX, 0, { type: "tween", duration: 0.15 });
+        }
+      }}
+    >
+      <div
+        className={styles.edgeDragArea}
+        onPointerDown={(e) => { if (!closing) dragControls.start(e); }}
+      />
+      <ChatConversation />
+    </motion.div>
+  );
 }
 
 export function Chat() {
@@ -111,7 +160,10 @@ export function Chat() {
   return (
     <div className={styles.chat}>
       {isMobile ? (
-        activeConversationId ? <ChatConversation /> : <ChatSidebar />
+        <div className={styles.mobileContainer}>
+          <ChatSidebar />
+          {activeConversationId && <MobileConversationPanel />}
+        </div>
       ) : (
         <>
           <div className={styles.sidebar} style={{ width: sidebarWidth }}>

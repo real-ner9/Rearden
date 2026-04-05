@@ -1,0 +1,114 @@
+@use "../../styles/variables" as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 350;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(16px);
+}
+
+.card {
+  position: fixed;
+  z-index: 351;
+  background: $bgSurface;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusMd;
+  overflow: hidden;
+  max-width: calc(100vw - 24px);
+  min-width: 200px;
+}
+
+.emojiRow {
+  display: flex;
+  gap: 2px;
+  padding: 6px 8px;
+  border-bottom: $borderWidth solid $glassBorder;
+}
+
+.emojiButton {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  border-radius: $radiusSm;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background $transitionFast;
+
+  &:hover {
+    background: color-mix(in srgb, $accentPurple 12%, transparent);
+  }
+
+  &:active {
+    background: color-mix(in srgb, $accentPurple 22%, transparent);
+  }
+}
+
+.menuItems {
+  padding: 4px 0;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: $space3;
+  width: 100%;
+  padding: 8px 14px;
+  background: transparent;
+  color: $textPrimary;
+  font-size: $fontSize14;
+  cursor: pointer;
+  transition: background $transitionFast;
+
+  &:hover {
+    background: color-mix(in srgb, $accentPurple 8%, transparent);
+  }
+
+  &:active {
+    background: color-mix(in srgb, $accentPurple 16%, transparent);
+  }
+}
+
+.danger {
+  color: $danger;
+}
+
+.comingSoon {
+  margin-left: auto;
+  font-size: 11px;
+  color: $textMuted;
+  background: color-mix(in srgb, $textMuted 12%, transparent);
+  padding: 1px 6px;
+  border-radius: $radiusSm;
+}
+
+.separator {
+  height: 1px;
+  margin: 2px 0;
+  background: $glassBorder;
+}
+
+.toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: $space2 $space4;
+  background: $bgSurface;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusMd;
+  color: $textSecondary;
+  font-size: $fontSize13;
+  z-index: 352;
+  white-space: nowrap;
+  pointer-events: none;
+}

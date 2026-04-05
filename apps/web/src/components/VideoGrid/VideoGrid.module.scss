@@ -4,22 +4,17 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: $space3;
-
-  @include mobile {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  gap: 2px;
 }
 
 .thumbnail {
   position: relative;
-  aspect-ratio: 9 / 16;
-  border-radius: $radiusMd;
+  aspect-ratio: 4 / 5;
   overflow: hidden;
-  border: $borderWidth solid $glassBorder;
   background: #000;
   cursor: pointer;
   padding: 0;
+  border: none;
 
   &:hover .playOverlay {
     opacity: 1;
@@ -44,14 +39,17 @@
 
 .playOverlay {
   position: absolute;
-  inset: 0;
+  bottom: $space2;
+  left: $space2;
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.3);
-  opacity: 0.7;
-  transition: opacity $transitionBase;
+  gap: 4px;
   color: #fff;
+  font-size: $fontSize12;
+  font-weight: 600;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
+  opacity: 1;
+  pointer-events: none;
 }
 
 .empty {

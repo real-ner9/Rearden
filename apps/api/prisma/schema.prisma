@@ -37,9 +37,14 @@ model User {
   vacancies     Vacancy[]
   conversations Conversation[]
   chatFolders   ChatFolder[]
+  followerCount  Int      @default(0)
+  followingCount Int      @default(0)
   likes         Like[]
   comments      Comment[]
+  commentLikes  CommentLike[]
   bookmarks     Bookmark[]
+  followers     Follow[] @relation("FollowTarget")
+  following     Follow[] @relation("FollowSource")
 }
 
 model Post {
@@ -86,8 +91,9 @@ model Conversation {
   id          String   @id @default(cuid())
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  isPinned    Boolean  @default(false)
-  unreadCount Int      @default(0)
+  isPinned    Boolean   @default(false)
+  pinnedAt    DateTime?
+  unreadCount Int       @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -104,9 +110,26 @@ model ChatMessage {
   senderId       String
   senderRole     String
   text           String       @db.Text
+  replyToId      String?
+  replyTo        ChatMessage?  @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies        ChatMessage[] @relation("MessageReplies")
+  reactions      MessageReaction[]
   createdAt      DateTime     @default(now())
 
   @@index([conversationId, createdAt])
+  @@index([replyToId])
+}
+
+model MessageReaction {
+  id        String      @id @default(cuid())
+  messageId String
+  message   ChatMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  userId    String
+  emoji     String
+  createdAt DateTime    @default(now())
+
+  @@unique([messageId, userId, emoji])
+  @@index([messageId])
 }
 
 model ChatFolder {
@@ -141,10 +164,16 @@ model Comment {
   postId    String
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   text      String   @db.Text
+  parentId  String?
+  parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
+  likeCount Int      @default(0)
+  likes     CommentLike[]
   createdAt DateTime @default(now())
 
   @@index([postId, createdAt])
   @@index([userId])
+  @@index([parentId])
 }
 
 model Bookmark {
@@ -169,4 +198,29 @@ model OtpCode {
   createdAt DateTime @default(now())
 
   @@index([phone, code])
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  follower    User     @relation("FollowSource", fields: [followerId], references: [id], onDelete: Cascade)
+  followingId String
+  following   User     @relation("FollowTarget", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model CommentLike {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  commentId String
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, commentId])
+  @@index([commentId])
 }

@@ -52,8 +52,6 @@
 .image {
   width: 100%;
   height: auto;
-  max-height: 600px;
-  object-fit: cover;
   display: block;
 }
 
@@ -79,8 +77,6 @@
   min-width: 100%;
   width: 100%;
   height: auto;
-  max-height: 600px;
-  object-fit: cover;
   display: block;
   scroll-snap-align: start;
 }
@@ -209,6 +205,8 @@
   font-size: $fontSize14;
   line-height: 1.5;
   color: $textPrimary;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .captionUsername {
@@ -223,7 +221,38 @@
   }
 }
 
+.captionCollapsed {
+  display: inline;
+}
+
+.moreBtn {
+  display: inline;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-size: inherit;
+  font-family: inherit;
+  color: $textMuted;
+  cursor: pointer;
+  transition: color $transitionFast;
+
+  &:hover {
+    color: $textSecondary;
+  }
+}
+
 .hashtag {
+  color: $accentPurple;
+  cursor: pointer;
+  transition: color $transitionFast;
+
+  &:hover {
+    color: $accentPurpleLight;
+  }
+}
+
+.mention {
   color: $accentPurple;
   cursor: pointer;
   transition: color $transitionFast;

@@ -31,6 +31,9 @@ interface ChatState {
   highlightedMessageId: string | null;
   highlightedMessageNonce: number;
   connectionStatus: "connecting" | "connected" | "disconnected";
+  replyingTo: ChatMessage | null;
+  contextMenuMessage: ChatMessage | null;
+  contextMenuPosition: { x: number; y: number } | null;
 
   // Actions
   setActiveTab: (tab: ChatTab) => void;
@@ -38,6 +41,7 @@ interface ChatState {
   openConversation: (id: string) => void;
   openConversationByUser: (userId: string) => void;
   closeConversation: () => void;
+  deleteConversation: (id: string) => void;
   sendMessage: (text: string) => void;
   scrollToBottom: (behavior?: ScrollBehavior) => void;
   registerScrollToBottom: (fn: (behavior?: ScrollBehavior) => void) => void;
@@ -54,13 +58,21 @@ interface ChatState {
   setMessageSearchOpen: (open: boolean) => void;
   setMessageSearchQuery: (query: string) => void;
   setHighlightedMessageId: (id: string | null) => void;
+  registerClosePanel: (fn: (() => void) | null) => void;
+  requestClosePanel: () => void;
   setSend: (fn: (event: WSClientEvent) => void) => void;
   cleanup: () => void;
+  setReplyingTo: (msg: ChatMessage | null) => void;
+  openContextMenu: (msg: ChatMessage, position: { x: number; y: number }) => void;
+  closeContextMenu: () => void;
+  toggleMessageReaction: (messageId: string, emoji: string) => void;
+  deleteMessage: (messageId: string) => void;
 }
 
 // Module-level variables (not in store state - these are refs)
 let _scrollToBottomFn: ((behavior?: ScrollBehavior) => void) | null = null;
 let _sendWs: ((event: WSClientEvent) => void) | null = null;
+let _closePanelFn: (() => void) | null = null;
 const typingTimers = new Map<string, ReturnType<typeof setTimeout>>();
 let highlightTimer: ReturnType<typeof setTimeout> | null = null;
 let highlightNonceCounter = 0;
@@ -82,6 +94,9 @@ export const useChatStore = create<ChatState>()((set, get) => ({
   highlightedMessageId: null,
   highlightedMessageNonce: 0,
   connectionStatus: "disconnected",
+  replyingTo: null,
+  contextMenuMessage: null,
+  contextMenuPosition: null,
 
   setActiveTab: (tab) => {
     set({ activeTab: tab });
@@ -139,8 +154,34 @@ export const useChatStore = create<ChatState>()((set, get) => ({
     set({ activeConversationId: null });
   },
 
+  deleteConversation: (id) => {
+    const { conversations, messagesCache, activeConversationId, folders } = get();
+
+    // Snapshot for rollback
+    const snapshot = { conversations, activeConversationId };
+
+    // Optimistic: remove from conversations, clear messages cache, update folders
+    const newCache = new Map(messagesCache);
+    newCache.delete(id);
+
+    set({
+      conversations: conversations.filter((c) => c.id !== id),
+      messagesCache: newCache,
+      activeConversationId: activeConversationId === id ? null : activeConversationId,
+      folders: folders.map((f) => ({
+        ...f,
+        conversationIds: f.conversationIds.filter((cid) => cid !== id),
+      })),
+    });
+
+    apiFetch(`/chat/${id}`, { method: "DELETE" }).catch(() => {
+      // Rollback on failure
+      get().fetchConversations();
+    });
+  },
+
   sendMessage: (text) => {
-    const { activeConversationId } = get();
+    const { activeConversationId, replyingTo } = get();
     if (!activeConversationId || !text.trim()) return;
 
     const user = useAuthStore.getState().user;
@@ -155,6 +196,16 @@ export const useChatStore = create<ChatState>()((set, get) => ({
       senderRole,
       text: text.trim(),
       createdAt: new Date().toISOString(),
+      replyToId: replyingTo?.id ?? null,
+      replyTo: replyingTo
+        ? {
+            id: replyingTo.id,
+            senderId: replyingTo.senderId,
+            senderRole: replyingTo.senderRole,
+            text: replyingTo.text,
+          }
+        : null,
+      reactions: [],
     };
 
     set((state) => {
@@ -169,11 +220,17 @@ export const useChatStore = create<ChatState>()((set, get) => ({
             ? { ...c, lastMessage: optimisticMsg, updatedAt: optimisticMsg.createdAt }
             : c
         ),
+        replyingTo: null,
       };
     });
 
     if (_sendWs) {
-      _sendWs({ type: "message:send", conversationId: activeConversationId, text: text.trim() });
+      _sendWs({
+        type: "message:send",
+        conversationId: activeConversationId,
+        text: text.trim(),
+        replyToId: replyingTo?.id,
+      });
     }
   },
 
@@ -220,10 +277,11 @@ export const useChatStore = create<ChatState>()((set, get) => ({
     if (!conv) return;
 
     const newPinned = !conv.isPinned;
+    const newPinnedAt = newPinned ? new Date().toISOString() : null;
     // Optimistic update
     set((state) => ({
       conversations: state.conversations.map((c) =>
-        c.id === id ? { ...c, isPinned: newPinned } : c
+        c.id === id ? { ...c, isPinned: newPinned, pinnedAt: newPinnedAt } : c
       ),
     }));
 
@@ -234,7 +292,7 @@ export const useChatStore = create<ChatState>()((set, get) => ({
       // Revert on failure
       set((state) => ({
         conversations: state.conversations.map((c) =>
-          c.id === id ? { ...c, isPinned: !newPinned } : c
+          c.id === id ? { ...c, isPinned: !newPinned, pinnedAt: conv.pinnedAt } : c
         ),
       }));
     });
@@ -335,6 +393,46 @@ export const useChatStore = create<ChatState>()((set, get) => ({
             c.id === event.conversation.id ? event.conversation : c
           ),
         }));
+        break;
+      }
+
+      case "reaction:updated": {
+        const { messageId, reactions } = event;
+        set((state) => {
+          const newCache = new Map(state.messagesCache);
+          for (const [convId, msgs] of newCache) {
+            const idx = msgs.findIndex((m) => m.id === messageId);
+            if (idx !== -1) {
+              const updated = [...msgs];
+              updated[idx] = { ...updated[idx]!, reactions };
+              newCache.set(convId, updated);
+              break;
+            }
+          }
+          return { messagesCache: newCache };
+        });
+        break;
+      }
+
+      case "message:deleted": {
+        const { messageId, conversationId } = event;
+        set((state) => {
+          const newCache = new Map(state.messagesCache);
+          const msgs = newCache.get(conversationId);
+          if (msgs) {
+            // Remove the deleted message
+            newCache.set(
+              conversationId,
+              msgs.filter((m) => m.id !== messageId)
+            );
+            // Update replyTo references - set to null for messages replying to deleted one
+            const updated = newCache.get(conversationId)!.map((m) =>
+              m.replyToId === messageId ? { ...m, replyTo: null } : m
+            );
+            newCache.set(conversationId, updated);
+          }
+          return { messagesCache: newCache };
+        });
         break;
       }
 
@@ -439,8 +537,111 @@ export const useChatStore = create<ChatState>()((set, get) => ({
     }
   },
 
+  registerClosePanel: (fn) => {
+    _closePanelFn = fn;
+  },
+
+  requestClosePanel: () => {
+    if (_closePanelFn) {
+      _closePanelFn();
+    } else {
+      set({ activeConversationId: null });
+    }
+  },
+
   setSend: (fn) => {
     _sendWs = fn;
+  },
+
+  setReplyingTo: (msg) => {
+    set({ replyingTo: msg });
+  },
+
+  openContextMenu: (msg, position) => {
+    set({ contextMenuMessage: msg, contextMenuPosition: position });
+  },
+
+  closeContextMenu: () => {
+    set({ contextMenuMessage: null, contextMenuPosition: null });
+  },
+
+  toggleMessageReaction: (messageId, emoji) => {
+    const { activeConversationId, messagesCache } = get();
+    if (!activeConversationId) return;
+
+    // Optimistic update
+    set((state) => {
+      const newCache = new Map(state.messagesCache);
+      for (const [convId, msgs] of newCache) {
+        const idx = msgs.findIndex((m) => m.id === messageId);
+        if (idx !== -1) {
+          const msg = msgs[idx]!;
+          const reactions = [...(msg.reactions ?? [])];
+          const existingIdx = reactions.findIndex((r) => r.emoji === emoji);
+
+          if (existingIdx !== -1) {
+            // User already reacted - toggle off
+            const existing = reactions[existingIdx]!;
+            if (existing.reacted) {
+              if (existing.count <= 1) {
+                reactions.splice(existingIdx, 1);
+              } else {
+                reactions[existingIdx] = { ...existing, count: existing.count - 1, reacted: false };
+              }
+            } else {
+              reactions[existingIdx] = { ...existing, count: existing.count + 1, reacted: true };
+            }
+          } else {
+            // New reaction
+            reactions.push({ emoji, count: 1, reacted: true });
+          }
+
+          const updated = [...msgs];
+          updated[idx] = { ...msg, reactions };
+          newCache.set(convId, updated);
+          break;
+        }
+      }
+      return { messagesCache: newCache };
+    });
+
+    // Send WS event
+    if (_sendWs) {
+      _sendWs({ type: "reaction:toggle", messageId, emoji });
+    }
+  },
+
+  deleteMessage: (messageId) => {
+    const { activeConversationId, messagesCache } = get();
+    if (!activeConversationId) return;
+
+    // Snapshot for rollback
+    const prevMsgs = messagesCache.get(activeConversationId);
+
+    // Optimistic update
+    set((state) => {
+      const newCache = new Map(state.messagesCache);
+      const msgs = newCache.get(activeConversationId);
+      if (msgs) {
+        newCache.set(
+          activeConversationId,
+          msgs.filter((m) => m.id !== messageId)
+        );
+      }
+      return { messagesCache: newCache };
+    });
+
+    // Use REST API with rollback on failure
+    apiFetch(`/chat/${activeConversationId}/messages/${messageId}`, { method: "DELETE" }).catch(() => {
+      // Rollback on failure
+      if (prevMsgs) {
+        set((state) => {
+          const newCache = new Map(state.messagesCache);
+          newCache.set(activeConversationId, prevMsgs);
+          return { messagesCache: newCache };
+        });
+      }
+    });
   },
 
   cleanup: () => {
@@ -493,9 +694,14 @@ export const selectFilteredConversations = (s: ChatState) => {
     );
   }
 
-  // Sort: pinned first, then by updatedAt
+  // Sort: pinned first (by pinnedAt DESC — last pinned on top), then unpinned by updatedAt DESC
   result.sort((a, b) => {
     if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
+    if (a.isPinned && b.isPinned) {
+      const aPin = a.pinnedAt ? new Date(a.pinnedAt).getTime() : 0;
+      const bPin = b.pinnedAt ? new Date(b.pinnedAt).getTime() : 0;
+      return bPin - aPin;
+    }
     return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
   });
 

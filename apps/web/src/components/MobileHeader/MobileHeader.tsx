@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Plus, Heart, List } from "@phosphor-icons/react";
 import { useAuthStore } from "@/stores/authStore";
+import { useHeaderStore } from "@/stores/headerStore";
 import {
   useNotificationStore,
   selectUnreadCount,
@@ -9,6 +10,7 @@ import styles from "./MobileHeader.module.scss";
 
 export function MobileHeader() {
   const user = useAuthStore((s) => s.user);
+  const headerTitle = useHeaderStore((s) => s.title);
   const notifUnread = useNotificationStore(selectUnreadCount);
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,7 +22,9 @@ export function MobileHeader() {
   const isSettingsPage = location.pathname === "/profile/settings";
   const isPostDetailPage = location.pathname.startsWith("/post/");
   const isProfilePage =
-    location.pathname === "/profile" || location.pathname.startsWith("/profile/");
+    location.pathname === "/profile" ||
+    location.pathname.startsWith("/profile/") ||
+    location.pathname.startsWith("/user/");
 
   if (isFeedPage || isAuthPage || isNotificationsPage || isSettingsPage || isPostDetailPage) return null;
 
@@ -50,7 +54,7 @@ export function MobileHeader() {
         <Plus size={24} weight="bold" />
       </button>
 
-      <span className={styles.logo}>REARDEN</span>
+      <span className={styles.logo}>{headerTitle || "REARDEN"}</span>
 
       <button className={styles.iconBtn} onClick={handleRightAction}>
         {isProfilePage ? (

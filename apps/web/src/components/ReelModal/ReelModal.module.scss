@@ -1,0 +1,31 @@
+@use "../../styles/variables" as *;
+
+.wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: #000;
+}
+
+.backBtn {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 201;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: background $transitionFast;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.6);
+  }
+}

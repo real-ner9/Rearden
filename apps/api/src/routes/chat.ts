@@ -10,6 +10,9 @@ import {
   createFolder,
   updateFolder,
   deleteFolder,
+  deleteConversation,
+  toggleReaction,
+  deleteMessage,
 } from "../data/chatStore.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { db } from "../lib/db.js";
@@ -69,8 +72,20 @@ chatRoutes.delete("/folders/:id", async (c) => {
   return c.json<ApiResponse>({ success: true, data: null });
 });
 
+// Delete conversation
+chatRoutes.delete("/:id", async (c) => {
+  const userId = c.get("userId");
+  const id = c.req.param("id");
+  const ok = await deleteConversation(id, userId);
+  if (!ok) {
+    return c.json<ApiResponse>({ success: false, error: "Conversation not found" }, 404);
+  }
+  return c.json<ApiResponse>({ success: true, data: null });
+});
+
 // Get messages for a conversation
 chatRoutes.get("/:id/messages", async (c) => {
+  const userId = c.get("userId");
   const id = c.req.param("id");
 
   const conversation = await db.conversation.findUnique({
@@ -84,7 +99,7 @@ chatRoutes.get("/:id/messages", async (c) => {
   const cursor = c.req.query("cursor");
   const limit = Math.min(Number(c.req.query("limit")) || 50, 100);
 
-  const msgs = await getMessages(id, cursor, limit);
+  const msgs = await getMessages(id, userId, cursor, limit);
   return c.json<ApiResponse>({ success: true, data: msgs });
 });
 
@@ -108,11 +123,11 @@ chatRoutes.post(
   async (c) => {
     const userId = c.get("userId");
     const id = c.req.param("id");
-    const body = await c.req.json<{ text: string }>();
+    const body = await c.req.json<{ text: string; replyToId?: string }>();
     if (!body.text?.trim()) {
       return c.json<ApiResponse>({ success: false, error: "text is required" }, 400);
     }
-    const result = await addMessage(id, userId, "recruiter", body.text.trim());
+    const result = await addMessage(id, userId, "recruiter", body.text.trim(), body.replyToId);
     if (!result) {
       return c.json<ApiResponse>({ success: false, error: "Conversation not found" }, 404);
     }
@@ -123,19 +138,36 @@ chatRoutes.post(
 // Toggle pin
 chatRoutes.patch("/:id/pin", async (c) => {
   const id = c.req.param("id");
-
-  const conversation = await db.conversation.findUnique({
-    where: { id },
-  });
-
-  if (!conversation) {
-    return c.json<ApiResponse>({ success: false, error: "Conversation not found" }, 404);
-  }
-
   const body = await c.req.json<{ isPinned: boolean }>();
   const conv = await togglePin(id, body.isPinned);
   if (!conv) {
     return c.json<ApiResponse>({ success: false, error: "Conversation not found" }, 404);
   }
   return c.json<ApiResponse>({ success: true, data: conv });
+});
+
+// Toggle reaction on a message
+chatRoutes.post("/:convId/messages/:msgId/reactions", async (c) => {
+  const userId = c.get("userId");
+  const msgId = c.req.param("msgId");
+  const { emoji } = await c.req.json<{ emoji: string }>();
+  if (!emoji) {
+    return c.json<ApiResponse>({ success: false, error: "emoji is required" }, 400);
+  }
+  const result = await toggleReaction(msgId, userId, emoji);
+  if (!result) {
+    return c.json<ApiResponse>({ success: false, error: "Message not found" }, 404);
+  }
+  return c.json<ApiResponse>({ success: true, data: result.reactions });
+});
+
+// Delete a message
+chatRoutes.delete("/:convId/messages/:msgId", async (c) => {
+  const userId = c.get("userId");
+  const msgId = c.req.param("msgId");
+  const result = await deleteMessage(msgId, userId);
+  if (!result) {
+    return c.json<ApiResponse>({ success: false, error: "Message not found or unauthorized" }, 404);
+  }
+  return c.json<ApiResponse>({ success: true, data: null });
 });

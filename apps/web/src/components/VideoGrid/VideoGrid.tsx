@@ -46,7 +46,7 @@ export function VideoGrid({ posts, onVideoClick }: VideoGridProps) {
             <div className={styles.thumbPlaceholder} />
           )}
           <div className={styles.playOverlay}>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
               <path d="M8 5v14l11-7z" />
             </svg>
           </div>

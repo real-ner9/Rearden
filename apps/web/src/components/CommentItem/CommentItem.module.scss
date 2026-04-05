@@ -4,7 +4,6 @@
   display: flex;
   gap: $space3;
   padding: $space3 0;
-  position: relative;
 
   &:hover .deleteButton {
     opacity: 1;
@@ -21,6 +20,7 @@
   align-items: center;
   gap: $space2;
   margin-bottom: $space1;
+  flex-wrap: wrap;
 }
 
 .username {
@@ -53,10 +53,52 @@
   word-wrap: break-word;
 }
 
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space1;
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: $space1;
+}
+
+.likeButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  color: $textMuted;
+  cursor: pointer;
+  padding: $space1;
+  transition: color $transitionFast, transform $transitionFast;
+
+  &:hover {
+    color: $textPrimary;
+    transform: scale(1.1);
+  }
+
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+.likeButtonActive {
+  color: #ff3040;
+
+  &:hover {
+    color: #ff3040;
+  }
+}
+
+.likeCount {
+  font-size: 11px;
+  line-height: 1;
+}
+
 .deleteButton {
-  position: absolute;
-  top: $space3;
-  right: 0;
   background: none;
   border: none;
   color: $textMuted;
@@ -72,6 +114,25 @@
 
   &:active {
     transform: scale(0.95);
+  }
+}
+
+.reply {
+  margin-left: 40px;
+}
+
+.replyButton {
+  background: none;
+  border: none;
+  color: $textMuted;
+  font-size: $fontSize12;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  transition: color $transitionFast;
+
+  &:hover {
+    color: $textPrimary;
   }
 }
 

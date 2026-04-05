@@ -27,9 +27,13 @@ export async function extractFrames(
       }
 
       const canvas = document.createElement("canvas");
-      // 9:16 thumbnails optimized for vertical video (Reels)
-      canvas.width = 180;
-      canvas.height = 320;
+      // Use native aspect ratio, capped at 360px on longest side
+      const maxDim = 360;
+      const vw = video.videoWidth || 180;
+      const vh = video.videoHeight || 320;
+      const frameScale = Math.min(1, maxDim / Math.max(vw, vh));
+      canvas.width = Math.round(vw * frameScale);
+      canvas.height = Math.round(vh * frameScale);
       const ctx = canvas.getContext("2d")!;
 
       const frames: FrameData[] = [];
@@ -60,22 +64,9 @@ function seekAndCapture(
     const onSeeked = () => {
       video.removeEventListener("seeked", onSeeked);
 
-      // Fit video into 16:9 canvas (letterbox/pillarbox)
-      const vw = video.videoWidth;
-      const vh = video.videoHeight;
       const cw = canvas.width;
       const ch = canvas.height;
-
-      ctx.fillStyle = "#000";
-      ctx.fillRect(0, 0, cw, ch);
-
-      const scale = Math.min(cw / vw, ch / vh);
-      const dw = vw * scale;
-      const dh = vh * scale;
-      const dx = (cw - dw) / 2;
-      const dy = (ch - dh) / 2;
-
-      ctx.drawImage(video, 0, 0, vw, vh, dx, dy, dw, dh);
+      ctx.drawImage(video, 0, 0, cw, ch);
 
       canvas.toBlob(
         (blob) => {
@@ -86,8 +77,8 @@ function seekAndCapture(
           const url = URL.createObjectURL(blob);
           resolve({ time, blob, url });
         },
-        "image/jpeg",
-        0.7
+        "image/webp",
+        0.85
       );
     };
 

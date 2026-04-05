@@ -1,0 +1,215 @@
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+.page {
+  width: 100%;
+  min-height: calc(100vh - $navbarHeight);
+  background: $bgBase;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: $space3;
+  height: $mobileNavHeight;
+  padding: 0 $space4;
+  background: $bgBase;
+  border-bottom: $borderWidth solid $glassBorder;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: $textPrimary;
+  padding: $space1;
+}
+
+.headerTitle {
+  font-size: $fontSize16;
+  font-weight: 600;
+  color: $textPrimary;
+}
+
+.content {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: $space6;
+  display: flex;
+  flex-direction: column;
+  gap: $space5;
+}
+
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $space3;
+
+  @include mobile {
+    flex-direction: column;
+  }
+}
+
+.vacancyTitle {
+  font-size: $fontSize24;
+  font-weight: 700;
+  color: $textPrimary;
+}
+
+.badge {
+  flex-shrink: 0;
+  padding: $space1 $space2;
+  font-size: $fontSize12;
+  font-weight: 500;
+  border-radius: $radiusSm;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.fulltime {
+  background: rgba(0, 128, 0, 0.08);
+  color: $success;
+  border: 1px solid rgba(0, 128, 0, 0.2);
+}
+
+.parttime {
+  background: rgba(0, 100, 200, 0.08);
+  color: $accentPurple;
+  border: 1px solid rgba(0, 100, 200, 0.2);
+}
+
+.contract {
+  background: rgba(200, 150, 0, 0.08);
+  color: $warning;
+  border: 1px solid rgba(200, 150, 0, 0.2);
+}
+
+.freelance {
+  background: rgba(128, 0, 200, 0.08);
+  color: $accentPurple;
+  border: 1px solid rgba(128, 0, 200, 0.2);
+}
+
+.metaRow {
+  display: flex;
+  gap: $space4;
+  font-size: $fontSize13;
+  color: $textMuted;
+}
+
+.authorCard {
+  @include glass;
+  padding: $space4;
+  display: flex;
+  gap: $space3;
+  border-radius: $radiusMd;
+  cursor: pointer;
+  transition: border-color $transitionFast, box-shadow $transitionFast;
+
+  &:hover {
+    border-color: $glassBorderHover;
+    box-shadow: $shadowMd;
+  }
+}
+
+.authorAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: $bgSurface;
+}
+
+.authorInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.authorName {
+  font-size: $fontSize14;
+  font-weight: 600;
+  color: $textPrimary;
+  @include truncate(1);
+}
+
+.authorTitle {
+  font-size: $fontSize13;
+  color: $textMuted;
+  @include truncate(1);
+}
+
+.descriptionFull {
+  font-size: $fontSize14;
+  line-height: 1.7;
+  color: $textSecondary;
+  white-space: pre-wrap;
+}
+
+.messageBtn {
+  width: 100%;
+  padding: $space3;
+  background: $accentPurple;
+  color: white;
+  border: none;
+  border-radius: $radiusMd;
+  font-size: $fontSize14;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background $transitionFast, transform $transitionFast;
+
+  &:hover {
+    background: $accentPurpleLight;
+  }
+
+  &:active {
+    transform: scale($pressScale);
+  }
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: $textMuted;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid $glassBorder;
+  border-top-color: $accentPurple;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.notFound {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: $textMuted;
+  font-size: $fontSize16;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@include tablet {
+  .content {
+    padding: $space4;
+  }
+}

@@ -4,6 +4,7 @@
 .message {
   display: flex;
   padding: 2px $space4;
+  position: relative;
 }
 
 .mine {
@@ -18,6 +19,14 @@
 
   .time {
     color: $textMuted;
+  }
+
+  .swipeForeground {
+    align-items: flex-end;
+  }
+
+  .replyButton {
+    left: -36px;
   }
 }
 
@@ -34,6 +43,69 @@
   .time {
     color: $textMuted;
   }
+
+  .swipeForeground {
+    align-items: flex-start;
+  }
+
+  .replyButton {
+    right: -36px;
+  }
+}
+
+.swipeReplyBg {
+  position: absolute;
+  right: $space2;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: color-mix(in srgb, $accentPurple 20%, transparent);
+  color: $accentPurple;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.swipeForeground {
+  display: flex;
+  flex-direction: column;
+  align-items: inherit;
+  max-width: 100%;
+  width: 100%;
+  touch-action: pan-y;
+  position: relative;
+  z-index: 1;
+}
+
+.replyButton {
+  display: none;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: $bgSurface;
+  border: $borderWidth solid $glassBorder;
+  color: $textSecondary;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity $transitionFast;
+  z-index: 5;
+
+  @media (hover: hover) {
+    display: flex;
+  }
+}
+
+.message:hover .replyButton {
+  opacity: 1;
 }
 
 .bubble {
@@ -44,6 +116,39 @@
   @include tablet {
     max-width: 85%;
   }
+}
+
+.replyPreview {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: $space1 $space2;
+  margin-bottom: $space1;
+  border-left: 2px solid $accentPurple;
+  border-radius: 0 $radiusSm $radiusSm 0;
+  background: color-mix(in srgb, $accentPurple 8%, transparent);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.replyName {
+  font-size: $fontSize12;
+  font-weight: 600;
+  color: $accentPurple;
+}
+
+.replyText {
+  font-size: $fontSize12;
+  color: $textSecondary;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.replyDeleted {
+  font-size: $fontSize12;
+  color: $textMuted;
+  font-style: italic;
 }
 
 .text {
@@ -59,6 +164,49 @@
   margin-top: 2px;
 }
 
+.reactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 0 $space1;
+}
+
+.reactionChip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px $space2;
+  font-size: $fontSize12;
+  border-radius: $radiusFull;
+  background: $bgSurface;
+  border: $borderWidth solid $glassBorder;
+  color: $textSecondary;
+  cursor: pointer;
+  transition: all $transitionFast;
+
+  &:hover {
+    border-color: $accentPurple;
+  }
+}
+
+.reacted {
+  background: color-mix(in srgb, $accentPurple 15%, $bgBase);
+  border-color: color-mix(in srgb, $accentPurple 40%, transparent);
+  color: $textPrimary;
+}
+
 .highlighted .bubble {
   box-shadow: 0 0 0 2px $accentPurple, 0 0 16px color-mix(in srgb, $accentPurple 50%, transparent);
+}
+
+.heartOverlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 48px;
+  pointer-events: none;
+  z-index: 10;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
 }

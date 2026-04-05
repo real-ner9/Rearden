@@ -21,6 +21,19 @@ export interface User {
   title: string;
   bio: string;
   availability: string;
+
+  followerCount: number;
+  followingCount: number;
+  isFollowing?: boolean;
+}
+
+export interface FollowUser {
+  id: string;
+  name: string | null;
+  username: string | null;
+  thumbnailUrl: string | null;
+  title: string;
+  isFollowing: boolean;
 }
 
 export interface AuthResponse {

@@ -1,5 +1,6 @@
 export type NotificationType =
   | "new_user"
+  | "new_follow"
   | "interview_scheduled"
   | "message_received"
   | "status_change";

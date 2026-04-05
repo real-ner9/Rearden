@@ -22,13 +22,24 @@
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
 }
 
+.handleArea {
+  display: flex;
+  justify-content: center;
+  padding: $space2 0;
+  cursor: grab;
+  touch-action: none;
+  flex-shrink: 0;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
 .handle {
   width: 40px;
   height: 4px;
   background: $glassBorder;
   border-radius: 2px;
-  margin: $space3 auto $space2;
-  flex-shrink: 0;
 }
 
 .header {
@@ -94,6 +105,37 @@
 .commentList {
   display: flex;
   flex-direction: column;
+}
+
+.replyIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space2 $space4;
+  background: rgba($accentPurple, 0.1);
+  border-top: 1px solid $glassBorder;
+  font-size: $fontSize13;
+  color: $textSecondary;
+  flex-shrink: 0;
+
+  strong {
+    color: $accentPurple;
+  }
+}
+
+.cancelReply {
+  background: none;
+  border: none;
+  color: $textMuted;
+  cursor: pointer;
+  padding: $space1;
+  display: flex;
+  align-items: center;
+  transition: color $transitionFast;
+
+  &:hover {
+    color: $textPrimary;
+  }
 }
 
 .inputWrapper {

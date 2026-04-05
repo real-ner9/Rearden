@@ -1,0 +1,99 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background-color: rgba(0, 0, 0, 0.95);
+  display: flex;
+  flex-direction: column;
+  isolation: isolate;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.cropArea {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.controls {
+  padding: $space5 $space4;
+  background: $bgBase;
+  border-top: 1px solid $glassBorder;
+  display: flex;
+  flex-direction: column;
+  gap: $space4;
+}
+
+.zoomControl {
+  display: flex;
+  align-items: center;
+  gap: $space3;
+  padding: 0 $space2;
+
+  svg {
+    flex-shrink: 0;
+    color: $textSecondary;
+  }
+}
+
+.zoomSlider {
+  flex: 1;
+  height: 4px;
+  background: $glassBg;
+  border-radius: 2px;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: $accentPurple;
+    cursor: pointer;
+    transition: transform $transitionFast;
+
+    &:hover {
+      transform: scale(1.2);
+    }
+
+    &:active {
+      transform: scale(1.1);
+    }
+  }
+
+  &::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border: none;
+    border-radius: 50%;
+    background: $accentPurple;
+    cursor: pointer;
+    transition: transform $transitionFast;
+
+    &:hover {
+      transform: scale(1.2);
+    }
+
+    &:active {
+      transform: scale(1.1);
+    }
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space3;
+}

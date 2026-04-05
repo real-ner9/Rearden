@@ -24,6 +24,8 @@ export function toUser(row: any): User {
     title: row.title ?? "",
     bio: row.bio ?? "",
     availability: row.availability ?? "immediate",
+    followerCount: row.followerCount ?? 0,
+    followingCount: row.followingCount ?? 0,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence } from "motion/react";
 import { FeedPost } from "@/components/FeedPost/FeedPost";
 import { CommentSheet } from "@/components/CommentSheet/CommentSheet";
+import { ShareSheet } from "@/components/ShareSheet/ShareSheet";
 import { PostDetailModal } from "@/components/PostDetailModal/PostDetailModal";
 import { useFeedStore } from "@/stores/feedStore";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -12,6 +13,7 @@ export function Home() {
     useFeedStore();
   const [modalState, setModalState] = useState<{ postId: string; focusComments: boolean } | null>(null);
   const [mobileCommentPostId, setMobileCommentPostId] = useState<string | null>(null);
+  const [sharePostId, setSharePostId] = useState<string | null>(null);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -56,6 +58,7 @@ export function Home() {
 
   const handleCloseModal = () => setModalState(null);
   const handleCloseSheet = () => setMobileCommentPostId(null);
+  const handleShare = (postId: string) => setSharePostId(postId);
 
   if (loading) {
     return (
@@ -94,6 +97,7 @@ export function Home() {
             post={post}
             onOpenComments={handleOpenComments}
             onClickMedia={handleOpenPost}
+            onShare={handleShare}
           />
         ))}
 
@@ -111,6 +115,7 @@ export function Home() {
             post={modalPost}
             focusComments={modalState.focusComments}
             onClose={handleCloseModal}
+            onShare={handleShare}
           />
         )}
         {isMobile && mobileCommentPostId && (
@@ -118,6 +123,15 @@ export function Home() {
             key={mobileCommentPostId}
             postId={mobileCommentPostId}
             onClose={handleCloseSheet}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {sharePostId && (
+          <ShareSheet
+            postId={sharePostId}
+            onClose={() => setSharePostId(null)}
           />
         )}
       </AnimatePresence>

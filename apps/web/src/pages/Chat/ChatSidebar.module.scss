@@ -24,8 +24,12 @@
 .list {
   flex: 1;
   overflow-y: auto;
-  padding: $space3 0 $space1;
+  padding: $space1 $space2;
   @include customScrollbar;
+
+  @include tablet {
+    padding: 0;
+  }
 }
 
 .empty {

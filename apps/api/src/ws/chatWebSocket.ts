@@ -1,6 +1,6 @@
 import type { WSContext } from "hono/ws";
 import type { WSClientEvent, WSServerEvent } from "@rearden/types";
-import { addMessage, markAsRead } from "../data/chatStore.js";
+import { addMessage, markAsRead, toggleReaction, deleteMessage } from "../data/chatStore.js";
 import { verifyToken } from "../lib/auth.js";
 
 interface ClientMeta {
@@ -132,6 +132,7 @@ async function handleClientEvent(event: WSClientEvent, ws: WSContext) {
         userId,
         "recruiter",
         event.text,
+        event.replyToId,
       );
       if (result) {
         broadcast({
@@ -160,6 +161,40 @@ async function handleClientEvent(event: WSClientEvent, ws: WSContext) {
         broadcast({
           type: "conversation:updated",
           conversation: conv,
+        });
+      }
+      break;
+    }
+
+    case "reaction:toggle": {
+      const meta = clients.get(ws);
+      if (!meta?.userId) {
+        ws.close(1008, "Unauthenticated");
+        return;
+      }
+      const result = await toggleReaction(event.messageId, meta.userId, event.emoji);
+      if (result) {
+        broadcast({
+          type: "reaction:updated",
+          messageId: event.messageId,
+          reactions: result.reactions,
+        });
+      }
+      break;
+    }
+
+    case "message:delete": {
+      const meta = clients.get(ws);
+      if (!meta?.userId) {
+        ws.close(1008, "Unauthenticated");
+        return;
+      }
+      const result = await deleteMessage(event.messageId, meta.userId);
+      if (result) {
+        broadcast({
+          type: "message:deleted",
+          messageId: event.messageId,
+          conversationId: result.conversationId,
         });
       }
       break;

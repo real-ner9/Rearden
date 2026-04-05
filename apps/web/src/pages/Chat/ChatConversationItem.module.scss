@@ -11,6 +11,11 @@
   transition: background $transitionFast;
   text-align: left;
 
+  @include tablet {
+    border-radius: 0;
+    border-bottom: $borderWidth solid $glassBorder;
+  }
+
   &:hover {
     background: $glassBgHover;
 
@@ -22,13 +27,16 @@
 
 .active {
   background: $bgSurface;
-  border: $borderWidth solid $glassBorder;
+
+  @include tabletUp {
+    border: $borderWidth solid $glassBorder;
+  }
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: $radiusMd;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
   background: color-mix(in srgb, $accentPurple 15%, $bgBase);
   border: $borderWidth solid $glassBorder;
   display: flex;
@@ -43,14 +51,16 @@
 .content {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.header {
+.topRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: $space2;
-  margin-bottom: 2px;
 }
 
 .name {
@@ -60,32 +70,33 @@
   @include truncate;
 }
 
-.meta {
-  display: flex;
-  align-items: center;
-  gap: $space1;
-  flex-shrink: 0;
-}
-
-.pinned {
-  color: $accentPurple;
-}
-
 .time {
   font-size: $fontSize12;
   color: $textMuted;
   flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.bottomRow {
+  display: flex;
+  align-items: center;
+  gap: $space2;
 }
 
 .preview {
+  flex: 1;
+  min-width: 0;
   font-size: $fontSize13;
   color: $textSecondary;
   @include truncate;
 }
 
-.actions {
+.previewPrefix {
+  color: $textMuted;
+}
+
+.bottomRight {
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: $space1;
   flex-shrink: 0;
@@ -94,7 +105,7 @@
 .unreadBadge {
   min-width: 20px;
   height: 20px;
-  border-radius: $radiusSm;
+  border-radius: $radiusFull;
   background: $accentPurple;
   color: #fff;
   font-size: 11px;
@@ -106,12 +117,25 @@
   line-height: 1;
 }
 
+.pinIcon {
+  display: flex;
+  align-items: center;
+  color: $textMuted;
+}
+
 .pinButton {
+  display: none;
   opacity: 0;
   padding: $space1;
   border-radius: $radiusSm;
   color: $textMuted;
+  background: transparent;
+  cursor: pointer;
   transition: all $transitionFast;
+
+  @media (hover: hover) {
+    display: flex;
+  }
 
   &:hover {
     color: $accentPurple;
@@ -119,7 +143,48 @@
   }
 }
 
-.isPinned {
-  opacity: 1;
+.isPinnedBtn {
+  opacity: 0;
   color: $accentPurple;
+}
+
+// Swipe actions (mobile)
+.swipeWrapper {
+  position: relative;
+  overflow: hidden;
+  border-bottom: $borderWidth solid $glassBorder;
+}
+
+.swipeActions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+}
+
+.swipeActionPin {
+  width: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $accentPurple;
+  color: #fff;
+}
+
+.swipeActionDelete {
+  width: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $danger;
+  color: #fff;
+}
+
+.foreground {
+  position: relative;
+  z-index: 1;
+  background: $bgBase;
+  touch-action: pan-y;
+  border-bottom: none;
 }

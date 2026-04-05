@@ -62,6 +62,7 @@ export interface PostComment {
   postId: string;
   userId: string;
   text: string;
+  parentId: string | null;
   createdAt: string;
   author: {
     id: string;
@@ -69,10 +70,15 @@ export interface PostComment {
     username: string | null;
     thumbnailUrl: string | null;
   };
+  replies?: PostComment[];
+  replyCount?: number;
+  likeCount?: number;
+  isLiked?: boolean;
 }
 
 export interface CreateCommentPayload {
   text: string;
+  parentId?: string;
 }
 
 export interface CreatePostPayload {

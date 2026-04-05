@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState, type KeyboardEvent } from "react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
+import { X } from "@phosphor-icons/react";
 import { useChatStore } from "@/stores/chatStore";
 import styles from "./ChatMessageInput.module.scss";
 
@@ -7,6 +8,8 @@ export function ChatMessageInput() {
   const sendMessage = useChatStore((s) => s.sendMessage);
   const scrollToBottom = useChatStore((s) => s.scrollToBottom);
   const connectionStatus = useChatStore((s) => s.connectionStatus);
+  const replyingTo = useChatStore((s) => s.replyingTo);
+  const setReplyingTo = useChatStore((s) => s.setReplyingTo);
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -37,8 +40,33 @@ export function ChatMessageInput() {
   const isDisabled = connectionStatus === "disconnected";
 
   return (
-    <div className={styles.inputArea}>
-      <textarea
+    <div className={styles.inputWrapper}>
+      <AnimatePresence>
+        {replyingTo && (
+          <motion.div
+            className={styles.replyBar}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          >
+            <div className={styles.replyBarContent}>
+              <div className={styles.replyBarAccent} />
+              <div className={styles.replyBarText}>
+                <span className={styles.replyBarLabel}>
+                  Reply to {replyingTo.senderRole === "recruiter" ? "yourself" : "message"}
+                </span>
+                <span className={styles.replyBarPreview}>{replyingTo.text.slice(0, 80)}</span>
+              </div>
+              <button className={styles.replyBarClose} onClick={() => setReplyingTo(null)}>
+                <X size={16} weight="bold" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <div className={styles.inputArea}>
+        <textarea
         ref={textareaRef}
         className={styles.textarea}
         value={value}
@@ -73,6 +101,7 @@ export function ChatMessageInput() {
           <polygon points="22 2 15 22 11 13 2 9 22 2" />
         </svg>
       </motion.button>
+      </div>
     </div>
   );
 }

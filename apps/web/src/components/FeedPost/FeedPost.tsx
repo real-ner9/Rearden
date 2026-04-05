@@ -14,6 +14,7 @@ interface FeedPostProps {
   onClickMedia?: (postId: string) => void;
   onLike?: (postId: string) => void;
   onBookmark?: (postId: string) => void;
+  onShare?: (postId: string) => void;
 }
 
 // Inline ImageCarousel component
@@ -81,13 +82,12 @@ function ImageCarousel({ urls, alt = "" }: ImageCarouselProps) {
   );
 }
 
-export function FeedPost({ post, onOpenComments, onClickMedia, onLike, onBookmark }: FeedPostProps) {
+export function FeedPost({ post, onOpenComments, onClickMedia, onLike, onBookmark, onShare }: FeedPostProps) {
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaRef = useRef<HTMLDivElement>(null);
   const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showHeartAnimation, setShowHeartAnimation] = useState(false);
-  const [showToast, setShowToast] = useState(false);
   const user = useAuthStore((state) => state.user);
   const feedToggleLike = useFeedStore((state) => state.toggleLike);
   const feedToggleBookmark = useFeedStore((state) => state.toggleBookmark);
@@ -164,31 +164,51 @@ export function FeedPost({ post, onOpenComments, onClickMedia, onLike, onBookmar
     (onBookmark ?? feedToggleBookmark)(post.id);
   };
 
-  const handleShare = async () => {
-    const url = `${window.location.origin}/feed/${post.id}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 2000);
-    } catch (error) {
-      console.error("Failed to copy link:", error);
+  const handleShare = () => {
+    if (onShare) {
+      onShare(post.id);
     }
   };
 
-  const renderHashtags = (text: string, hashtags: string[]) => {
+  const [captionExpanded, setCaptionExpanded] = useState(false);
+
+  const renderCaption = (text: string) => {
     let result = text
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
 
-    hashtags.forEach((tag) => {
-      const escapedTag = tag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const regex = new RegExp(`(#${escapedTag})`, "gi");
-      result = result.replace(regex, `<span class="${styles.hashtag}">$1</span>`);
-    });
+    // @mentions → clickable links to search people
+    result = result.replace(
+      /@(\w+)/g,
+      `<a class="${styles.mention}" data-mention="$1">@$1</a>`
+    );
+
+    // #hashtags → clickable links to search
+    result = result.replace(
+      /#(\w+)/g,
+      `<a class="${styles.hashtag}" data-hashtag="$1">#$1</a>`
+    );
+
     return { __html: result };
   };
+
+  const handleCaptionClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const hashtag = target.dataset?.hashtag;
+    const mention = target.dataset?.mention;
+    if (hashtag) {
+      e.preventDefault();
+      navigate(`/search?tab=content&q=${encodeURIComponent("#" + hashtag)}`);
+    } else if (mention) {
+      e.preventDefault();
+      navigate(`/search?tab=people&q=${encodeURIComponent(mention)}`);
+    }
+  };
+
+  const captionText = post.content || "";
+  const shouldCollapse = captionText.length > 120;
 
   return (
     <article className={styles.post}>
@@ -342,14 +362,27 @@ export function FeedPost({ post, onOpenComments, onClickMedia, onLike, onBookmar
         </button>
       </div>
 
-      {(post.content || post.hashtags.length > 0) && post.type !== "text" && (
-        <div className={styles.caption}>
+      {captionText && post.type !== "text" && (
+        <div className={styles.caption} onClick={handleCaptionClick}>
           <Link to={`/user/${post.author.id}`} className={styles.captionUsername}>
             {post.author.username || post.author.name || "Anonymous"}
           </Link>
-          <span
-            dangerouslySetInnerHTML={renderHashtags(post.content, post.hashtags)}
-          />
+          {shouldCollapse && !captionExpanded ? (
+            <>
+              <span
+                className={styles.captionCollapsed}
+                dangerouslySetInnerHTML={renderCaption(captionText.slice(0, 120))}
+              />
+              <button
+                className={styles.moreBtn}
+                onClick={(e) => { e.stopPropagation(); setCaptionExpanded(true); }}
+              >
+                ...more
+              </button>
+            </>
+          ) : (
+            <span dangerouslySetInnerHTML={renderCaption(captionText)} />
+          )}
         </div>
       )}
 
@@ -359,19 +392,6 @@ export function FeedPost({ post, onOpenComments, onClickMedia, onLike, onBookmar
         </button>
       )}
 
-      <AnimatePresence>
-        {showToast && (
-          <motion.div
-            className={styles.toast}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.2 }}
-          >
-            Link copied!
-          </motion.div>
-        )}
-      </AnimatePresence>
     </article>
   );
 }

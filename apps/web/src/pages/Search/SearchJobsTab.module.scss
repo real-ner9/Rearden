@@ -1,0 +1,97 @@
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+.jobsTab {
+  max-width: 900px;
+  margin: 0 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $space4;
+}
+
+.filters {
+  display: flex;
+  gap: $space2;
+  flex-wrap: wrap;
+}
+
+.chip {
+  padding: $space1 $space3;
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusFull;
+  color: $textSecondary;
+  font-size: $fontSize12;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all $transitionFast;
+  white-space: nowrap;
+
+  &:hover {
+    background: $glassBgHover;
+    border-color: $accentPurple;
+    color: $textPrimary;
+  }
+}
+
+.chipActive {
+  background: $accentPurple;
+  border-color: $accentPurple;
+  color: white;
+
+  &:hover {
+    background: $accentPurpleLight;
+    border-color: $accentPurpleLight;
+    color: white;
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $space3;
+}
+
+.skeleton {
+  @include glass;
+  border-radius: $radiusMd;
+  height: 120px;
+  background: linear-gradient(90deg, $bgSurface 25%, $bgElevated 50%, $bgSurface 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $space3;
+  padding: $space16 0;
+  color: $textMuted;
+
+  p { font-size: $fontSize14; }
+}
+
+.sentinel { height: 1px; }
+
+.loadingMore {
+  display: flex;
+  justify-content: center;
+  padding: $space6 0;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  color: $textMuted;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

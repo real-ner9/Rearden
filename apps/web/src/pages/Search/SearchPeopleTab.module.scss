@@ -1,6 +1,7 @@
 @use "../../styles/variables" as *;
 @use "../../styles/mixins" as *;
 
+// Container
 .peopleTab {
   max-width: 900px;
   margin: 0 auto;
@@ -9,6 +10,44 @@
   flex-direction: column;
   gap: $space4;
 }
+
+// Mode toggle (Search | AI Match)
+.modeToggle {
+  display: flex;
+  gap: 1px;
+  @include glass;
+  border-radius: $radiusMd;
+  padding: 2px;
+  width: fit-content;
+}
+
+.modeBtn {
+  padding: $space2 $space4;
+  font-size: $fontSize13;
+  font-weight: 500;
+  font-family: inherit;
+  background: transparent;
+  border: none;
+  color: $textSecondary;
+  cursor: pointer;
+  border-radius: $radiusSm;
+  transition: all $transitionFast;
+
+  &:hover {
+    color: $textPrimary;
+  }
+}
+
+.modeBtnActive {
+  background: $accentPurple;
+  color: white;
+
+  &:hover {
+    color: white;
+  }
+}
+
+// === Keyword search styles ===
 
 .grid {
   display: grid;
@@ -84,30 +123,250 @@
   color: $textMuted;
 }
 
-// Skeleton
 .skeletonTile {
   aspect-ratio: 1;
-  background: linear-gradient(
-    90deg,
-    $bgSurface 25%,
-    $bgElevated 50%,
-    $bgSurface 75%
-  );
+  background: linear-gradient(90deg, $bgSurface 25%, $bgElevated 50%, $bgSurface 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+// === AI Match styles ===
+
+.aiContent {
+  max-width: 640px;
+  margin: 0 auto;
+  min-width: 0;
+}
+
+.hero {
+  text-align: center;
+  padding: $space10 0 $space6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space3;
+
+  @include mobile {
+    padding: $space6 0 $space4;
+  }
+}
+
+.heroIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $accentPurple, $accentTeal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  margin-bottom: $space1;
+
+  @include mobile {
+    width: 48px;
+    height: 48px;
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+}
+
+.heroTitle {
+  font-size: $fontSize24;
+  font-weight: 700;
+  color: $textPrimary;
+
+  @include mobile {
+    font-size: $fontSize20;
+  }
+}
+
+.heroSubtitle {
+  font-size: $fontSize14;
+  color: $textSecondary;
+  line-height: 1.5;
+  max-width: 360px;
+
+  @include mobile {
+    font-size: $fontSize13;
+  }
+}
+
+.inputArea {
+  display: flex;
+  flex-direction: column;
+  gap: $space4;
+}
+
+.inputWrapper {
+  position: relative;
+  @include glass;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusLg;
+  transition: border-color $transitionBase, box-shadow $transitionBase;
+
+  &:focus-within {
+    border-color: $accentPurple;
+    box-shadow: 0 0 0 3px rgba(var(--color-accent-rgb, 139, 92, 246), 0.15);
+  }
+}
+
+.textarea {
+  width: 100%;
+  min-height: 80px;
+  max-height: 200px;
+  padding: $space4;
+  padding-right: 56px;
+  background: transparent;
+  border: none;
+  color: $textPrimary;
+  font-size: $fontSize14;
+  font-family: inherit;
+  resize: none;
+  line-height: 1.6;
+
+  &:focus { outline: none; }
+  &::placeholder { color: $textMuted; }
+
+  @include mobile {
+    min-height: 72px;
+    font-size: $fontSize14;
+  }
+}
+
+.submitBtn {
+  position: absolute;
+  right: $space3;
+  bottom: $space3;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $accentPurple;
+  color: white;
+  border: none;
+  border-radius: $radiusMd;
+  cursor: pointer;
+  transition: all $transitionFast;
+
+  &:hover:not(:disabled) {
+    background: $accentPurpleLight;
+    transform: translateY(-1px);
+  }
+  &:active:not(:disabled) { transform: scale($pressScale); }
+  &:disabled { opacity: 0.35; cursor: not-allowed; }
+}
+
+.btnSpinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space2;
+  align-items: center;
+}
+
+.suggestionsLabel {
+  font-size: $fontSize13;
+  color: $textMuted;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.suggestionChip {
+  padding: $space1 $space3;
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusFull;
+  color: $textSecondary;
+  font-size: $fontSize12;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all $transitionFast;
+  white-space: nowrap;
+
+  &:hover {
+    background: $glassBgHover;
+    border-color: $accentPurple;
+    color: $textPrimary;
+  }
+}
+
+.statsBar {
+  font-size: $fontSize13;
+  color: $textSecondary;
+  margin: $space6 0 $space4;
+}
+
+.aiGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: $space4;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: $space3;
+  }
+}
+
+.aiEmpty {
+  text-align: center;
+  padding: $space16 0;
+  color: $textMuted;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space3;
+
+  h3 { font-size: $fontSize18; font-weight: 600; color: $textSecondary; }
+  p { font-size: $fontSize13; }
+}
+
+.aiSkeleton {
+  background: $glassBg;
+  border: $borderWidth solid $glassBorder;
+  border-radius: $radiusMd;
+  overflow: hidden;
+}
+
+.aiSkeletonThumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(90deg, $bgSurface 25%, $bgElevated 50%, $bgSurface 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.aiSkeletonContent {
+  padding: $space4;
+  display: flex;
+  flex-direction: column;
+  gap: $space3;
+}
+
+.aiSkeletonLine {
+  height: 12px;
+  border-radius: $radiusSm;
+  background: linear-gradient(90deg, $bgSurface 25%, $bgElevated 50%, $bgSurface 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
 
 @keyframes shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }

@@ -1,5 +1,6 @@
 export type {
   User,
+  FollowUser,
   AuthResponse,
   SendOtpPayload,
   VerifyOtpPayload,
@@ -7,7 +8,7 @@ export type {
 } from "./user";
 export type { ApiResponse } from "./api-response";
 export type { Post, VideoPost, CreatePostPayload, FeedPost, PostComment, CreateCommentPayload } from "./post";
-export type { Vacancy } from "./vacancy";
+export type { Vacancy, VacancyAuthor, VacancyDetail, VacancySearchResult, VacancySearchResponse } from "./vacancy";
 export type {
   SearchQuery,
   SearchFilters,
@@ -29,4 +30,6 @@ export type {
   ChatFolder,
   WSClientEvent,
   WSServerEvent,
+  ReplyPreview,
+  ReactionCount,
 } from "./chat";

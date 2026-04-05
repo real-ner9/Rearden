@@ -61,6 +61,14 @@
   padding: $space4 $space4 $space3;
 }
 
+.moreFeed {
+  display: flex;
+  flex-direction: column;
+  gap: $space6;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
 .loading {
   display: flex;
   align-items: center;

@@ -14,6 +14,7 @@ import { EditProfile } from "@/pages/EditProfile/EditProfile";
 import { Notifications } from "@/pages/Notifications/Notifications";
 import { Settings } from "@/pages/Settings/Settings";
 import { PostDetail } from "@/pages/PostDetail/PostDetail";
+import { VacancyDetail } from "@/pages/VacancyDetail/VacancyDetail";
 
 export const router = createBrowserRouter([
   {
@@ -21,6 +22,7 @@ export const router = createBrowserRouter([
     children: [
       { path: "/", element: <Home /> },
       { path: "/post/:postId", element: <PostDetail /> },
+      { path: "/vacancy/:id", element: <VacancyDetail /> },
       { path: "/welcome", element: <Landing /> },
       { path: "/feed", element: <Feed /> },
       { path: "/feed/:postId", element: <Feed /> },

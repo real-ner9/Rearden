@@ -85,3 +85,55 @@
     flex-shrink: 0;
   }
 }
+
+.clickable {
+  cursor: pointer;
+  transition: border-color $transitionFast, box-shadow $transitionFast;
+
+  &:hover {
+    border-color: $glassBorderHover;
+    box-shadow: $shadowMd;
+  }
+}
+
+.authorRow {
+  display: flex;
+  align-items: center;
+  gap: $space2;
+  margin-bottom: $space1;
+}
+
+.authorAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: $bgSurface;
+}
+
+.authorInfo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.authorName {
+  font-size: $fontSize13;
+  font-weight: 600;
+  color: $textPrimary;
+  @include truncate(1);
+}
+
+.authorTitle {
+  font-size: $fontSize12;
+  color: $textMuted;
+  @include truncate(1);
+}
+
+.descriptionClamped {
+  font-size: $fontSize14;
+  line-height: 1.6;
+  color: $textSecondary;
+  @include truncate(3);
+}

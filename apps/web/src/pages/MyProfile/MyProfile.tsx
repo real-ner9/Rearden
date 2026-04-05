@@ -1,12 +1,13 @@
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { List } from "@phosphor-icons/react";
+import { List, Play, Images, ArrowLeft } from "@phosphor-icons/react";
 import type { User, VideoPost, Vacancy } from "@rearden/types";
 
 import { ProfileTabs, type ProfileTab } from "@/components/ProfileTabs/ProfileTabs";
 import { FeedPost } from "@/components/FeedPost/FeedPost";
 import { CommentSheet } from "@/components/CommentSheet/CommentSheet";
+import { ShareSheet } from "@/components/ShareSheet/ShareSheet";
 import { PostDetailModal } from "@/components/PostDetailModal/PostDetailModal";
 import { VideoGrid } from "@/components/VideoGrid/VideoGrid";
 import { ReelModal } from "@/components/ReelModal/ReelModal";
@@ -18,6 +19,8 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useAuthStore } from "@/stores/authStore";
 import { useChatStore } from "@/stores/chatStore";
 import { useProfilePostsStore } from "@/stores/profilePostsStore";
+import { useFollowStore } from "@/stores/followStore";
+import { useHeaderStore } from "@/stores/headerStore";
 import styles from "./MyProfile.module.scss";
 
 function getInitials(name: string) {
@@ -38,7 +41,10 @@ export function MyProfile() {
 
   const [modalState, setModalState] = useState<{ postId: string; focusComments: boolean } | null>(null);
   const [mobileCommentPostId, setMobileCommentPostId] = useState<string | null>(null);
+  const [sharePostId, setSharePostId] = useState<string | null>(null);
+  const [feedViewPostId, setFeedViewPostId] = useState<string | null>(null);
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const postRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   const {
     posts: profilePosts,
@@ -48,6 +54,8 @@ export function MyProfile() {
     fetchPosts,
     reset: resetPosts,
   } = useProfilePostsStore();
+
+  const { setFollowing, isFollowing: checkIsFollowing, isLoading: checkFollowLoading, toggleFollow } = useFollowStore();
 
   const urlToTab: Record<string, ProfileTab> = { videos: "video", vacancies: "vacancies" };
   const tabToUrl: Record<string, string> = { video: "videos", vacancies: "vacancies" };
@@ -78,6 +86,25 @@ export function MyProfile() {
     userId ? `/vacancies?userId=${userId}` : "",
   );
 
+  // Set mobile header title to username
+  const setHeaderTitle = useHeaderStore((s) => s.setTitle);
+  useEffect(() => {
+    if (profile) {
+      setHeaderTitle(profile.username || profile.name || null);
+    }
+    return () => setHeaderTitle(null);
+  }, [profile, setHeaderTitle]);
+
+  // Seed follow state from profile API response
+  useEffect(() => {
+    if (profile && !isOwn && profile.isFollowing !== undefined) {
+      setFollowing(profile.id, profile.isFollowing);
+    }
+  }, [profile, isOwn, setFollowing]);
+
+  const following = profile ? checkIsFollowing(profile.id) : false;
+  const followLoading = profile ? checkFollowLoading(profile.id) : false;
+
   // Fetch profile posts via feed store
   useEffect(() => {
     if (userId) {
@@ -96,6 +123,10 @@ export function MyProfile() {
     }
   };
 
+  const handleShare = (postId: string) => {
+    setSharePostId(postId);
+  };
+
   const handleOpenPost = (postId: string) => {
     if (!isMobile) {
       setModalState({ postId, focusComments: false });
@@ -104,6 +135,21 @@ export function MyProfile() {
 
   const handleCloseModal = () => setModalState(null);
   const handleCloseSheet = () => setMobileCommentPostId(null);
+
+  const handleGridTileClick = (postId: string) => {
+    setFeedViewPostId(postId);
+  };
+
+  // Scroll to the clicked post when feed view opens
+  useEffect(() => {
+    if (!feedViewPostId) return;
+    const delay = isMobile ? 350 : 50;
+    const timer = setTimeout(() => {
+      const el = postRefs.current.get(feedViewPostId);
+      el?.scrollIntoView({ block: "start" });
+    }, delay);
+    return () => clearTimeout(timer);
+  }, [feedViewPostId, isMobile]);
 
   if (loading) {
     return (
@@ -180,20 +226,38 @@ export function MyProfile() {
               </span>
             )}
           </div>
-          <div className={styles.profileTopInfo}>
+          <div className={styles.profileTopRight}>
             <h1 className={styles.name}>{displayName}</h1>
-            {metaItems.length > 0 && (
-              <div className={styles.meta}>
-                {metaItems.map((item, i) => (
-                  <span key={i}>
-                    {i > 0 && <span className={styles.dot} />}
-                    {item}
-                  </span>
-                ))}
+            <div className={styles.stats}>
+              <div className={styles.statItem}>
+                <span className={styles.statCount}>{profilePosts.length}</span>
+                <span className={styles.statLabel}>posts</span>
               </div>
-            )}
+              <div className={styles.statItem}>
+                <span className={styles.statCount}>{profile.followerCount}</span>
+                <span className={styles.statLabel}>followers</span>
+              </div>
+              <div className={styles.statItem}>
+                <span className={styles.statCount}>{profile.followingCount}</span>
+                <span className={styles.statLabel}>following</span>
+              </div>
+            </div>
           </div>
         </div>
+
+        {profile.name && (
+          <p className={styles.fullName}>{profile.name}</p>
+        )}
+        {metaItems.length > 0 && (
+          <div className={styles.meta}>
+            {metaItems.map((item, i) => (
+              <span key={i}>
+                {i > 0 && <span className={styles.dot} />}
+                {item}
+              </span>
+            ))}
+          </div>
+        )}
 
         {profile.bio && <p className={styles.bio}>{profile.bio}</p>}
 
@@ -237,6 +301,14 @@ export function MyProfile() {
             </>
           ) : (
             <>
+              <Button
+                variant={following ? "secondary" : "primary"}
+                size="md"
+                disabled={followLoading}
+                onClick={() => toggleFollow(profile.id, profile.username || profile.name || "User")}
+              >
+                {following ? "Following" : "Follow"}
+              </Button>
               {profile.resumeText && (
                 <Link to={`/user/${profile.id}/resume`} className={styles.resumeLink}>
                   <svg
@@ -289,28 +361,75 @@ export function MyProfile() {
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
       >
         {activeTab === "posts" && (
-          <div className={styles.postList}>
-            {postsLoading ? (
-              <div className={styles.loading}>
-                <div className={styles.spinner} />
+          postsLoading ? (
+            <div className={styles.emptyTab}>
+              <div className={styles.spinner} />
+            </div>
+          ) : profilePosts.length === 0 ? (
+            <div className={styles.emptyTab}>
+              <p>No posts yet</p>
+            </div>
+          ) : feedViewPostId ? (
+            isMobile ? null : (
+              <div className={styles.postList}>
+                <button
+                  className={styles.feedBackBtn}
+                  onClick={() => setFeedViewPostId(null)}
+                >
+                  <ArrowLeft size={18} />
+                  Back to grid
+                </button>
+                {profilePosts.map((post) => (
+                  <div
+                    key={post.id}
+                    ref={(el) => {
+                      if (el) postRefs.current.set(post.id, el);
+                      else postRefs.current.delete(post.id);
+                    }}
+                  >
+                    <FeedPost
+                      post={post}
+                      onOpenComments={handleOpenComments}
+                      onClickMedia={handleOpenPost}
+                      onLike={toggleLike}
+                      onBookmark={toggleBookmark}
+                      onShare={handleShare}
+                    />
+                  </div>
+                ))}
               </div>
-            ) : profilePosts.length === 0 ? (
-              <div className={styles.emptyTab}>
-                <p>No posts yet</p>
-              </div>
-            ) : (
-              profilePosts.map((post) => (
-                <FeedPost
+            )
+          ) : (
+            <div className={styles.postGrid}>
+              {profilePosts.map((post) => (
+                <button
                   key={post.id}
-                  post={post}
-                  onOpenComments={handleOpenComments}
-                  onClickMedia={handleOpenPost}
-                  onLike={toggleLike}
-                  onBookmark={toggleBookmark}
-                />
-              ))
-            )}
-          </div>
+                  className={styles.gridTile}
+                  onClick={() => handleGridTileClick(post.id)}
+                >
+                  {post.type === "video" && post.thumbnailUrl ? (
+                    <img src={post.thumbnailUrl} alt="" className={styles.tileImg} />
+                  ) : post.type === "image" && (post.imageUrl || post.imageUrls[0]) ? (
+                    <img src={post.imageUrl || post.imageUrls[0]} alt="" className={styles.tileImg} />
+                  ) : (
+                    <div className={styles.textTile}>
+                      <p className={styles.textTileContent}>{post.content}</p>
+                    </div>
+                  )}
+                  {post.type === "video" && (
+                    <div className={styles.tileIcon}>
+                      <Play size={16} weight="fill" />
+                    </div>
+                  )}
+                  {post.type === "image" && post.imageUrls.length > 1 && (
+                    <div className={styles.tileIcon}>
+                      <Images size={16} weight="fill" />
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          )
         )}
         {activeTab === "video" && (
           <VideoGrid
@@ -348,6 +467,55 @@ export function MyProfile() {
         />
       )}
 
+      {/* Mobile fullscreen feed view */}
+      <AnimatePresence>
+        {isMobile && feedViewPostId && (
+          <motion.div
+            className={styles.mobileFeedOverlay}
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", stiffness: 400, damping: 35 }}
+          >
+            <header className={styles.mobileFeedHeader}>
+              <button
+                className={styles.mobileFeedBackBtn}
+                onClick={() => setFeedViewPostId(null)}
+              >
+                <ArrowLeft size={22} />
+              </button>
+              <div className={styles.mobileFeedHeaderCenter}>
+                <span className={styles.mobileFeedTitle}>Posts</span>
+                <span className={styles.mobileFeedUsername}>
+                  {profile.username || profile.name || "User"}
+                </span>
+              </div>
+              <div className={styles.mobileFeedHeaderRight} />
+            </header>
+            <div className={styles.mobileFeedScroll}>
+              {profilePosts.map((post) => (
+                <div
+                  key={post.id}
+                  ref={(el) => {
+                    if (el) postRefs.current.set(post.id, el);
+                    else postRefs.current.delete(post.id);
+                  }}
+                >
+                  <FeedPost
+                    post={post}
+                    onOpenComments={handleOpenComments}
+                    onClickMedia={() => {}}
+                    onLike={toggleLike}
+                    onBookmark={toggleBookmark}
+                    onShare={handleShare}
+                  />
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Post detail modal (desktop) + Comment sheet (mobile) */}
       <AnimatePresence>
         {!isMobile && modalState && (() => {
@@ -360,6 +528,7 @@ export function MyProfile() {
               onClose={handleCloseModal}
               onLike={toggleLike}
               onBookmark={toggleBookmark}
+              onShare={handleShare}
             />
           ) : null;
         })()}
@@ -368,6 +537,16 @@ export function MyProfile() {
             key={mobileCommentPostId}
             postId={mobileCommentPostId}
             onClose={handleCloseSheet}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Share Sheet */}
+      <AnimatePresence>
+        {sharePostId && (
+          <ShareSheet
+            postId={sharePostId}
+            onClose={() => setSharePostId(null)}
           />
         )}
       </AnimatePresence>

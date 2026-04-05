@@ -18,6 +18,8 @@ interface FeedProps {
   userId?: string;
   /** Post ID to start from (deep link / reel modal) */
   initialPostId?: string;
+  /** Full-screen mode (inside ReelModal — no bottom nav padding) */
+  inModal?: boolean;
 }
 
 function formatCount(n: number): string {
@@ -26,7 +28,7 @@ function formatCount(n: number): string {
   return String(n);
 }
 
-export function Feed({ userId, initialPostId }: FeedProps) {
+export function Feed({ userId, initialPostId, inModal }: FeedProps) {
   const navigate = useNavigate();
   const { postId: routePostId } = useParams<{ postId?: string }>();
   const postId = initialPostId ?? routePostId;
@@ -40,6 +42,7 @@ export function Feed({ userId, initialPostId }: FeedProps) {
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [scrollReady, setScrollReady] = useState(!postId);
 
   // Local engagement state
   const [engagement, setEngagement] = useState<
@@ -68,9 +71,17 @@ export function Feed({ userId, initialPostId }: FeedProps) {
     (mode: "initial" | "more") => {
       const params = new URLSearchParams();
       params.set("type", "video");
-      params.set("limit", String(PAGE_SIZE));
 
       if (userId) params.set("userId", userId);
+
+      // Profile reels: load all videos at once (no startFrom filter)
+      // so user can scroll both up and down from the clicked post
+      if (userId && mode === "initial") {
+        params.set("limit", "200");
+        return `/posts?${params}`;
+      }
+
+      params.set("limit", String(PAGE_SIZE));
 
       if (shuffled) {
         params.set("seed", seed);
@@ -180,7 +191,7 @@ export function Feed({ userId, initialPostId }: FeedProps) {
   const hasMoreRef = useRef(hasMore);
   hasMoreRef.current = hasMore;
 
-  // Scroll to initial post before paint
+  // Scroll to initial post before paint (hidden until ready to prevent flash)
   useLayoutEffect(() => {
     if (!postId || hasScrolledToInitial.current || posts.length === 0) return;
 
@@ -188,8 +199,12 @@ export function Feed({ userId, initialPostId }: FeedProps) {
     const targetIndex = posts.findIndex((p) => p.id === postId);
     if (targetIndex >= 0 && container) {
       hasScrolledToInitial.current = true;
+      // Disable smooth scroll for instant jump
+      container.style.scrollBehavior = "auto";
       container.scrollTop = targetIndex * container.clientHeight;
+      container.style.scrollBehavior = "";
     }
+    setScrollReady(true);
   }, [postId, posts]);
 
   // IntersectionObserver: autoplay visible, pause hidden, update URL
@@ -221,10 +236,12 @@ export function Feed({ userId, initialPostId }: FeedProps) {
             video.currentTime = 0;
             video.play().catch(() => {});
 
-            // Update URL (standalone feed only)
-            if (!initialPostId && !userId) {
-              const currentPost = posts[index];
-              if (currentPost) {
+            // Update URL to reflect current video
+            const currentPost = posts[index];
+            if (currentPost) {
+              if (userId) {
+                history.replaceState(null, "", `/user/${userId}/reel/${currentPost.id}`);
+              } else if (!initialPostId) {
                 history.replaceState(null, "", `/feed/${currentPost.id}`);
               }
             }
@@ -330,6 +347,11 @@ export function Feed({ userId, initialPostId }: FeedProps) {
     }
   }, [engagement]);
 
+  // Share handler — always open custom ShareSheet
+  const handleShare = useCallback((postId: string) => {
+    setSharePostId(postId);
+  }, []);
+
   // Comment callbacks
   const handleCommentAdd = useCallback(() => {
     if (!commentPostId) return;
@@ -379,7 +401,11 @@ export function Feed({ userId, initialPostId }: FeedProps) {
 
   return (
     <>
-      <div className={styles.feed} ref={containerRef}>
+      <div
+        className={`${styles.feed} ${inModal ? styles.feedModal : styles.feedStandalone}`}
+        ref={containerRef}
+        style={scrollReady ? undefined : { visibility: "hidden" }}
+      >
         {posts.map((post, i) => {
           const postEngagement = engagement[post.id] ?? {
             likeCount: post.likeCount,
@@ -391,7 +417,7 @@ export function Feed({ userId, initialPostId }: FeedProps) {
           return (
             <div
               key={post.id}
-              className={styles.reel}
+              className={`${styles.reel} ${inModal ? styles.reelModal : ''}`}
               data-index={i}
               ref={(el) => {
                 reelRefs.current[i] = el;
@@ -410,6 +436,10 @@ export function Feed({ userId, initialPostId }: FeedProps) {
                     loop
                     muted
                     playsInline
+                    onLoadedMetadata={(e) => {
+                      const v = e.currentTarget;
+                      v.style.objectFit = v.videoHeight >= v.videoWidth ? "cover" : "contain";
+                    }}
                     onClick={(e) => {
                       const v = e.currentTarget;
                       v.paused ? v.play() : v.pause();
@@ -499,7 +529,7 @@ export function Feed({ userId, initialPostId }: FeedProps) {
                     {/* Share */}
                     <button
                       className={styles.reelActionBtn}
-                      onClick={() => setSharePostId(post.id)}
+                      onClick={() => handleShare(post.id)}
                       aria-label="Share"
                     >
                       <PaperPlaneTilt size={32} weight="bold" />

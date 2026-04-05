@@ -1,16 +1,16 @@
 import { useSearchParams } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
-import { GridFour, Users, Sparkle } from "@phosphor-icons/react";
+import { GridFour, Users, Briefcase } from "@phosphor-icons/react";
 import { TabBar } from "@/components/TabBar/TabBar";
 import { SearchContentTab } from "./SearchContentTab";
-import { SearchAIMatchTab } from "./SearchAIMatchTab";
+import { SearchJobsTab } from "./SearchJobsTab";
 import { SearchPeopleTab } from "./SearchPeopleTab";
 import styles from "./Search.module.scss";
 
 const TABS = [
   { id: "content", label: "Content", icon: <GridFour size={22} />, activeIcon: <GridFour size={22} weight="fill" /> },
+  { id: "jobs", label: "Jobs", icon: <Briefcase size={22} />, activeIcon: <Briefcase size={22} weight="fill" /> },
   { id: "people", label: "People", icon: <Users size={22} />, activeIcon: <Users size={22} weight="fill" /> },
-  { id: "ai-match", label: "AI Match", icon: <Sparkle size={22} />, activeIcon: <Sparkle size={22} weight="fill" /> },
 ];
 
 export function Search() {
@@ -18,7 +18,10 @@ export function Search() {
   const activeTab = searchParams.get("tab") || "content";
 
   const handleTabChange = (id: string) => {
-    setSearchParams({ tab: id }, { replace: true });
+    const q = searchParams.get("q");
+    const params: Record<string, string> = { tab: id };
+    if (q) params.q = q;
+    setSearchParams(params, { replace: true });
   };
 
   return (
@@ -53,15 +56,15 @@ export function Search() {
               <SearchPeopleTab />
             </motion.div>
           )}
-          {activeTab === "ai-match" && (
+          {activeTab === "jobs" && (
             <motion.div
-              key="ai-match"
+              key="jobs"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
               transition={{ duration: 0.2 }}
             >
-              <SearchAIMatchTab />
+              <SearchJobsTab />
             </motion.div>
           )}
         </AnimatePresence>

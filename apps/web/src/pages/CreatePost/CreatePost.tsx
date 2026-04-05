@@ -24,6 +24,7 @@ import { ToggleSwitch } from "@/components/ToggleSwitch/ToggleSwitch";
 import { Input } from "@/components/Input/Input";
 import { Button } from "@/components/Button/Button";
 import { ConfirmDialog } from "@/components/ConfirmDialog/ConfirmDialog";
+import { ImageCropModal } from "@/components/ImageCropModal/ImageCropModal";
 import { useVideoUpload } from "@/hooks/useVideoUpload";
 import { useMultiUpload } from "@/hooks/useMultiUpload";
 import { useAuthStore } from "@/stores/authStore";
@@ -232,6 +233,10 @@ function ReelsForm({ onDirtyChange }: { onDirtyChange: (dirty: boolean) => void 
   });
   const [submitting, setSubmitting] = useState(false);
   const [showDiscard, setShowDiscard] = useState(false);
+  const [showCoverDiscard, setShowCoverDiscard] = useState(false);
+
+  // Snapshot of cover state before entering step 3
+  const savedCoverRef = useRef<{ blob: Blob | null; url: string | null }>({ blob: null, url: null });
 
   // Track dirty state for tab-switch confirmation
   useEffect(() => {
@@ -270,16 +275,15 @@ function ReelsForm({ onDirtyChange }: { onDirtyChange: (dirty: boolean) => void 
       const vw = video.videoWidth;
       const vh = video.videoHeight;
       if (!vw || !vh) return;
-      const cw = 720;
-      const ch = 1280;
+
+      // Use native video resolution, capped at 1080px on longest side
+      const maxDim = 1080;
+      const scale = Math.min(1, maxDim / Math.max(vw, vh));
+      const cw = Math.round(vw * scale);
+      const ch = Math.round(vh * scale);
       canvas.width = cw;
       canvas.height = ch;
-      ctx.fillStyle = "#000";
-      ctx.fillRect(0, 0, cw, ch);
-      const scale = Math.min(cw / vw, ch / vh);
-      const dw = vw * scale;
-      const dh = vh * scale;
-      ctx.drawImage(video, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
+      ctx.drawImage(video, 0, 0, cw, ch);
 
       canvas.toBlob(
         (blob) => {
@@ -291,8 +295,8 @@ function ReelsForm({ onDirtyChange }: { onDirtyChange: (dirty: boolean) => void 
             setCoverPreviewUrl(newUrl);
           }
         },
-        "image/jpeg",
-        0.85,
+        "image/webp",
+        0.95,
       );
     };
 
@@ -433,7 +437,7 @@ function ReelsForm({ onDirtyChange }: { onDirtyChange: (dirty: boolean) => void 
     };
 
     if (coverBlob) {
-      payload.thumbnailUrl = await uploadBlob(coverBlob, "cover.jpg");
+      payload.thumbnailUrl = await uploadBlob(coverBlob, "cover.webp");
     }
 
     try {
@@ -526,7 +530,10 @@ function ReelsForm({ onDirtyChange }: { onDirtyChange: (dirty: boolean) => void 
             <button
               type="button"
               className={styles.editCoverBtnOverlay}
-              onClick={() => setStep(3)}
+              onClick={() => {
+                savedCoverRef.current = { blob: coverBlob, url: coverPreviewUrl };
+                setStep(3);
+              }}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -635,7 +642,14 @@ function ReelsForm({ onDirtyChange }: { onDirtyChange: (dirty: boolean) => void 
           )}
 
           <div className={styles.actions}>
-            <Button variant="ghost" size="md" onClick={() => setStep(2)}>
+            <Button variant="ghost" size="md" onClick={() => {
+              const changed = coverPreviewUrl !== savedCoverRef.current.url;
+              if (changed) {
+                setShowCoverDiscard(true);
+              } else {
+                setStep(2);
+              }
+            }}>
               Back
             </Button>
             <Button variant="primary" size="md" onClick={() => setStep(2)}>
@@ -653,6 +667,35 @@ function ReelsForm({ onDirtyChange }: { onDirtyChange: (dirty: boolean) => void 
           cancelLabel="Keep editing"
           onConfirm={handleDiscard}
           onCancel={() => setShowDiscard(false)}
+        />
+      )}
+
+      {showCoverDiscard && (
+        <ConfirmDialog
+          title="Discard cover changes?"
+          message="You changed the cover image. Do you want to discard these changes?"
+          confirmLabel="Discard"
+          cancelLabel="Keep editing"
+          onConfirm={() => {
+            // Revoke current cover URL
+            if (coverPreviewUrlRef.current) {
+              URL.revokeObjectURL(coverPreviewUrlRef.current);
+            }
+            // Restore saved cover — create fresh ObjectURL from blob
+            const savedBlob = savedCoverRef.current.blob;
+            setCoverBlob(savedBlob);
+            if (savedBlob) {
+              const freshUrl = URL.createObjectURL(savedBlob);
+              setCoverPreviewUrl(freshUrl);
+              coverPreviewUrlRef.current = freshUrl;
+            } else {
+              setCoverPreviewUrl(null);
+              coverPreviewUrlRef.current = null;
+            }
+            setShowCoverDiscard(false);
+            setStep(2);
+          }}
+          onCancel={() => setShowCoverDiscard(false)}
         />
       )}
     </div>
@@ -736,6 +779,11 @@ function PostForm({ onDirtyChange }: { onDirtyChange: (dirty: boolean) => void }
   // Multi-image upload
   const multiUpload = useMultiUpload(10);
 
+  // Image cropping queue
+  const [pendingCropFiles, setPendingCropFiles] = useState<File[]>([]);
+  const [currentCropSrc, setCurrentCropSrc] = useState<string | null>(null);
+  const currentCropSrcRef = useRef<string | null>(null);
+
   // Step 2 — review
   const [crossPost, setCrossPost] = useState({
     instagram: false,
@@ -776,8 +824,65 @@ function PostForm({ onDirtyChange }: { onDirtyChange: (dirty: boolean) => void }
     const files = Array.from(e.target.files ?? []).filter((f) =>
       f.type.startsWith("image/"),
     );
-    if (files.length > 0) multiUpload.addFiles(files);
     e.target.value = "";
+
+    if (files.length > 0) {
+      // Start cropping flow: queue files and show crop modal for first image
+      setPendingCropFiles(files);
+      const firstFile = files[0];
+      const objectUrl = URL.createObjectURL(firstFile);
+      currentCropSrcRef.current = objectUrl;
+      setCurrentCropSrc(objectUrl);
+    }
+  };
+
+  const handleCropComplete = (croppedBlob: Blob) => {
+    // Convert blob to File and add to upload queue
+    const originalFile = pendingCropFiles[0];
+    if (originalFile) {
+      const croppedFile = new File([croppedBlob], originalFile.name, { type: "image/webp" });
+      multiUpload.addFiles([croppedFile]);
+    }
+
+    // Clean up current crop source
+    if (currentCropSrcRef.current) {
+      URL.revokeObjectURL(currentCropSrcRef.current);
+      currentCropSrcRef.current = null;
+    }
+
+    // Move to next file in queue
+    const remaining = pendingCropFiles.slice(1);
+    setPendingCropFiles(remaining);
+
+    if (remaining.length > 0) {
+      const nextFile = remaining[0];
+      const objectUrl = URL.createObjectURL(nextFile);
+      currentCropSrcRef.current = objectUrl;
+      setCurrentCropSrc(objectUrl);
+    } else {
+      setCurrentCropSrc(null);
+    }
+  };
+
+  const handleCropCancel = () => {
+    // Clean up current crop source
+    if (currentCropSrcRef.current) {
+      URL.revokeObjectURL(currentCropSrcRef.current);
+      currentCropSrcRef.current = null;
+    }
+
+    // Skip current file and move to next
+    const remaining = pendingCropFiles.slice(1);
+    setPendingCropFiles(remaining);
+
+    if (remaining.length > 0) {
+      const nextFile = remaining[0];
+      const objectUrl = URL.createObjectURL(nextFile);
+      currentCropSrcRef.current = objectUrl;
+      setCurrentCropSrc(objectUrl);
+    } else {
+      setCurrentCropSrc(null);
+    }
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -786,7 +891,15 @@ function PostForm({ onDirtyChange }: { onDirtyChange: (dirty: boolean) => void }
     const images = Array.from(e.dataTransfer.files).filter((f) =>
       f.type.startsWith("image/"),
     );
-    if (images.length > 0) multiUpload.addFiles(images);
+
+    if (images.length > 0) {
+      // Start cropping flow: queue files and show crop modal for first image
+      setPendingCropFiles(images);
+      const firstFile = images[0];
+      const objectUrl = URL.createObjectURL(firstFile);
+      currentCropSrcRef.current = objectUrl;
+      setCurrentCropSrc(objectUrl);
+    }
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -797,6 +910,15 @@ function PostForm({ onDirtyChange }: { onDirtyChange: (dirty: boolean) => void }
   const handleDragLeave = () => {
     setIsDraggingOver(false);
   };
+
+  // Cleanup crop object URLs on unmount
+  useEffect(() => {
+    return () => {
+      if (currentCropSrcRef.current) {
+        URL.revokeObjectURL(currentCropSrcRef.current);
+      }
+    };
+  }, []);
 
   const canProceed = content.trim().length > 0 || multiUpload.items.length > 0;
   const hasPhotos = multiUpload.items.length > 0;
@@ -832,12 +954,21 @@ function PostForm({ onDirtyChange }: { onDirtyChange: (dirty: boolean) => void }
   };
 
   return (
-    <div
-      className={`${styles.card} ${isDraggingOver && step === 1 ? styles.dropActive : ""}`}
-      onDrop={step === 1 ? handleDrop : undefined}
-      onDragOver={step === 1 ? handleDragOver : undefined}
-      onDragLeave={step === 1 ? handleDragLeave : undefined}
-    >
+    <>
+      {currentCropSrc && (
+        <ImageCropModal
+          imageSrc={currentCropSrc}
+          onCropComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+        />
+      )}
+
+      <div
+        className={`${styles.card} ${isDraggingOver && step === 1 ? styles.dropActive : ""}`}
+        onDrop={step === 1 ? handleDrop : undefined}
+        onDragOver={step === 1 ? handleDragOver : undefined}
+        onDragLeave={step === 1 ? handleDragLeave : undefined}
+      >
       {/* ── Step 1: Compose ── */}
       {step === 1 && (
         <>
@@ -973,7 +1104,8 @@ function PostForm({ onDirtyChange }: { onDirtyChange: (dirty: boolean) => void }
           </div>
         </>
       )}
-    </div>
+      </div>
+    </>
   );
 }
 

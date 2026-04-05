@@ -1,12 +1,76 @@
 @use "../../styles/variables" as *;
 @use "../../styles/mixins" as *;
 
+.inputWrapper {
+  flex-shrink: 0;
+  border-top: $borderWidth solid $glassBorder;
+}
+
+.replyBar {
+  overflow: hidden;
+}
+
+.replyBarContent {
+  display: flex;
+  align-items: center;
+  gap: $space2;
+  padding: $space2 $space4;
+  background: color-mix(in srgb, $accentPurple 5%, $glassBg);
+}
+
+.replyBarAccent {
+  width: 3px;
+  height: 32px;
+  border-radius: 2px;
+  background: $accentPurple;
+  flex-shrink: 0;
+}
+
+.replyBarText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.replyBarLabel {
+  font-size: $fontSize12;
+  font-weight: 600;
+  color: $accentPurple;
+}
+
+.replyBarPreview {
+  font-size: $fontSize12;
+  color: $textSecondary;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.replyBarClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: transparent;
+  color: $textMuted;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color $transitionFast;
+
+  &:hover {
+    color: $textPrimary;
+  }
+}
+
 .inputArea {
   display: flex;
   align-items: flex-end;
   gap: $space2;
   padding: $space3 $space4;
-  border-top: $borderWidth solid $glassBorder;
   background: $glassBg;
   flex-shrink: 0;
 }
